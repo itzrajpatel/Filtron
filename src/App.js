@@ -15,8 +15,6 @@ import AddCompany from "./components/AddCompany";
 import OrderHistory from "./components/OrderHistory";
 import CreateBill from "./components/CreateBill";
 import Chalan from "./components/Chalan";
-
-//TESTING
 import First from "./components/FirstPage";
 
 // This is a new component where we can safely use useLocation
