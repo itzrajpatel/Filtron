@@ -433,10 +433,10 @@ const Orders = () => {
       
       {/* Bootstrap Modal for Editing Invoice */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton>
+        <Modal.Header closeButton className="bg-dark text-light">
           <Modal.Title>Edit Invoice</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="bg-dark text-light">
           {selectedOrder && (
             <Form>
               <Form.Group>
@@ -529,7 +529,7 @@ const Orders = () => {
             </Form>
           )}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="bg-dark text-light">
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>

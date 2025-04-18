@@ -3,7 +3,7 @@
         visibility: hidden; /* Hide everything initially */
     }
 
-    .invoice-container {
+    .chalan-container {
         visibility: visible;
         position: absolute;
         left: 0;
@@ -23,8 +23,4 @@
         size: A4;
         margin: 0; /* Removes default browser margins */
     }
-
-    .invoice-title {
-        color: #000 !important; /* Black for print */
-      }
 }

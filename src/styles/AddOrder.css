@@ -87,3 +87,7 @@
     transform: translateX(100%) rotate(25deg);
   }
 }
+
+.form-control::placeholder {
+  color: white; /* Or any other color like red, blue, etc. */
+}

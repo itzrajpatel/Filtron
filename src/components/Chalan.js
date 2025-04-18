@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import "../styles/Chalan.css";
 
 const Chalan = () => {
     const location = useLocation();
@@ -11,14 +12,14 @@ const Chalan = () => {
     }        
 
   return (
-    <div className="mt-5 mb-5" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
+    <div className="mt-5 mb-5 bg-light chalan-container" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
       <h3 style={{ textAlign: "center", margin: "20px 0", textDecoration: "underline" }}>BUYER DETAILS:</h3>
       <div style={{ display: "flex", justifyContent: "space-around", borderTop: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
         <div>
           <strong>CHALAN NO:</strong> {order.invoiceNo.slice(-3)}
         </div>
         <div>
-          <strong>CHALAN DATE:</strong> <input type="text" style={{ height: "20px", width: "100px", padding: "5px", fontSize: "14px", border: "none", borderBottom: "1px solid black" }}></input>
+          <strong>CHALAN DATE:</strong> <input type="text" placeholder="Enter date" style={{ height: "20px", width: "100px", padding: "5px", fontSize: "14px", border: "none" }}></input>
         </div>
       </div>
 
@@ -30,7 +31,7 @@ const Chalan = () => {
             alignItems: "start"
             }}
         >
-            {/* Left Section - Buyer Details */}
+            {/* Left Section - Biling Address */}
             <div style={{ flex: 1, borderRight: "1px solid black" }}>
                 <div style={{ display: "flex", justifyContent: "center", borderBottom: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
                     <div>
@@ -48,7 +49,7 @@ const Chalan = () => {
                 </p>
             </div>
 
-            {/* Right Section - GSTIN & Other Details */}
+            {/* Right Section - Shiping Address */}
             <div style={{ flex: 1, textAlign: "start" }}>
                 <div style={{ display: "flex", justifyContent: "center", borderBottom: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
                     <div>
@@ -67,7 +68,7 @@ const Chalan = () => {
             </div>
         </div>
 
-        <table style={{ 
+        <table className="mb-3" style={{ 
             width: "100%",
             marginTop: "20px",
             borderCollapse: "collapse", 

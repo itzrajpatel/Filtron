@@ -294,7 +294,10 @@ useEffect(() => {
             </div>
           </div>
         ))}
-        <button type="button" className="btn btn-success mb-3" onClick={addProduct}>+ Add Product</button>
+        {/* <button type="button" className="btn btn-success mb-3" onClick={addProduct}>+ Add Product</button> */}
+        <button className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff" }}>
+          + Add Invoice
+        </button>
 
         {/* Final Total Section */}
         <div className="mb-3"><strong>Final Total:</strong> ₹{formData.finalTotal}</div>

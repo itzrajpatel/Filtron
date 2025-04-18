@@ -60,8 +60,8 @@ const CreateBill = () => {
 
   return (
     <div className="invoice-container">
-        <h3 className="text-center" style={{ margin: "0 0", marginLeft: "300px" }}> TAX INVOICE <span style={{ fontSize: "15px", marginLeft: "120px" }}> ORIGINAL FOR RECIPIENT </span></h3>
-        <div style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
+        <h3 className="text-center text-light invoice-title" style={{ margin: "0 0", marginLeft: "300px" }}> TAX INVOICE <span style={{ fontSize: "15px", marginLeft: "120px" }}> ORIGINAL FOR RECIPIENT </span></h3>
+        <div className="bg-light" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
         <div style={{ backgroundColor: "#e5e7e9", display: "flex", justifyContent: "space-around", borderBottom: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
             <div>
             <strong>INVOICE NO.</strong> {order.invoiceNo}
