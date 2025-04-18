@@ -1,0 +1,26 @@
+@media print {
+    body {
+        visibility: hidden; /* Hide everything initially */
+    }
+
+    .invoice-container {
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar, 
+    .footer, 
+    .no-print {
+        display: none !important; /* Hide navigation, footers, and any extra UI elements */
+    }
+
+    @page {
+        size: A4;
+        margin: 0; /* Removes default browser margins */
+    }
+}
