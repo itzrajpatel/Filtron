@@ -17,66 +17,6 @@ const Home = () => {
   };
 
   return (
-    // <div className="container mt-4">
-    //   <div className="d-flex justify-content-between align-items-center mb-4">
-    //     <h2 className="mt-3">Company Details</h2>
-    //     <button className="btn btn-primary me-2" onClick={() => navigate("/add-company")}>Add Company</button>
-    //   </div>
-
-    //   <table className="table table-bordered table-striped">
-    //     <thead className="table-dark">
-    //       <tr>
-    //         <th>Sr No.</th>
-    //         <th>Company Name</th>
-    //         <th>Customer Name</th>
-    //         <th>Address</th>
-    //         <th>State</th>
-    //         <th>State Code</th>
-    //         <th>Contact</th>
-    //         <th>Email</th>
-    //         <th>GST No</th>
-    //       </tr>
-    //     </thead>
-    //     <tbody>
-    //       {companies.length > 0 ? (
-    //         companies.map((company, index) => (
-    //           <tr key={index}>
-    //             <td>{index + 1}</td>
-    //             <td>
-    //               <span 
-    //                 onClick={() => handleOrderHistory(company)}
-    //                 style={{ cursor: "pointer", color: "black", textDecoration: "none" }}
-    //                 onMouseOver={(e) => e.target.style.color = "red"}
-    //                 onMouseOut={(e) => e.target.style.color = "black"}
-    //                 title="Click to view Invoice History"
-    //               >
-    //                 {company.companyName}
-    //               </span>
-    //             </td>
-    //             <td>{company.customerName}</td>
-    //             <td>
-    //                 {company.address.split("\n").map((line, index) => (
-    //                   <React.Fragment key={index}>
-    //                   {line}
-    //                   <br />
-    //                   </React.Fragment>
-    //                 ))}
-    //             </td>
-    //             <td>{company.state}</td>
-    //             <td>{company.stateCode}</td>
-    //             <td>{company.contact}</td>
-    //             <td>{company.email}</td>
-    //             <td>{company.gstNo || "N/A"}</td>
-    //           </tr>
-    //         ))
-    //       ) : (
-    //         <tr>
-    //           <td colSpan="11" className="text-center">No companies added yet</td>
-    //         </tr>
-    //       )}
-    //     </tbody>
-    //   </table>
-    // </div>
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mt-3" style={{ fontFamily: "DM Serif Text, serif", color: "white", animation: "fadeSlideUp 1.5s ease-out" }}>Company Details</h2>

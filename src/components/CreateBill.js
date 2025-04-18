@@ -219,7 +219,7 @@ const CreateBill = () => {
                     <p style={{ marginTop: "105px", paddingLeft: "5px", fontWeight: "bolder" }}>Authorized Signatory</p>
                 </div>
             </div>
-    </div>
+        </div>
     </div>
   );
 };

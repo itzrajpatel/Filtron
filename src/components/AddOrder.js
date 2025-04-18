@@ -18,6 +18,12 @@ const AddOrder = () => {
     jobWorkSupplier: "",
     paymentStatus: "Pending",
     amountPaid: "",
+
+    //TESTING
+    paymentType: "",
+    bankName: "",
+    checkNo: "",
+    transactionId: ""
   });
 
   const [products, setProducts] = useState([
@@ -33,60 +39,37 @@ const AddOrder = () => {
   }, []);
 
   // Handle changes in form inputs
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-
-  //   setFormData((prevData) => {
-  //       let updatedData = { ...prevData, [name]: value };
-
-  //       if (name === "companyName") {
-  //           const selectedCompany = companies.find(comp => comp.companyName === value);
-  //           updatedData.customerName = selectedCompany ? selectedCompany.customerName : "";
-  //           updatedData.stateCode = selectedCompany ? selectedCompany.stateCode : "";
-  //       } 
-  //       else if (name === "transport") {
-  //           updatedData.transportPrice = value === "Yes" ? prevData.transportPrice || "" : ""; // ✅ Keep previous value or empty
-  //       } 
-  //       else if (name === "transportPrice") {
-  //           updatedData.transportPrice = value; // ✅ Let user enter any value
-  //       } 
-  //       else if (name === "paymentStatus") {
-  //           updatedData.amountPaid = value === "Partial" ? prevData.amountPaid : "";
-  //       }
-
-  //       return updatedData;
-  //   });
-
-  //   // Use a small delay to ensure the state updates first
-  //   setTimeout(() => calculateTotals(), 0);
-  // };
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  setFormData((prevData) => {
-    let updatedData = { ...prevData, [name]: value };
+    setFormData((prevData) => {
+      let updatedData = { ...prevData, [name]: value };
 
-    if (name === "companyName") {
-      const selectedCompany = companies.find(comp => comp.companyName === value);
-      updatedData.customerName = selectedCompany ? selectedCompany.customerName : "";
-      updatedData.stateCode = selectedCompany ? selectedCompany.stateCode : "";
-    } 
-    else if (name === "transport") {
-      updatedData.transportPrice = value === "Yes" ? prevData.transportPrice || "" : "";
-    } 
-    else if (name === "transportPrice") {
-      updatedData.transportPrice = value;
-    } 
-    else if (name === "paymentStatus") {
-      updatedData.amountPaid = value === "Partial" ? prevData.amountPaid : "";
-    }
+      if (name === "companyName") {
+        const selectedCompany = companies.find(comp => comp.companyName === value);
+        updatedData.customerName = selectedCompany ? selectedCompany.customerName : "";
+        updatedData.stateCode = selectedCompany ? selectedCompany.stateCode : "";
+      } 
+      else if (name === "transport") {
+        updatedData.transportPrice = value === "Yes" ? prevData.transportPrice || "" : "";
+      } 
+      else if (name === "transportPrice") {
+        updatedData.transportPrice = value;
+      } 
+      else if (name === "paymentStatus") {
+        updatedData.amountPaid = value === "Partial" ? prevData.amountPaid : "";
+        updatedData.paymentType = "";       // Clear previous selection
+        updatedData.bankName = "";
+        updatedData.checkNo = "";
+        updatedData.transactionId = "";
+      }
 
-    // ✅ Pass updated data to calculateTotals
-    calculateTotals(updatedData);
+      // ✅ Pass updated data to calculateTotals
+      calculateTotals(updatedData);
 
-    return updatedData;
-  });
-};       
+      return updatedData;
+    });
+  };       
 
   // Handle changes in product fields
   const handleProductChange = (index, e) => {
@@ -181,53 +164,59 @@ useEffect(() => {
   
   // Handle form submission
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Ensure required fields are not empty
-  if (!formData.companyName || !products.length) {
-      alert("Please enter a company name and at least one product.");
-      return;
-  }
+    // Ensure required fields are not empty
+    if (!formData.companyName || !products.length) {
+        alert("Please enter a company name and at least one product.");
+        return;
+    }
 
-  // Assign current date if not present
-  const orderDate = formData.date || new Date().toISOString().split("T")[0];
+    // Assign current date if not present
+    const orderDate = formData.date || new Date().toISOString().split("T")[0];
 
-  // Fetch existing orders from localStorage
-  const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
-  
-  // Generate Invoice Number
-  const currentYear = new Date().getFullYear();
-  const nextYear = currentYear + 1;
-  const formattedIndex = String(existingOrders.length + 1).padStart(3, "0"); // Ensure 3-digit format
-  const newInvoiceNo = `DTI/${String(currentYear).slice(-2)}-${String(nextYear).slice(-2)}/${formattedIndex}`;
+    // Fetch existing orders from localStorage
+    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
+    
+    // Generate Invoice Number
+    const currentYear = new Date().getFullYear();
+    const nextYear = currentYear + 1;
+    const formattedIndex = String(existingOrders.length + 1).padStart(3, "0"); // Ensure 3-digit format
+    const newInvoiceNo = `DTI/${String(currentYear).slice(-2)}-${String(nextYear).slice(-2)}/${formattedIndex}`;
 
-  // Generate Invoice Date & Invoice Month
-  const today = new Date();
-  const invoiceDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getFullYear()}`;
-  const invoiceMonth = today.toLocaleString("default", { month: "long" });
+    // Generate Invoice Date & Invoice Month
+    const today = new Date();
+    const invoiceDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getFullYear()}`;
+    const invoiceMonth = today.toLocaleString("default", { month: "long" });
 
-  // Trim string values in formData
-  const cleanedFormData = {
-      ...formData,
-      companyName: formData.companyName.trim(),
-      customerName: formData.customerName.trim(),
-      jobWorkSupplier: formData.jobWorkSupplier ? formData.jobWorkSupplier.trim() : "",
-      date: orderDate,
-  };
+    // Trim string values in formData
+    const cleanedFormData = {
+        ...formData,
+        companyName: formData.companyName.trim(),
+        customerName: formData.customerName.trim(),
+        jobWorkSupplier: formData.jobWorkSupplier ? formData.jobWorkSupplier.trim() : "",
+        date: orderDate,
+    };
 
-  // Create the new order with Invoice details
-  const newOrder = {
-    id: Date.now(),
-    invoiceNo: newInvoiceNo,
-    invoiceDate: invoiceDate,
-    invoiceMonth: invoiceMonth,
-    ...cleanedFormData,
-    amountPaid: formData.paymentStatus === "Partial" ? formData.amountPaid : "",
-    products,
-  };
+    // Create the new order with Invoice details
+    const newOrder = {
+      id: Date.now(),
+      invoiceNo: newInvoiceNo,
+      invoiceDate: invoiceDate,
+      invoiceMonth: invoiceMonth,
+      ...cleanedFormData,
+      amountPaid: formData.paymentStatus === "Partial" ? formData.amountPaid : "",
+      products,
 
-  // Save updated order list
-  const updatedOrders = [...existingOrders, newOrder];
+      //TESTING
+      paymentType: formData.paymentType,
+      bankName: formData.bankName,
+      checkNo: formData.checkNo,
+      transactionId: formData.transactionId,
+    };
+
+    // Save updated order list
+    const updatedOrders = [...existingOrders, newOrder];
     localStorage.setItem("orders", JSON.stringify(updatedOrders));
 
     alert("Invoice Added Successfully!");
@@ -296,7 +285,7 @@ useEffect(() => {
         ))}
         {/* <button type="button" className="btn btn-success mb-3" onClick={addProduct}>+ Add Product</button> */}
         <button className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff" }}>
-          + Add Invoice
+          + Add Product
         </button>
 
         {/* Final Total Section */}
@@ -381,6 +370,43 @@ useEffect(() => {
             </div>
           )}
         </div>
+
+        {/* Payment Type - only if Paid or Partial */}
+        {["Paid", "Partial"].includes(formData.paymentStatus) && (
+          <>
+            <div className="mb-3">
+              <label className="form-label">Payment Type</label>
+              <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange} required>
+                <option value="">Select Payment Type</option>
+                <option value="Cash">Cash</option>
+                <option value="Check">Check</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+
+            {/* Check Payment Details */}
+            {formData.paymentType === "Check" && (
+              <>
+                <div className="mb-3">
+                  <label>Bank Name</label>
+                  <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" />
+                </div>
+                <div className="mb-3">
+                  <label>Check No.</label>
+                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" />
+                </div>
+              </>
+            )}
+
+            {/* Online Payment Details */}
+            {formData.paymentType === "Online" && (
+              <div className="mb-3">
+                <label>Transaction ID</label>
+                <input type="text" name="transactionId" className="form-control" value={formData.transactionId} onChange={handleChange} placeholder="Enter Transaction ID" />
+              </div>
+            )}
+          </>
+        )}
 
         <button type="submit" className="btn text-white bg-dark w-100 glow-table glow-button">Submit Order</button>
       </form>

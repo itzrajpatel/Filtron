@@ -78,7 +78,9 @@ const ViewOrder = () => {
                 <th className="text-center">Job Work/Supplier</th>
                 <th className="text-center">Payment Status</th>
                 <th className="text-center">Amount Paid</th>
-              <th className="text-center">Pending Amount</th>
+                <th className="text-center">Pending Amount</th>
+                <th className="text-center">Payment Type</th>
+                <th className="text-center">Payment Details</th>
               </tr>
             </thead>
             <tbody>
@@ -140,20 +142,6 @@ const ViewOrder = () => {
                         <td className="table-dark text-center">{orderItem.transport === "Yes" ? `₹${orderItem.transportPrice}` : "N/A"}</td>
                         <td className="table-dark text-center">₹{orderItem.salesAmount}</td>
                         <td className="table-dark text-center">{orderItem.jobWorkSupplier !== "" ? `${orderItem.jobWorkSupplier}` : "N/A"}</td>
-                        {/* <td>
-                          <span className={`badge ${orderItem.paymentStatus === "Paid" ? "bg-success" : orderItem.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
-                            {orderItem.paymentStatus}
-                          </span>
-                        </td>
-                        <td>
-                          {orderItem.paymentStatus === "Partial" ? (
-                            <span className="text-warning fw-bold">₹{orderItem.amountPaid}</span>
-                          ) : orderItem.paymentStatus === "Paid" ? (
-                            <span className="text-success fw-bold">₹{orderItem.salesAmount}</span>
-                          ) : (
-                            "-"
-                          )}
-                        </td> */}
                         <td className="table-dark text-center">
                           <span className={`badge ${orderItem.cancelled ? "bg-secondary" : orderItem.paymentStatus === "Paid"
                             ? "bg-success"
@@ -181,6 +169,21 @@ const ViewOrder = () => {
                             <span className="text-danger fw-bold">₹{orderItem.salesAmount - orderItem.amountPaid}</span>
                           ) : orderItem.paymentStatus === "Pending" ? (
                             <span className="text-danger fw-bold">₹{orderItem.salesAmount}</span>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="table-dark text-center">{orderItem.paymentType || "-"}</td>
+                        <td className="table-dark text-center">
+                          {orderItem.paymentType === "Check" ? (
+                            <>
+                              <div><strong>Bank:</strong> {orderItem.bankName}</div>
+                              <div><strong>Check No:</strong> {orderItem.checkNo}</div>
+                            </>
+                          ) : orderItem.paymentType === "Online" ? (
+                            <div><strong>Txn ID:</strong> {orderItem.transactionId}</div>
+                          ) : orderItem.paymentType === "Cash" ? (
+                            "-"
                           ) : (
                             "-"
                           )}

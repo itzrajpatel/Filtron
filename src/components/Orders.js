@@ -18,10 +18,6 @@ const Orders = () => {
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const savedOrders = JSON.parse(localStorage.getItem("orders")) || [];
-  //   setOrders(savedOrders);
-  // }, []);
   useEffect(() => {
     const savedOrders = JSON.parse(localStorage.getItem("orders")) || [];
     const updatedOrders = savedOrders.map(order => ({
@@ -29,16 +25,7 @@ const Orders = () => {
       cancelled: order.cancelled || false, // default to false
     }));
     setOrders(updatedOrders);
-  }, []);
-  
-  // const handleCancel = (invoiceNo) => {
-  //   const updatedOrders = orders.map(order =>
-  //     order.invoiceNo === invoiceNo ? { ...order, cancelled: true } : order
-  //   );
-  
-  //   setOrders(updatedOrders);
-  //   localStorage.setItem("orders", JSON.stringify(updatedOrders));
-  // };  
+  }, []);  
 
   // Function to handle redirection
   const handleViewOrder = (order) => {
@@ -52,25 +39,6 @@ const Orders = () => {
   };
 
   // Handle field changes
-  // const handleChange = (e, index, field) => {
-  //   const value = e.target.value;
-  //   const updatedOrder = { ...selectedOrder };
-  
-  //   if (index === null) {
-  //     updatedOrder[field] = value;
-  //   } else {
-  //     updatedOrder.products[index][field] = value;
-  
-  //     if (field === "quantity" || field === "price") {
-  //       const quantity = parseFloat(updatedOrder.products[index].quantity) || 0;
-  //       const price = parseFloat(updatedOrder.products[index].price) || 0;
-  //       updatedOrder.products[index].total = (quantity * price).toFixed(2);
-  //     }
-  //   }
-  
-  //   const totals = calculateTotals(updatedOrder);
-  //   setSelectedOrder({ ...updatedOrder, ...totals });
-  // };
   const handleChange = (e, index, field) => {
     const value = e.target.value;
     const updatedOrder = { ...selectedOrder };
@@ -78,8 +46,12 @@ const Orders = () => {
     if (index === null) {
       updatedOrder[field] = value;
   
-      if (field === "paymentStatus" && value !== "Partial") {
-        updatedOrder.amountPaid = ""; // Clear amountPaid if status is not Partial
+      if (field === "paymentStatus") {
+        updatedOrder.amountPaid = value === "Partial" ? updatedOrder.amountPaid : "";
+        updatedOrder.paymentType = "";
+        updatedOrder.bankName = "";
+        updatedOrder.checkNo = "";
+        updatedOrder.transactionId = "";
       }
     } else {
       updatedOrder.products[index][field] = value;
@@ -200,6 +172,8 @@ const Orders = () => {
               <th className="text-center">Payment Status</th>
               <th className="text-center">Amount Paid</th>
               <th className="text-center">Pending Amount</th>
+              <th className="text-center">Payment Type</th>
+              <th className="text-center">Payment Details</th>
               <th className="text-center">Edit Invoice</th>
               <th className="text-center">Cancel Invoice</th>
               <th className="text-center">Create Invoice</th>
@@ -215,30 +189,12 @@ const Orders = () => {
                 return matchesCompany && matchesStatus;
               })
               .map((order, index) => {
-                // const today = new Date();
-                // const invoiceDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-                // const invoiceMonth = today.toLocaleString("default", { month: "long" });
-
                 return (
                   <tr key={index} style={order.cancelled ? { opacity: 0.5, textDecoration: "line-through", textDecorationColor: "#FF073A" } : {}}>
                     <td className="table-dark text-center">{index + 1}</td>
-                    {/* <td>{generateInvoiceNo(index)}</td>
-                    <td>{invoiceDate}</td>
-                    <td>{invoiceMonth}</td> */}
                     <td className="table-dark text-center">{order.invoiceNo}</td> {/* Display Invoice Number */}
                     <td className="table-dark text-center">{order.invoiceDate}</td> {/* Display Invoice Date */}
                     <td className="table-dark text-center">{order.invoiceMonth}</td>
-                    {/* <td>
-                      <span 
-                        onClick={() => handleViewOrder(order)}
-                        style={{ cursor: "pointer", color: "black", textDecoration: "none" }}
-                        onMouseOver={(e) => e.target.style.color = "red"}
-                        onMouseOut={(e) => e.target.style.color = "black"}
-                        title="Click to view Invoice Details"
-                      >
-                        {order.companyName}
-                      </span>
-                    </td> */}
                     <td className="table-dark text-center">
                       {order.cancelled ? (
                         <span
@@ -334,25 +290,28 @@ const Orders = () => {
                         "-"
                       )}
                     </td>
-                    
-                    {/* <td>
-                      <button className="btn btn-info" onClick={() => handleEditClick(order)}>Edit</button>
-                    </td> */}
+
+                    {/* TESTING */}
+                    <td className="table-dark text-center">{order.paymentType || "-"}</td>
+                    <td className="table-dark text-center">
+                      {order.paymentType === "Check" ? (
+                        <>
+                          <div><strong>Bank:</strong> {order.bankName}</div>
+                          <div><strong>Check No:</strong> {order.checkNo}</div>
+                        </>
+                      ) : order.paymentType === "Online" ? (
+                        <div><strong>Txn ID:</strong> {order.transactionId}</div>
+                      ) : order.paymentType === "Cash" ? (
+                        "-"
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td className="table-dark text-center">
                       <button className="btn btn-info" onClick={() => handleEditClick(order)} disabled={order.cancelled}>
                         Edit
                       </button>
                     </td>
-
-                    {/* <td>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleCancel(order.invoiceNo)}
-                        disabled={order.cancelled}
-                      >
-                        {order.cancelled ? "Cancelled" : "Cancel"}
-                      </button>
-                    </td> */}
                     <td className="table-dark text-center">
                       <button
                         className="btn btn-danger"
@@ -365,20 +324,6 @@ const Orders = () => {
                         {order.cancelled ? "Cancelled" : "Cancel"}
                       </button>
                     </td>
-
-                    {/* <td>
-                      <button 
-                        className="btn btn-primary" 
-                        onClick={() => {
-                          const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-                          const companyDetails = savedCompanies.find(comp => comp.companyName === order.companyName);
-
-                          navigate("/create-bill", { state: { order, company: companyDetails } });
-                        }}
-                      >
-                        Create Bill
-                      </button>
-                    </td> */}
                     <td className="table-dark text-center">
                       <button
                         className="btn btn-primary"
@@ -392,20 +337,6 @@ const Orders = () => {
                         Create Bill
                       </button>
                     </td>
-
-                    {/* <td>
-                      <button 
-                        className="btn btn-primary" 
-                        onClick={() => {
-                          const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-                          const companyDetails = savedCompanies.find(comp => comp.companyName === order.companyName);
-
-                          navigate("/create-chalan", { state: { order, company: companyDetails } });
-                        }}
-                      >
-                        Create Chalan
-                      </button>
-                    </td> */}
                     <td className="table-dark text-center">
                       <button
                         className="btn btn-primary"
@@ -439,94 +370,146 @@ const Orders = () => {
         <Modal.Body className="bg-dark text-light">
           {selectedOrder && (
             <Form>
-              <Form.Group>
-                <Form.Label>Invoice Date</Form.Label>
+            <Form.Group>
+              <Form.Label>Invoice Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={selectedOrder.invoiceDate}
+                onChange={(e) => handleChange(e, null, "invoiceDate")}
+              />
+            </Form.Group>
+          
+            {selectedOrder.products.map((product, index) => (
+              <div className="mt-3" key={index}>
+                <Form.Group>
+                  <Form.Label>Product Details - {index + 1}</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={product.productDetails}
+                    onChange={(e) => handleChange(e, index, "productDetails")}
+                  />
+                </Form.Group>
+          
+                <Form.Group>
+                  <Form.Label>Quantity</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={product.quantity}
+                    onChange={(e) => handleChange(e, index, "quantity")}
+                  />
+                </Form.Group>
+          
+                <Form.Group>
+                  <Form.Label>Price</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={product.price}
+                    onChange={(e) => handleChange(e, index, "price")}
+                  />
+                </Form.Group>
+                <hr />
+              </div>
+            ))}
+          
+            <Form.Group>
+              <Form.Label>Transport</Form.Label>
+              <Form.Select
+                value={selectedOrder.transport}
+                onChange={(e) => handleChange(e, null, "transport")}
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </Form.Select>
+            </Form.Group>
+          
+            {selectedOrder.transport === "Yes" && (
+              <Form.Group className="mt-3">
+                <Form.Label>Transport Price</Form.Label>
                 <Form.Control
-                  type="date"
-                  value={selectedOrder.invoiceDate}
-                  onChange={(e) => handleChange(e, null, "invoiceDate")}
+                  type="number"
+                  value={selectedOrder.transportPrice}
+                  onChange={(e) => handleChange(e, null, "transportPrice")}
                 />
               </Form.Group>
-
-              {selectedOrder.products.map((product, index) => (
-                <div className="mt-3" key={index}>
-                  <Form.Group>
-                    <Form.Label>Product Details - {index + 1}</Form.Label>
+            )}
+          
+            <Form.Group className="mt-3">
+              <Form.Label>Payment Status</Form.Label>
+              <Form.Select
+                value={selectedOrder.paymentStatus}
+                onChange={(e) => handleChange(e, null, "paymentStatus")}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Partial">Partial</option>
+              </Form.Select>
+            </Form.Group>
+          
+            {selectedOrder.paymentStatus === "Partial" && (
+              <Form.Group className="mt-3">
+                <Form.Label>Amount Paid</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={selectedOrder.amountPaid}
+                  onChange={(e) => handleChange(e, null, "amountPaid")}
+                  placeholder="Enter Amount Paid"
+                />
+              </Form.Group>
+            )}
+          
+            {["Paid", "Partial"].includes(selectedOrder.paymentStatus) && (
+              <>
+                <Form.Group className="mt-3">
+                  <Form.Label>Payment Type</Form.Label>
+                  <Form.Select
+                    value={selectedOrder.paymentType || ""}
+                    onChange={(e) => handleChange(e, null, "paymentType")}
+                  >
+                    <option value="">Select Payment Type</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Check">Check</option>
+                    <option value="Online">Online</option>
+                  </Form.Select>
+                </Form.Group>
+          
+                {selectedOrder.paymentType === "Check" && (
+                  <>
+                    <Form.Group className="mt-3">
+                      <Form.Label>Bank Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={selectedOrder.bankName || ""}
+                        onChange={(e) => handleChange(e, null, "bankName")}
+                        placeholder="Enter Bank Name"
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mt-3">
+                      <Form.Label>Check No.</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={selectedOrder.checkNo || ""}
+                        onChange={(e) => handleChange(e, null, "checkNo")}
+                        placeholder="Enter Check Number"
+                      />
+                    </Form.Group>
+                  </>
+                )}
+          
+                {selectedOrder.paymentType === "Online" && (
+                  <Form.Group className="mt-3">
+                    <Form.Label>Transaction ID</Form.Label>
                     <Form.Control
                       type="text"
-                      value={product.productDetails}
-                      onChange={(e) => handleChange(e, index, "productDetails")}
+                      value={selectedOrder.transactionId || ""}
+                      onChange={(e) => handleChange(e, null, "transactionId")}
+                      placeholder="Enter Transaction ID"
                     />
                   </Form.Group>
-
-                  <Form.Group>
-                    <Form.Label>Quantity</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={product.quantity}
-                      onChange={(e) => handleChange(e, index, "quantity")}
-                    />
-                  </Form.Group>
-
-                  <Form.Group>
-                    <Form.Label>Price</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={product.price}
-                      onChange={(e) => handleChange(e, index, "price")}
-                    />
-                  </Form.Group>
-                  <hr />
-                </div>
-              ))}
-
-              <Form.Group>
-                <Form.Label>Transport</Form.Label>
-                <Form.Select
-                  value={selectedOrder.transport}
-                  onChange={(e) => handleChange(e, null, "transport")}
-                >
-                  <option value="No">No</option>
-                  <option value="Yes">Yes</option>
-                </Form.Select>
-              </Form.Group>
-
-              {selectedOrder.transport === "Yes" && (
-                <Form.Group className="mt-3">
-                  <Form.Label>Transport Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={selectedOrder.transportPrice}
-                    onChange={(e) => handleChange(e, null, "transportPrice")}
-                  />
-                </Form.Group>
-              )}
-
-              {/* TESTING */}
-              <Form.Group className="mt-3">
-                <Form.Label>Payment Status</Form.Label>
-                <Form.Select
-                  value={selectedOrder.paymentStatus}
-                  onChange={(e) => handleChange(e, null, "paymentStatus")}
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Partial">Partial</option>
-                </Form.Select>
-              </Form.Group>
-
-              {selectedOrder.paymentStatus === "Partial" && (
-                <Form.Group className="mt-3">
-                  <Form.Label>Amount Paid</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={selectedOrder.amountPaid}
-                    onChange={(e) => handleChange(e, null, "amountPaid")}
-                    placeholder="Enter Amount Paid"
-                  />
-                </Form.Group>
-              )}
-            </Form>
+                )}
+              </>
+            )}
+          </Form>          
           )}
         </Modal.Body>
         <Modal.Footer className="bg-dark text-light">
