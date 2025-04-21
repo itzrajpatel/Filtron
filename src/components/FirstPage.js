@@ -44,7 +44,7 @@ const FirstPage = () => {
               onClick={() => navigate("/company")}
               style={buttonStyle}
               >
-                Company
+                Company Details
               </button>
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
@@ -53,7 +53,7 @@ const FirstPage = () => {
               onClick={() => navigate("/invoice")}
               style={buttonStyle}
               >
-                Invoice
+                Invoice Details
               </button>
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
@@ -72,6 +72,24 @@ const FirstPage = () => {
               style={buttonStyle}
               >
                 + Add Invoice
+              </button>
+            </div>
+            <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+              <button
+              className="btn btn-primary w-100 glow-buttons glow-table"
+              onClick={() => navigate("/purchase")}
+              style={buttonStyle}
+              >
+                Purchase Details
+              </button>
+            </div>
+            <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+              <button
+              className="btn btn-primary w-100 glow-buttons glow-table"
+              onClick={() => navigate("/growth")}
+              style={buttonStyle}
+              >
+                Growth
               </button>
             </div>
         </div>

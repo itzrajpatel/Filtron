@@ -16,6 +16,9 @@ import OrderHistory from "./components/OrderHistory";
 import CreateBill from "./components/CreateBill";
 import Chalan from "./components/Chalan";
 import First from "./components/FirstPage";
+import Purchase from "./components/Purchase";
+import AddPurchase from "./components/AddPurchase";
+import Growth from "./components/Growth";
 
 // This is a new component where we can safely use useLocation
 const AppRoutes = () => {
@@ -30,11 +33,14 @@ const AppRoutes = () => {
         <Route path="/company" element={<Home />} />
         <Route path="/add-company" element={<AddCompany />} />
         <Route path="/invoice" element={<Orders />} />
+        <Route path="/purchase" element={<Purchase />} />
+        <Route path="/purchase/add-purchase" element={<AddPurchase />} />
         <Route path="/invoice/add-invoice" element={<AddOrder />} />
         <Route path="/invoice/view-invoice" element={<ViewOrder />} />
         <Route path="/invoice-history" element={<OrderHistory />} />
         <Route path="/create-bill" element={<CreateBill />} />
         <Route path="/create-chalan" element={<Chalan />} />
+        <Route path="/growth" element={<Growth />} />
       </Routes>
     </>
   );

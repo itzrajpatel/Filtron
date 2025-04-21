@@ -13,7 +13,7 @@ const Navbar = () => {
   };
   return (
     // <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark rounded shadow mt-3 mx-3" style={{ borderRadius: '1rem', animation: "fadeSlideUp 1.5s ease-out" }}>
+    <nav className="navbar navbar-expand-lg navbar-dark rounded mt-3 mx-3" style={{ borderRadius: '1rem', animation: "fadeSlideUp 1.5s ease-out" }}>
       <div className="container floating-navbar">
         {/* Left Side - Brand Name */}
         <Link className="navbar-brand d-flex justify-content-start align-items-center" to="/">
@@ -46,6 +46,9 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/invoice" onClick={closeNavbar}>Invoice</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/purchase" onClick={closeNavbar}>Purchase</Link>
             </li>
           </ul>
         </div>
