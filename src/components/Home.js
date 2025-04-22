@@ -72,7 +72,7 @@ const Home = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="text-center">No companies added yet</td>
+                <td colSpan="11" className="text-center bg-dark text-light">No companies added yet</td>
               </tr>
             )}
           </tbody>
