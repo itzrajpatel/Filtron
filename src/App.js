@@ -19,6 +19,7 @@ import First from "./components/FirstPage";
 import Purchase from "./components/Purchase";
 import AddPurchase from "./components/AddPurchase";
 import Growth from "./components/Growth";
+import PurchasePayment from "./components/PurchasePayment";
 
 // This is a new component where we can safely use useLocation
 const AppRoutes = () => {
@@ -41,6 +42,7 @@ const AppRoutes = () => {
         <Route path="/create-bill" element={<CreateBill />} />
         <Route path="/create-chalan" element={<Chalan />} />
         <Route path="/growth" element={<Growth />} />
+        <Route path="/purchase-payment" element={<PurchasePayment />} />
       </Routes>
     </>
   );

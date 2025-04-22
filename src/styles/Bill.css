@@ -7,8 +7,8 @@
         visibility: visible;
         position: absolute;
         left: 0;
-        top: 100px;
-        width: 100%;
+        top: 165px;
+        width: 90%;
         margin: 0;
         padding: 0;
     }
@@ -26,5 +26,14 @@
 
     .invoice-title {
         color: #000 !important; /* Black for print */
-      }
+    }
+    
+    /* If there are more than 3 products, make the font smaller for printing */
+    .product-table.medium-products {
+        font-size: 10px; /* 4-6 products */
+    }
+
+    .product-table.many-products {
+        font-size: 9px; /* 7+ products */
+    }
 }

@@ -107,12 +107,19 @@ const CreateBill = () => {
                 </div>
             </div>
 
-            <table style={{ 
+            <table className={`product-table ${
+                order.products.length <= 3
+                ? "few-products"
+                : order.products.length <= 6
+                ? "medium-products"
+                : "many-products"
+            }`}
+            style={{ 
                 width: "100%",
-                marginTop: "20px",
+                marginTop: "10px",
                 borderCollapse: "collapse", 
                 borderTop: "2px solid black",
-                borderBottom: "2px solid black"
+                borderBottom: "2px solid black",
                 }}
             >
                 <thead>
@@ -141,7 +148,7 @@ const CreateBill = () => {
                         ))
                     ) : (
                         <tr>
-                        <td colSpan="6" className="text-center">No Products Available</td>
+                            <td colSpan="6" className="text-center">No Products Available</td>
                         </tr>
                     )}
                 </tbody>

@@ -56,7 +56,7 @@ const FirstPage = () => {
                 Invoice Details
               </button>
             </div>
-            <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+            {/* <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
               className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/add-company")}
@@ -73,7 +73,7 @@ const FirstPage = () => {
               >
                 + Add Invoice
               </button>
-            </div>
+            </div> */}
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
               className="btn btn-primary w-100 glow-buttons"
