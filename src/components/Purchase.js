@@ -2,9 +2,101 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Purchase.css";
 
+// TESTING
+import { Modal, Button, Form } from "react-bootstrap";
+
 const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
   const navigate = useNavigate();
+
+  // TESTING
+  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  // TESTING
+  const handleEditClick = (purchase, index) => {
+    setSelectedPurchase({ ...purchase, srNo: index }); // Save index inside selected purchase
+    setShowModal(true);
+  };  
+
+  // TESTING
+  const handleSave = () => {
+    const updatedPurchases = purchases.map((p, idx) =>
+      idx === selectedPurchase.srNo ? selectedPurchase : p
+    );
+  
+    setPurchases(updatedPurchases);
+    localStorage.setItem("purchase", JSON.stringify(updatedPurchases));
+    setShowModal(false);
+  };  
+
+  // TESTING
+  const calculateTotals = (purchase) => {
+    const finalTotal = purchase.products.reduce((sum, p) => {
+      const qty = parseFloat(p.quantity) || 0;
+      const price = parseFloat(p.price) || 0;
+      return sum + qty * price;
+    }, 0);
+  
+    const transportCharge = parseFloat(purchase.transportCharge) || 0;
+    const discount = parseFloat(purchase.discount) || 0;
+    const tcs = parseFloat(purchase.tcs) || 0;
+    const freight = parseFloat(purchase.freight) || 0;
+  
+    const grandTotal = finalTotal + transportCharge - discount;
+  
+    const gstRate = purchase.gst ? parseFloat(purchase.gst.replace("%", "")) / 100 : 0;
+    const isGujarat = purchase.stateCode === "24";
+  
+    const cgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
+    const sgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
+    const igst = !isGujarat ? grandTotal * gstRate : 0;
+  
+    const gstTotal = cgst + sgst + igst;
+  
+    const salesAmount = grandTotal + gstTotal + tcs;
+    const grossAmount = salesAmount + freight;
+  
+    return {
+      finalTotal: finalTotal.toFixed(2),
+      grandTotal: grandTotal.toFixed(2),
+      cgst: cgst.toFixed(2),
+      sgst: sgst.toFixed(2),
+      igst: igst.toFixed(2),
+      salesAmount: salesAmount.toFixed(2),
+      grossAmount: grossAmount.toFixed(2),
+    };
+  };  
+
+  // TESTING
+  const handleChange = (e, index, field) => {
+    const updated = { ...selectedPurchase };
+  
+    if (index === null) {
+      updated[field] = e.target.value;
+  
+      if (field === "paymentStatus") {
+        updated.amountPaid = updated.paymentStatus === "Partial" ? updated.amountPaid : "";
+        updated.paymentType = "";
+        updated.bankName = "";
+        updated.checkNo = "";
+        updated.transactionId = "";
+      }
+    } else {
+      updated.products[index][field] = e.target.value;
+    }
+  
+    // ➔ Recalculate totals on important fields
+    if (
+      (index !== null && (field === "quantity" || field === "price")) ||
+      (index === null && (field === "transportCharge" || field === "discount" || field === "tcs" || field === "freight"))
+    ) {
+      const totals = calculateTotals(updated);
+      setSelectedPurchase({ ...updated, ...totals });
+    } else {
+      setSelectedPurchase(updated);
+    }
+  };    
 
   useEffect(() => {
     const savedPurchases = JSON.parse(localStorage.getItem("purchase")) || [];
@@ -62,6 +154,9 @@ const Purchase = () => {
               <th className="text-center">Payment Type</th>
               <th className="text-center">Payment Details</th>
               <th className="text-center">Payment Date</th>
+              
+              {/* TESTING */}
+              <th className="text-center">Edit</th>
             </tr>
           </thead>
           <tbody>
@@ -138,31 +233,76 @@ const Purchase = () => {
                       </span>
                   </td>
                   <td className="table-dark text-center">
-                      {purchase.paymentStatus === "Partial" ? (
-                        <span className="text-warning fw-bold">₹{purchase.amountPaid}</span>
-                      ) : purchase.paymentStatus === "Paid" ? (
-                        <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.salesAmount}</span>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-
-                    <td className="table-dark text-center">
-                      {purchase.paymentStatus === "Partial" ? (
-                        <span className="text-danger fw-bold">₹{purchase.salesAmount - purchase.amountPaid}</span>
-                      ) : purchase.paymentStatus === "Pending" ? (
-                        <span className="text-danger fw-bold">₹{purchase.salesAmount}</span>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  <td className="table-dark text-center">{purchase.paymentType}</td>
-                  <td className="table-dark text-center">
-                    {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                    {purchase.checkNo && <div>Cheque: {purchase.checkNo}</div>}
-                    {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                    {purchase.paymentStatus === "Partial" ? (
+                       <span className="text-warning fw-bold">₹{purchase.amountPaid}</span>
+                    ) : purchase.paymentStatus === "Paid" ? (
+                      <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.salesAmount}</span>
+                    ) : (
+                      "-"
+                    )}
                   </td>
-                  <td className="table-dark text-center">{purchase.dateOfPayment}</td>
+
+                  <td className="table-dark text-center">
+                    {purchase.paymentStatus === "Partial" ? (
+                      <span className="text-danger fw-bold">₹{purchase.salesAmount - purchase.amountPaid}</span>
+                    ) : purchase.paymentStatus === "Pending" ? (
+                      <span className="text-danger fw-bold">₹{purchase.salesAmount}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* <td className="table-dark text-center">{purchase.paymentType}</td> */}
+                  <td className="table-dark text-center">
+                    {purchase.paymentStatus === "Partial" ? (
+                      <span>{purchase.paymentType}</span>
+                    ) : purchase.paymentStatus === "Paid" ? (
+                      <span>{purchase.paymentType}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* <td className="table-dark text-center">
+                    {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
+                    {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
+                    {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                  </td> */}
+                  <td className="table-dark text-center">
+                    {purchase.paymentType === "Check" ? (
+                      <span>
+                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
+                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
+                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                      </span>
+                    ) : purchase.paymentType === "Online" ? (
+                      <span>
+                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
+                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
+                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* <td className="table-dark text-center">{purchase.dateOfPayment}</td> */}
+                  <td className="table-dark text-center">
+                    {purchase.paymentStatus === "Partial" ? (
+                      <span>{purchase.dateOfPayment}</span>
+                    ) : purchase.paymentStatus === "Paid" ? (
+                      <span>{purchase.dateOfPayment}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* TESTING */}
+                  <td className="table-dark text-center">
+                  <button className="btn btn-info" onClick={() => handleEditClick(purchase, index)}>
+                    Edit
+                  </button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -173,6 +313,299 @@ const Purchase = () => {
           </tbody>
         </table>
       </div>
+
+      {/* TESTING */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton className="bg-dark text-light custom-close">
+          <Modal.Title>Edit Purchase</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-dark text-light">
+          {selectedPurchase && (
+            <Form>
+              <Form.Group className="mt-3">
+                <Form.Label>Type of Purchase</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.typeOfPurchase}
+                  onChange={(e) => handleChange(e, null, "typeOfPurchase")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Invoice No</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.invoiceNo}
+                  onChange={(e) => handleChange(e, null, "invoiceNo")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Invoice Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={selectedPurchase.invoiceDate}
+                  onChange={(e) => handleChange(e, null, "invoiceDate")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Invoice Month</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.invoiceMonth}
+                  onChange={(e) => handleChange(e, null, "invoiceMonth")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Company Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.companyName}
+                  onChange={(e) => handleChange(e, null, "companyName")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Product Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.productName}
+                  onChange={(e) => handleChange(e, null, "productName")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Product Code</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.productCode}
+                  onChange={(e) => handleChange(e, null, "productCode")}
+                />
+              </Form.Group>
+
+              {selectedPurchase.products.map((product, index) => (
+                <div className="mt-3 border rounded p-2 position-relative" key={index}>
+                  <Form.Group>
+                    <Form.Label>Product Description</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={product.productDescription}
+                      onChange={(e) => handleChange(e, index, "productDescription")}
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <Form.Label>Quantity</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={product.quantity}
+                      onChange={(e) => handleChange(e, index, "quantity")}
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={product.price}
+                      onChange={(e) => handleChange(e, index, "price")}
+                    />
+                  </Form.Group>
+
+                  {/* ➖ Remove Button */}
+                  {selectedPurchase.products.length > 1 && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        const updated = { ...selectedPurchase };
+                        updated.products.splice(index, 1);
+                        setSelectedPurchase(updated);
+                      }}
+                    >
+                      ➖ Remove Product
+                    </Button>
+                  )}
+
+                  <hr />
+                </div>
+              ))}
+
+              {/* ➕ Add Product Button */}
+              <div className="text-center mt-3">
+                <Button
+                  variant="success"
+                  onClick={() => {
+                    const updated = { ...selectedPurchase };
+                    updated.products.push({
+                      productDescription: "",
+                      quantity: "",
+                      price: "",
+                      hsnNo: "",
+                      unit: "",
+                    });
+                    setSelectedPurchase(updated);
+                  }}
+                >
+                  ➕ Add Product
+                </Button>
+              </div>
+
+              {/* Remaining Form Fields */}
+              <Form.Group className="mt-4">
+                <Form.Label>Transport Charge</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={selectedPurchase.transportCharge}
+                  onChange={(e) => handleChange(e, null, "transportCharge")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Discount</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={selectedPurchase.discount}
+                  onChange={(e) => handleChange(e, null, "discount")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>TCS</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={selectedPurchase.tcs}
+                  onChange={(e) => handleChange(e, null, "tcs")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Freight</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={selectedPurchase.freight}
+                  onChange={(e) => handleChange(e, null, "freight")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Transport</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.transport}
+                  onChange={(e) => handleChange(e, null, "transport")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Transporter</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.transporter}
+                  onChange={(e) => handleChange(e, null, "transporter")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>LR No.</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedPurchase.lrNo}
+                  onChange={(e) => handleChange(e, null, "lrNo")}
+                />
+              </Form.Group>
+
+              <Form.Group className="mt-3">
+                <Form.Label>Payment Status</Form.Label>
+                <Form.Select
+                  value={selectedPurchase.paymentStatus}
+                  onChange={(e) => handleChange(e, null, "paymentStatus")}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Partial">Partial</option>
+                </Form.Select>
+              </Form.Group>
+
+              {selectedPurchase.paymentStatus === "Partial" && (
+                <Form.Group className="mt-3">
+                  <Form.Label>Amount Paid</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={selectedPurchase.amountPaid}
+                    onChange={(e) => handleChange(e, null, "amountPaid")}
+                  />
+                </Form.Group>
+              )}
+
+              {["Paid", "Partial"].includes(selectedPurchase.paymentStatus) && (
+                <>
+                  <Form.Group className="mt-3">
+                    <Form.Label>Payment Type</Form.Label>
+                    <Form.Select
+                      value={selectedPurchase.paymentType || ""}
+                      onChange={(e) => handleChange(e, null, "paymentType")}
+                    >
+                      <option value="">Select Payment Type</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Check">Check</option>
+                      <option value="Online">Online</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  {selectedPurchase.paymentType === "Check" && (
+                    <>
+                      <Form.Group className="mt-3">
+                        <Form.Label>Bank Name</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={selectedPurchase.bankName || ""}
+                          onChange={(e) => handleChange(e, null, "bankName")}
+                        />
+                      </Form.Group>
+                      <Form.Group className="mt-3">
+                        <Form.Label>Check No.</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={selectedPurchase.checkNo || ""}
+                          onChange={(e) => handleChange(e, null, "checkNo")}
+                        />
+                      </Form.Group>
+                    </>
+                  )}
+
+                  {selectedPurchase.paymentType === "Online" && (
+                    <Form.Group className="mt-3">
+                      <Form.Label>Transaction ID</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={selectedPurchase.transactionId || ""}
+                        onChange={(e) => handleChange(e, null, "transactionId")}
+                      />
+                    </Form.Group>
+                  )}
+
+                  <Form.Group className="mt-3">
+                    <Form.Label>Date of Payment</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={selectedPurchase.dateOfPayment}
+                      onChange={(e) => handleChange(e, null, "dateOfPayment")}
+                    />
+                  </Form.Group>
+                </>
+              )}
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="bg-dark text-light">
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleSave}>Save Changes</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

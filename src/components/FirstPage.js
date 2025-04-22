@@ -49,7 +49,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons glow-table"
+              className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/invoice")}
               style={buttonStyle}
               >
@@ -58,7 +58,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons glow-table"
+              className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/add-company")}
               style={buttonStyle}
               >
@@ -67,7 +67,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons glow-table"
+              className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/invoice/add-invoice")}
               style={buttonStyle}
               >
@@ -76,7 +76,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons glow-table"
+              className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/purchase")}
               style={buttonStyle}
               >
@@ -85,7 +85,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons glow-table"
+              className="btn btn-primary w-100 glow-buttons"
               onClick={() => navigate("/growth")}
               style={buttonStyle}
               >

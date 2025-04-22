@@ -80,3 +80,11 @@
       transform: translateX(100%) rotate(25deg);
     }
   }
+
+  .custom-close .btn-close {
+    filter: invert(1); /* makes the button white */
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }  
