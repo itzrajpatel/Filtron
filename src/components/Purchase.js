@@ -551,7 +551,7 @@ const Purchase = () => {
                     >
                       <option value="">Select Payment Type</option>
                       <option value="Cash">Cash</option>
-                      <option value="Check">Check</option>
+                      <option value="Check">Cheque</option>
                       <option value="Online">Online</option>
                     </Form.Select>
                   </Form.Group>
@@ -567,7 +567,7 @@ const Purchase = () => {
                         />
                       </Form.Group>
                       <Form.Group className="mt-3">
-                        <Form.Label>Check No.</Form.Label>
+                        <Form.Label>Cheque No.</Form.Label>
                         <Form.Control
                           type="text"
                           value={selectedPurchase.checkNo || ""}

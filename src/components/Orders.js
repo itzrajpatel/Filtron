@@ -297,7 +297,7 @@ const Orders = () => {
                       {order.paymentType === "Check" ? (
                         <>
                           <div><strong>Bank:</strong> {order.bankName}</div>
-                          <div><strong>Check No:</strong> {order.checkNo}</div>
+                          <div><strong>Cheque No:</strong> {order.checkNo}</div>
                         </>
                       ) : order.paymentType === "Online" ? (
                         <div><strong>Txn ID:</strong> {order.transactionId}</div>
@@ -467,7 +467,7 @@ const Orders = () => {
                   >
                     <option value="">Select Payment Type</option>
                     <option value="Cash">Cash</option>
-                    <option value="Check">Check</option>
+                    <option value="Check">Cheque</option>
                     <option value="Online">Online</option>
                   </Form.Select>
                 </Form.Group>
@@ -485,12 +485,12 @@ const Orders = () => {
                     </Form.Group>
           
                     <Form.Group className="mt-3">
-                      <Form.Label>Check No.</Form.Label>
+                      <Form.Label>Cheque No.</Form.Label>
                       <Form.Control
                         type="text"
                         value={selectedOrder.checkNo || ""}
                         onChange={(e) => handleChange(e, null, "checkNo")}
-                        placeholder="Enter Check Number"
+                        placeholder="Enter Cheque Number"
                       />
                     </Form.Group>
                   </>

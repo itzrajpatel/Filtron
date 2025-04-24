@@ -143,7 +143,7 @@ const OrderHistory = () => {
                       {orderItem.paymentType === "Check" ? (
                         <>
                           <div><strong>Bank:</strong> {orderItem.bankName}</div>
-                          <div><strong>Check No:</strong> {orderItem.checkNo}</div>
+                          <div><strong>Cheque No:</strong> {orderItem.checkNo}</div>
                         </>
                       ) : orderItem.paymentType === "Online" ? (
                         <div><strong>Txn ID:</strong> {orderItem.transactionId}</div>

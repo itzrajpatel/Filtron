@@ -379,7 +379,7 @@ useEffect(() => {
               <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange} required>
                 <option value="">Select Payment Type</option>
                 <option value="Cash">Cash</option>
-                <option value="Check">Check</option>
+                <option value="Check">Cheque</option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -392,8 +392,8 @@ useEffect(() => {
                   <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" />
                 </div>
                 <div className="mb-3">
-                  <label>Check No.</label>
-                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" />
+                  <label>Cheque No.</label>
+                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Cheque Number" />
                 </div>
               </>
             )}

@@ -336,7 +336,7 @@ const AddPurchase = () => {
               <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange}>
                 <option value="">Select Type</option>
                 <option value="Cash">Cash</option>
-                <option value="Check">Check</option>
+                <option value="Check">Cheque</option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -348,7 +348,7 @@ const AddPurchase = () => {
                   <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Check No</label>
+                  <label className="form-label">Cheque No</label>
                   <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} />
                 </div>
               </>
