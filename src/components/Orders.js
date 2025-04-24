@@ -355,7 +355,7 @@ const Orders = () => {
               })
             ) : (
               <tr>
-                <td colSpan="18" className="text-center bg-dark text-light">No Invoice added yet</td>
+                <td colSpan="25" className="text-center bg-dark text-light">No Invoice added yet</td>
               </tr>
             )}
           </tbody>

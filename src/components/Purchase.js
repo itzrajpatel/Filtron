@@ -307,7 +307,7 @@ const Purchase = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="27" className="text-center text-light bg-transparent">No Purchase Added Yet</td>
+                <td colSpan="35" className="text-center text-light bg-transparent">No Purchase Added Yet</td>
               </tr>
             )}
           </tbody>

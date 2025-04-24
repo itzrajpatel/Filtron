@@ -157,7 +157,7 @@ const OrderHistory = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="14" className="text-center">No products found</td>
+                  <td colSpan="19" className="text-center bg-dark text-light">No products found</td>
                 </tr>
               )}
             </tbody>
