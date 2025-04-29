@@ -19,18 +19,46 @@ const Orders = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    const updatedOrders = savedOrders.map(order => ({
-      ...order,
-      cancelled: order.cancelled || false, // default to false
-    }));
-    setOrders(updatedOrders);
-  }, []);  
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/orders");
+        const data = await res.json();
+  
+        const formatted = data.map(order => ({
+          ...order,
+          id: order.id, // ✅ include this
+          invoiceNo: order.invoice_no,
+          invoiceDate: order.invoice_date,
+          invoiceMonth: order.invoice_month,
+          companyName: order.company_name,
+          customerName: order.customer_name,
+          products: order.products || [],
+          cancelled: order.cancelled || false,
+          amountPaid: order.payment_status === "Partial" ? order.amount_paid : "",
+          paymentStatus: order.payment_status,
+          paymentType: order.payment_type,
+          bankName: order.bank_name,
+          checkNo: order.check_no,
+          transactionId: order.transaction_id,
+          transportPrice: order.transport_price,
+          finalTotal: order.final_total,
+          grandTotal: order.grand_total,
+          salesAmount: order.sales_amount,
+        }));
+  
+        setOrders(formatted);
+      } catch (err) {
+        console.error("Failed to fetch Invoice:", err);
+      }
+    };
+  
+    fetchOrders();
+  }, []);    
 
   // Function to handle redirection
-  const handleViewOrder = (order) => {
-    navigate("/invoice/view-invoice", { state: { order } });  // Pass order details if needed
-  };
+  const handleViewOrder = (companyName) => {
+    navigate("/invoice/view-invoice", { state: { companyName } });
+  };  
 
   // Handle edit button click
   const handleEditClick = (order) => {
@@ -68,15 +96,48 @@ const Orders = () => {
   };    
 
   // Save updated details
-  const handleSave = () => {
-    const updatedOrders = orders.map((order) =>
-      order.invoiceNo === selectedOrder.invoiceNo ? selectedOrder : order
-    );
-
-    setOrders(updatedOrders);
-    localStorage.setItem("orders", JSON.stringify(updatedOrders));
-    setShowModal(false);
-  };
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/orders/${selectedOrder.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoice_date: selectedOrder.invoiceDate,
+          payment_status: selectedOrder.paymentStatus,
+          amount_paid: selectedOrder.amountPaid,
+          payment_type: selectedOrder.paymentType,
+          bank_name: selectedOrder.bankName,
+          check_no: selectedOrder.checkNo,
+          transaction_id: selectedOrder.transactionId,
+          transport: selectedOrder.transport,
+          transport_price: selectedOrder.transportPrice,
+          final_total: selectedOrder.finalTotal,
+          grand_total: selectedOrder.grandTotal,
+          sales_amount: selectedOrder.salesAmount,
+          gst: selectedOrder.gst,
+          cgst: selectedOrder.cgst,
+          sgst: selectedOrder.sgst,
+          igst: selectedOrder.igst,
+          products: selectedOrder.products
+        })
+      });
+  
+      if (response.ok) {
+        alert("Invoice updated successfully!");
+  
+        const updatedOrders = orders.map(order =>
+          order.id === selectedOrder.id ? selectedOrder : order
+        );
+        setOrders(updatedOrders);
+        setShowModal(false);
+      } else {
+        alert("Failed to update Invoice.");
+      }
+    } catch (err) {
+      console.error("Error updating Invoice:", err);
+      alert("Server error occurred.");
+    }
+  };  
 
   const calculateTotals = (order) => {
     const finalTotal = order.products.reduce((sum, p) => {
@@ -108,7 +169,29 @@ const Orders = () => {
       igst: igst.toFixed(2),
       salesAmount: salesAmount.toFixed(2),
     };
-  }; 
+  };
+
+  const handleCancelOrder = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderToCancel.id}/cancel`, {
+        method: "PUT"
+      });
+  
+      if (res.ok) {
+        const updatedOrders = orders.map(order =>
+          order.id === orderToCancel.id ? { ...order, cancelled: true } : order
+        );
+        setOrders(updatedOrders);
+        alert("Invoice cancelled successfully.");
+      } else {
+        alert("Failed to cancel invoice.");
+      }
+    } catch (err) {
+      console.error("Error cancelling Invoice:", err);
+      alert("Server error occurred.");
+    }
+    setShowCancelModal(false);
+  };
 
   return (
     <div className="container mt-4">
@@ -128,7 +211,7 @@ const Orders = () => {
             onChange={(e) => setSelectedCompany(e.target.value)}
           >
             <option value="">All Companies</option>
-            {[...new Set(orders.map(order => order.companyName))].map((name, idx) => (
+            {[...new Set(orders.map(order => order.company_name))].map((name, idx) => (
               <option key={idx} value={name}>{name}</option>
             ))}
           </select>
@@ -184,7 +267,7 @@ const Orders = () => {
             {orders.length > 0 ? (
               orders
               .filter(order => {
-                const matchesCompany = selectedCompany === "" || order.companyName === selectedCompany;
+                const matchesCompany = selectedCompany === "" || order.company_name === selectedCompany;
                 const matchesStatus = selectedPaymentStatus === "" || order.paymentStatus === selectedPaymentStatus;
                 return matchesCompany && matchesStatus;
               })
@@ -192,26 +275,26 @@ const Orders = () => {
                 return (
                   <tr key={index} style={order.cancelled ? { opacity: 0.5, textDecoration: "line-through", textDecorationColor: "#FF073A" } : {}}>
                     <td className="table-dark text-center">{index + 1}</td>
-                    <td className="table-dark text-center">{order.invoiceNo}</td> {/* Display Invoice Number */}
-                    <td className="table-dark text-center">{order.invoiceDate}</td> {/* Display Invoice Date */}
-                    <td className="table-dark text-center">{order.invoiceMonth}</td>
+                    <td className="table-dark text-center">{order.invoice_no}</td>
+                    <td className="table-dark text-center">{order.invoice_date}</td>
+                    <td className="table-dark text-center">{order.invoice_month}</td>
                     <td className="table-dark text-center">
                       {order.cancelled ? (
                         <span
                           style={{ color: "lightgrey", cursor: "not-allowed" }}
                           title="This invoice is cancelled"
                         >
-                          {order.companyName}
+                          {order.company_name}
                         </span>
                       ) : (
                         <span 
-                          onClick={() => handleViewOrder(order)}
+                          onClick={() => handleViewOrder(order.company_name)}
                           style={{ cursor: "pointer", color: "white", textDecoration: "none" }}
                           onMouseOver={(e) => e.target.style.color = "red"}
                           onMouseOut={(e) => e.target.style.color = "white"}
                           title="Click to view Invoice Details"
                         >
-                          {order.companyName}
+                          {order.company_name}
                         </span>
                       )}
                     </td>
@@ -265,7 +348,7 @@ const Orders = () => {
                     <td className="table-dark text-center">₹{order.igst}</td>
                     <td className="table-dark text-center">{order.transport === "Yes" ? `₹${order.transportPrice}` : "N/A"}</td>
                     <td className="table-dark text-center">₹{order.salesAmount}</td>
-                    <td className="table-dark text-center">{order.jobWorkSupplier !== "" ? `${order.jobWorkSupplier}` : "N/A"}</td>
+                    <td className="table-dark text-center">{order.job_work_supplier !== "" ? `${order.job_work_supplier}` : "N/A"}</td>
                     <td className="table-dark text-center">
                       <span className={`badge ${order.paymentStatus === "Paid" ? "bg-success" : order.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
                         {order.paymentStatus}
@@ -297,7 +380,7 @@ const Orders = () => {
                       {order.paymentType === "Check" ? (
                         <>
                           <div><strong>Bank:</strong> {order.bankName}</div>
-                          <div><strong>Cheque No:</strong> {order.checkNo}</div>
+                          <div><strong>Check No:</strong> {order.checkNo}</div>
                         </>
                       ) : order.paymentType === "Online" ? (
                         <div><strong>Txn ID:</strong> {order.transactionId}</div>
@@ -328,9 +411,7 @@ const Orders = () => {
                       <button
                         className="btn btn-primary"
                         onClick={() => {
-                          const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-                          const companyDetails = savedCompanies.find(comp => comp.companyName === order.companyName);
-                          navigate("/create-bill", { state: { order, company: companyDetails } });
+                          navigate("/create-bill", { state: { orderId: order.id } });
                         }}
                         disabled={order.cancelled}
                       >
@@ -341,10 +422,8 @@ const Orders = () => {
                       <button
                         className="btn btn-primary"
                         onClick={() => {
-                          const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-                          const companyDetails = savedCompanies.find(comp => comp.companyName === order.companyName);
-                          navigate("/create-chalan", { state: { order, company: companyDetails } });
-                        }}
+                          navigate("/create-chalan", { state: { orderId: order.id } });
+                        }}                        
                         disabled={order.cancelled}
                       >
                         Create Chalan
@@ -355,7 +434,7 @@ const Orders = () => {
               })
             ) : (
               <tr>
-                <td colSpan="25" className="text-center bg-dark text-light">No Invoice added yet</td>
+                <td colSpan="18" className="text-center bg-dark text-light">No Invoice added yet</td>
               </tr>
             )}
           </tbody>
@@ -364,7 +443,7 @@ const Orders = () => {
       
       {/* Bootstrap Modal for Editing Invoice */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton className="bg-dark text-light">
+        <Modal.Header closeButton className="bg-dark text-light custom-close">
           <Modal.Title>Edit Invoice</Modal.Title>
         </Modal.Header>
         <Modal.Body className="bg-dark text-light">
@@ -390,7 +469,7 @@ const Orders = () => {
                   />
                 </Form.Group>
           
-                <Form.Group>
+                <Form.Group className="mt-3">
                   <Form.Label>Quantity</Form.Label>
                   <Form.Control
                     type="number"
@@ -399,7 +478,7 @@ const Orders = () => {
                   />
                 </Form.Group>
           
-                <Form.Group>
+                <Form.Group className="mt-3">
                   <Form.Label>Price</Form.Label>
                   <Form.Control
                     type="number"
@@ -467,7 +546,7 @@ const Orders = () => {
                   >
                     <option value="">Select Payment Type</option>
                     <option value="Cash">Cash</option>
-                    <option value="Check">Cheque</option>
+                    <option value="Check">Check</option>
                     <option value="Online">Online</option>
                   </Form.Select>
                 </Form.Group>
@@ -485,12 +564,12 @@ const Orders = () => {
                     </Form.Group>
           
                     <Form.Group className="mt-3">
-                      <Form.Label>Cheque No.</Form.Label>
+                      <Form.Label>Check No.</Form.Label>
                       <Form.Control
                         type="text"
                         value={selectedOrder.checkNo || ""}
                         onChange={(e) => handleChange(e, null, "checkNo")}
-                        placeholder="Enter Cheque Number"
+                        placeholder="Enter Check Number"
                       />
                     </Form.Group>
                   </>
@@ -534,19 +613,7 @@ const Orders = () => {
           <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
             No, Keep Invoice
           </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              const updatedOrders = orders.map(order =>
-                order.invoiceNo === orderToCancel.invoiceNo
-                  ? { ...order, cancelled: true }
-                  : order
-              );
-              setOrders(updatedOrders);
-              localStorage.setItem("orders", JSON.stringify(updatedOrders));
-              setShowCancelModal(false);
-            }}
-          >
+          <Button variant="danger" onClick={handleCancelOrder}>
             Yes, Cancel Invoice
           </Button>
         </Modal.Footer>

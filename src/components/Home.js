@@ -7,8 +7,31 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-    setCompanies(savedCompanies);
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/companies");
+        const data = await response.json();
+        console.log("Raw response from backend:", data); // 👈 check if it's an array
+  
+        const formatted = data.map(c => ({
+          companyName: c.company_name,
+          customerName: c.customer_name,
+          address: c.address,
+          state: c.state,
+          stateCode: c.state_code,
+          contact: c.contact,
+          email: c.email,
+          gstNo: c.gst_no,
+        }));
+  
+        console.log("Formatted company list:", formatted); // 👈 confirm formatting
+        setCompanies(formatted);
+      } catch (err) {
+        console.error("Failed to fetch companies:", err);
+      }
+    };
+  
+    fetchCompanies();
   }, []);
 
   // Function to handle redirection

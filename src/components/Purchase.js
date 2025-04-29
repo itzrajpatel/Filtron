@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Purchase.css";
+import { format } from 'date-fns';
 
 // TESTING
 import { Modal, Button, Form } from "react-bootstrap";
@@ -17,18 +18,7 @@ const Purchase = () => {
   const handleEditClick = (purchase, index) => {
     setSelectedPurchase({ ...purchase, srNo: index }); // Save index inside selected purchase
     setShowModal(true);
-  };  
-
-  // TESTING
-  const handleSave = () => {
-    const updatedPurchases = purchases.map((p, idx) =>
-      idx === selectedPurchase.srNo ? selectedPurchase : p
-    );
-  
-    setPurchases(updatedPurchases);
-    localStorage.setItem("purchase", JSON.stringify(updatedPurchases));
-    setShowModal(false);
-  };  
+  };                    
 
   // TESTING
   const calculateTotals = (purchase) => {
@@ -38,58 +28,99 @@ const Purchase = () => {
       return sum + qty * price;
     }, 0);
   
-    const transportCharge = parseFloat(purchase.transportCharge) || 0;
-    const discount = parseFloat(purchase.discount) || 0;
-    const tcs = parseFloat(purchase.tcs) || 0;
-    const freight = parseFloat(purchase.freight) || 0;
+    const transportCharge = parseFloat(purchase.transport_charge || 0);
+    const discount = parseFloat(purchase.discount || 0);
+    const tcs = parseFloat(purchase.tcs || 0);
+    const freight = parseFloat(purchase.freight || 0);
   
     const grandTotal = finalTotal + transportCharge - discount;
   
     const gstRate = purchase.gst ? parseFloat(purchase.gst.replace("%", "")) / 100 : 0;
-    const isGujarat = purchase.stateCode === "24";
+    const isGujarat = purchase.state_code === "24";
   
     const cgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
     const sgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
     const igst = !isGujarat ? grandTotal * gstRate : 0;
   
     const gstTotal = cgst + sgst + igst;
-  
     const salesAmount = grandTotal + gstTotal + tcs;
     const grossAmount = salesAmount + freight;
   
     return {
-      finalTotal: finalTotal.toFixed(2),
-      grandTotal: grandTotal.toFixed(2),
+      final_total: finalTotal.toFixed(2),
+      grand_total: grandTotal.toFixed(2),
       cgst: cgst.toFixed(2),
       sgst: sgst.toFixed(2),
       igst: igst.toFixed(2),
-      salesAmount: salesAmount.toFixed(2),
-      grossAmount: grossAmount.toFixed(2),
+      sales_amount: salesAmount.toFixed(2),
+      gross_amount: grossAmount.toFixed(2),
     };
-  };  
+  };    
 
   // TESTING
   const handleChange = (e, index, field) => {
+    const fieldMap = {
+      invoiceDate: "invoice_date",
+      invoiceNo: "invoice_no",
+      invoiceMonth: "invoice_month",
+      typeOfPurchase: "type_of_purchase",
+      productCode: "product_code",
+      productName: "product_name",
+      transportCharge: "transport_charge",
+      grandTotal: "grand_total",
+      finalTotal: "final_total",
+      salesAmount: "sales_amount",
+      grossAmount: "gross_amount",
+      paymentStatus: "payment_status",
+      amountPaid: "amount_paid",
+      paymentType: "payment_type",
+      bankName: "bank_name",
+      checkNo: "check_no",
+      transactionId: "transaction_id",
+      dateOfPayment: "date_of_payment",
+      lrNo: "lr_no",
+      transporter: "transporter",
+      discount: "discount",
+      gst: "gst",
+      cgst: "cgst",
+      sgst: "sgst",
+      igst: "igst",
+      tcs: "tcs",
+      freight: "freight",
+      companyName: "company_name",
+      stateCode: "state_code",
+      state: "state"
+    };
+  
     const updated = { ...selectedPurchase };
+    const dbField = fieldMap[field] || field;
   
     if (index === null) {
-      updated[field] = e.target.value;
+      updated[dbField] = e.target.value;
   
-      if (field === "paymentStatus") {
-        updated.amountPaid = updated.paymentStatus === "Partial" ? updated.amountPaid : "";
-        updated.paymentType = "";
-        updated.bankName = "";
-        updated.checkNo = "";
-        updated.transactionId = "";
+      if (dbField === "payment_status") {
+        updated.amount_paid = updated.payment_status === "Partial" ? updated.amount_paid : "";
+        updated.payment_type = "";
+        updated.bank_name = "";
+        updated.check_no = "";
+        updated.transaction_id = "";
       }
     } else {
       updated.products[index][field] = e.target.value;
+  
+      // 🧮 Calculate product total on quantity/price change
+      if (["quantity", "price"].includes(field)) {
+        const qty = parseFloat(updated.products[index].quantity) || 0;
+        const price = parseFloat(updated.products[index].price) || 0;
+        updated.products[index].total = (qty * price).toFixed(2);
+      }
     }
   
-    // ➔ Recalculate totals on important fields
+    // 🔁 Recalculate totals on all relevant fields
+    const recalcFields = ["quantity", "price", "transportCharge", "discount", "tcs", "freight", "gst"];
     if (
-      (index !== null && (field === "quantity" || field === "price")) ||
-      (index === null && (field === "transportCharge" || field === "discount" || field === "tcs" || field === "freight"))
+      (index !== null && recalcFields.includes(field)) ||
+      (index === null && recalcFields.includes(field))
     ) {
       const totals = calculateTotals(updated);
       setSelectedPurchase({ ...updated, ...totals });
@@ -98,10 +129,91 @@ const Purchase = () => {
     }
   };    
 
+  // TESTING
+  const handleSave = async () => {
+    const original = purchases[selectedPurchase.srNo];
+  
+    const hasChanged = JSON.stringify(original) !== JSON.stringify(selectedPurchase);
+    if (!hasChanged) {
+      alert("No changes made.");
+      setShowModal(false);
+      return;
+    }
+  
+    const purchaseId = original.id;
+  
+    // Convert camelCase to snake_case
+    const payload = {
+      companyName: selectedPurchase.company_name,
+      state: selectedPurchase.state,
+      stateCode: selectedPurchase.state_code,
+      typeOfPurchase: selectedPurchase.type_of_purchase,
+      productCode: selectedPurchase.product_code,
+      productName: selectedPurchase.product_name,
+      invoiceNo: selectedPurchase.invoice_no,
+      invoiceMonth: selectedPurchase.invoice_month,
+      invoiceDate: selectedPurchase.invoice_date,
+      discount: selectedPurchase.discount,
+      transport: selectedPurchase.transport,
+      lrNo: selectedPurchase.lr_no,
+      transporter: selectedPurchase.transporter,
+      transportCharge: selectedPurchase.transport_charge,
+      gst: selectedPurchase.gst,
+      cgst: selectedPurchase.cgst,
+      sgst: selectedPurchase.sgst,
+      igst: selectedPurchase.igst,
+      tcs: selectedPurchase.tcs,
+      freight: selectedPurchase.freight,
+      finalTotal: selectedPurchase.final_total,
+      grandTotal: selectedPurchase.grand_total,
+      salesAmount: selectedPurchase.sales_amount,
+      grossAmount: selectedPurchase.gross_amount,
+      paymentStatus: selectedPurchase.payment_status,
+      amountPaid: selectedPurchase.amount_paid,
+      paymentType: selectedPurchase.payment_type,
+      bankName: selectedPurchase.bank_name,
+      checkNo: selectedPurchase.check_no,
+      transactionId: selectedPurchase.transaction_id,
+      dateOfPayment: selectedPurchase.date_of_payment,
+      products: selectedPurchase.products,
+    };
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/purchases/${purchaseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        const updated = await fetch("http://localhost:5000/api/purchases");
+        const updatedData = await updated.json();
+        setPurchases(updatedData);
+        setShowModal(false);
+        alert("Purchase updated successfully.");
+      } else {
+        alert("Failed to update purchase.");
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Error updating purchase.");
+    }
+  };  
+
+  // Get Purchase data
   useEffect(() => {
-    const savedPurchases = JSON.parse(localStorage.getItem("purchase")) || [];
-    setPurchases(savedPurchases);
-  }, []);
+    const fetchPurchases = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/purchases");
+        const data = await response.json();
+        setPurchases(data);
+      } catch (err) {
+        console.error("Failed to fetch purchases:", err);
+      }
+    };
+  
+    fetchPurchases();
+  }, []);  
 
   return (
     <div className="container mt-4">
@@ -164,14 +276,20 @@ const Purchase = () => {
               purchases.map((purchase, index) => (
                 <tr key={index}>
                   <td className="table-dark text-center">{index + 1}</td>
-                  <td className="table-dark text-center">{purchase.createdAt}</td>
-                  <td className="table-dark text-center">{purchase.typeOfPurchase}</td>
-                  <td className="table-dark text-center">{purchase.invoiceNo}</td>
-                  <td className="table-dark text-center">{purchase.invoiceDate}</td>
-                  <td className="table-dark text-center">{purchase.invoiceMonth}</td>
-                  <td className="table-dark text-center">{purchase.companyName}</td>
-                  <td className="table-dark text-center">{purchase.productName}</td>
-                  <td className="table-dark text-center">{purchase.productCode}</td>
+                  {/* <td className="table-dark text-center">{purchase.created_at}</td> */}
+                  <td className="table-dark text-center">
+                    {purchase.created_at ? format(new Date(purchase.created_at), "yyyy-MM-dd") : ""}
+                  </td>
+                  <td className="table-dark text-center">{purchase.type_of_purchase}</td>
+                  <td className="table-dark text-center">{purchase.invoice_no}</td>
+                  {/* <td className="table-dark text-center">{purchase.invoice_date}</td> */}
+                  <td className="table-dark text-center">
+                    {purchase.invoice_date ? format(new Date(purchase.invoice_date), "yyyy-MM-dd") : ""}
+                  </td>
+                  <td className="table-dark text-center">{purchase.invoice_month}</td>
+                  <td className="table-dark text-center">{purchase.company_name}</td>
+                  <td className="table-dark text-center">{purchase.product_name}</td>
+                  <td className="table-dark text-center">{purchase.product_code}</td>
 
                   <td className="table-dark text-center">
                     {purchase.products.map((product, i) => (
@@ -213,85 +331,83 @@ const Purchase = () => {
                     ))}
                   </td>
 
-                  <td className="table-dark text-center">₹{purchase.transportCharge}</td>
+                  <td className="table-dark text-center">₹{purchase.transport_charge}</td>
                   <td className="table-dark text-center">₹{purchase.discount}</td>
-                  <td className="table-dark text-center">₹{purchase.grandTotal}</td>
+                  <td className="table-dark text-center">₹{purchase.grand_total}</td>
                   <td className="table-dark text-center">{purchase.gst}</td>
                   <td className="table-dark text-center">₹{purchase.cgst}</td>
                   <td className="table-dark text-center">₹{purchase.sgst}</td>
                   <td className="table-dark text-center">₹{purchase.igst}</td>
                   <td className="table-dark text-center">₹{purchase.tcs}</td>
-                  <td className="table-dark text-center">₹{purchase.salesAmount}</td>
+                  <td className="table-dark text-center">₹{purchase.sales_amount}</td>
                   <td className="table-dark text-center">₹{purchase.freight}</td>
-                  <td className="table-dark text-center">₹{purchase.grossAmount}</td>
+                  <td className="table-dark text-center">₹{purchase.gross_amount}</td>
                   <td className="table-dark text-center">{purchase.transport}</td>
                   <td className="table-dark text-center">{purchase.transporter}</td>
-                  <td className="table-dark text-center">{purchase.lrNo}</td>
+                  <td className="table-dark text-center">{purchase.lr_no}</td>
                   <td className="table-dark text-center">
-                    <span className={`badge ${purchase.paymentStatus === "Paid" ? "bg-success" : purchase.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
-                        {purchase.paymentStatus}
+                    <span className={`badge ${purchase.payment_status === "Paid" ? "bg-success" : purchase.payment_status === "Partial" ? "bg-warning" : "bg-danger"}`}>
+                        {purchase.payment_status}
                       </span>
                   </td>
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                       <span className="text-warning fw-bold">₹{purchase.amountPaid}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.salesAmount}</span>
+                    {purchase.payment_status === "Partial" ? (
+                       <span className="text-warning fw-bold">₹{purchase.amount_paid}</span>
+                    ) : purchase.payment_status === "Paid" ? (
+                      <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.sales_amount}</span>
                     ) : (
                       "-"
                     )}
                   </td>
 
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span className="text-danger fw-bold">₹{purchase.salesAmount - purchase.amountPaid}</span>
-                    ) : purchase.paymentStatus === "Pending" ? (
-                      <span className="text-danger fw-bold">₹{purchase.salesAmount}</span>
+                    {purchase.payment_status === "Partial" ? (
+                      <span className="text-danger fw-bold">₹{purchase.sales_amount - purchase.amount_paid}</span>
+                    ) : purchase.payment_status === "Pending" ? (
+                      <span className="text-danger fw-bold">₹{purchase.sales_amount}</span>
                     ) : (
                       "-"
                     )}
                   </td>
 
-                  {/* <td className="table-dark text-center">{purchase.paymentType}</td> */}
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span>{purchase.paymentType}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span>{purchase.paymentType}</span>
+                    {purchase.payment_status === "Partial" ? (
+                      <span>{purchase.payment_type}</span>
+                    ) : purchase.payment_status === "Paid" ? (
+                      <span>{purchase.payment_type}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  <td className="table-dark text-center">
+                    {purchase.payment_type === "Check" ? (
+                      <span>
+                        {purchase.bank_name && <div>Bank: {purchase.bank_name}</div>}
+                        {purchase.check_no && <div>Cheque No: {purchase.check_no}</div>}
+                        {purchase.transaction_id && <div>Txn: {purchase.transaction_id}</div>}
+                      </span>
+                    ) : purchase.payment_type === "Online" ? (
+                      <span>
+                        {purchase.bank_name && <div>Bank: {purchase.bank_name}</div>}
+                        {purchase.check_no && <div>Cheque No: {purchase.check_no}</div>}
+                        {purchase.transaction_id && <div>Txn: {purchase.transaction_id}</div>}
+                      </span>
                     ) : (
                       "-"
                     )}
                   </td>
 
                   {/* <td className="table-dark text-center">
-                    {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                    {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
-                    {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
-                  </td> */}
-                  <td className="table-dark text-center">
-                    {purchase.paymentType === "Check" ? (
-                      <span>
-                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
-                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
-                      </span>
-                    ) : purchase.paymentType === "Online" ? (
-                      <span>
-                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
-                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
-                      </span>
+                    {(purchase.payment_status === "Partial" || purchase.payment_status === "Paid") && purchase.date_of_payment ? (
+                      <span>{purchase.date_of_payment}</span>
                     ) : (
                       "-"
                     )}
-                  </td>
-
-                  {/* <td className="table-dark text-center">{purchase.dateOfPayment}</td> */}
+                  </td> */}
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span>{purchase.dateOfPayment}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span>{purchase.dateOfPayment}</span>
+                    {(purchase.payment_status === "Partial" || purchase.payment_status === "Paid") && purchase.date_of_payment ? (
+                      <span>{format(new Date(purchase.date_of_payment), "yyyy-MM-dd")}</span>
                     ) : (
                       "-"
                     )}
@@ -326,7 +442,7 @@ const Purchase = () => {
                 <Form.Label>Type of Purchase</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.typeOfPurchase}
+                  value={selectedPurchase.type_of_purchase}
                   onChange={(e) => handleChange(e, null, "typeOfPurchase")}
                 />
               </Form.Group>
@@ -335,7 +451,7 @@ const Purchase = () => {
                 <Form.Label>Invoice No</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.invoiceNo}
+                  value={selectedPurchase.invoice_no}
                   onChange={(e) => handleChange(e, null, "invoiceNo")}
                 />
               </Form.Group>
@@ -344,43 +460,55 @@ const Purchase = () => {
                 <Form.Label>Invoice Date</Form.Label>
                 <Form.Control
                   type="date"
-                  value={selectedPurchase.invoiceDate}
+                  value={selectedPurchase.invoice_date}
                   onChange={(e) => handleChange(e, null, "invoiceDate")}
                 />
               </Form.Group>
 
-              <Form.Group className="mt-3">
+              {/* <Form.Group className="mt-3">
                 <Form.Label>Invoice Month</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.invoiceMonth}
+                  value={selectedPurchase.invoice_month}
                   onChange={(e) => handleChange(e, null, "invoiceMonth")}
                 />
-              </Form.Group>
+              </Form.Group> */}
+              <Form.Group className="mt-3">
+  <Form.Label>Invoice Month</Form.Label>
+  <Form.Select
+    value={selectedPurchase.invoice_month}
+    onChange={(e) => handleChange(e, null, "invoiceMonth")}
+  >
+    <option value="">Select Month</option>
+    <option value="January">January</option>
+    <option value="February">February</option>
+    <option value="March">March</option>
+    <option value="April">April</option>
+    <option value="May">May</option>
+    <option value="June">June</option>
+    <option value="July">July</option>
+    <option value="August">August</option>
+    <option value="September">September</option>
+    <option value="October">October</option>
+    <option value="November">November</option>
+    <option value="December">December</option>
+  </Form.Select>
+</Form.Group>
 
               <Form.Group className="mt-3">
-                <Form.Label>Company Name</Form.Label>
+                <Form.Label>Item Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.companyName}
-                  onChange={(e) => handleChange(e, null, "companyName")}
-                />
-              </Form.Group>
-
-              <Form.Group className="mt-3">
-                <Form.Label>Product Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedPurchase.productName}
+                  value={selectedPurchase.product_name}
                   onChange={(e) => handleChange(e, null, "productName")}
                 />
               </Form.Group>
 
               <Form.Group className="mt-3">
-                <Form.Label>Product Code</Form.Label>
+                <Form.Label>Item Code</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.productCode}
+                  value={selectedPurchase.product_code}
                   onChange={(e) => handleChange(e, null, "productCode")}
                 />
               </Form.Group>
@@ -388,7 +516,7 @@ const Purchase = () => {
               {selectedPurchase.products.map((product, index) => (
                 <div className="mt-3 border rounded p-2 position-relative" key={index}>
                   <Form.Group>
-                    <Form.Label>Product Description</Form.Label>
+                    <Form.Label>Item Description</Form.Label>
                     <Form.Control
                       type="text"
                       value={product.productDescription}
@@ -396,7 +524,16 @@ const Purchase = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group>
+                  <Form.Group className="mt-3">
+                    <Form.Label>HSN No.</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={product.hsnNo}
+                      onChange={(e) => handleChange(e, index, "hsnNo")}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mt-3">
                     <Form.Label>Quantity</Form.Label>
                     <Form.Control
                       type="number"
@@ -405,7 +542,16 @@ const Purchase = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group>
+                  <Form.Group className="mt-3">
+                    <Form.Label>Unit</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={product.unit}
+                      onChange={(e) => handleChange(e, index, "unit")}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mt-3">
                     <Form.Label>Price</Form.Label>
                     <Form.Control
                       type="number"
@@ -459,7 +605,7 @@ const Purchase = () => {
                 <Form.Label>Transport Charge</Form.Label>
                 <Form.Control
                   type="number"
-                  value={selectedPurchase.transportCharge}
+                  value={selectedPurchase.transport_charge}
                   onChange={(e) => handleChange(e, null, "transportCharge")}
                 />
               </Form.Group>
@@ -513,7 +659,7 @@ const Purchase = () => {
                 <Form.Label>LR No.</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedPurchase.lrNo}
+                  value={selectedPurchase.lr_no}
                   onChange={(e) => handleChange(e, null, "lrNo")}
                 />
               </Form.Group>
@@ -521,7 +667,7 @@ const Purchase = () => {
               <Form.Group className="mt-3">
                 <Form.Label>Payment Status</Form.Label>
                 <Form.Select
-                  value={selectedPurchase.paymentStatus}
+                  value={selectedPurchase.payment_status}
                   onChange={(e) => handleChange(e, null, "paymentStatus")}
                 >
                   <option value="Pending">Pending</option>
@@ -530,23 +676,23 @@ const Purchase = () => {
                 </Form.Select>
               </Form.Group>
 
-              {selectedPurchase.paymentStatus === "Partial" && (
+              {selectedPurchase.payment_status === "Partial" && (
                 <Form.Group className="mt-3">
                   <Form.Label>Amount Paid</Form.Label>
                   <Form.Control
                     type="number"
-                    value={selectedPurchase.amountPaid}
+                    value={selectedPurchase.amount_paid}
                     onChange={(e) => handleChange(e, null, "amountPaid")}
                   />
                 </Form.Group>
               )}
 
-              {["Paid", "Partial"].includes(selectedPurchase.paymentStatus) && (
+              {["Paid", "Partial"].includes(selectedPurchase.payment_status) && (
                 <>
                   <Form.Group className="mt-3">
                     <Form.Label>Payment Type</Form.Label>
                     <Form.Select
-                      value={selectedPurchase.paymentType || ""}
+                      value={selectedPurchase.payment_type || ""}
                       onChange={(e) => handleChange(e, null, "paymentType")}
                     >
                       <option value="">Select Payment Type</option>
@@ -556,13 +702,13 @@ const Purchase = () => {
                     </Form.Select>
                   </Form.Group>
 
-                  {selectedPurchase.paymentType === "Check" && (
+                  {selectedPurchase.payment_type === "Check" && (
                     <>
                       <Form.Group className="mt-3">
                         <Form.Label>Bank Name</Form.Label>
                         <Form.Control
                           type="text"
-                          value={selectedPurchase.bankName || ""}
+                          value={selectedPurchase.bank_name || ""}
                           onChange={(e) => handleChange(e, null, "bankName")}
                         />
                       </Form.Group>
@@ -570,19 +716,19 @@ const Purchase = () => {
                         <Form.Label>Cheque No.</Form.Label>
                         <Form.Control
                           type="text"
-                          value={selectedPurchase.checkNo || ""}
+                          value={selectedPurchase.check_no || ""}
                           onChange={(e) => handleChange(e, null, "checkNo")}
                         />
                       </Form.Group>
                     </>
                   )}
 
-                  {selectedPurchase.paymentType === "Online" && (
+                  {selectedPurchase.payment_type === "Online" && (
                     <Form.Group className="mt-3">
                       <Form.Label>Transaction ID</Form.Label>
                       <Form.Control
                         type="text"
-                        value={selectedPurchase.transactionId || ""}
+                        value={selectedPurchase.transaction_id || ""}
                         onChange={(e) => handleChange(e, null, "transactionId")}
                       />
                     </Form.Group>
@@ -592,7 +738,7 @@ const Purchase = () => {
                     <Form.Label>Date of Payment</Form.Label>
                     <Form.Control
                       type="date"
-                      value={selectedPurchase.dateOfPayment}
+                      value={selectedPurchase.date_of_payment}
                       onChange={(e) => handleChange(e, null, "dateOfPayment")}
                     />
                   </Form.Group>

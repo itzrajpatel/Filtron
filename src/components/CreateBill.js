@@ -1,14 +1,43 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/Bill.css"
 
 const CreateBill = () => {
     const location = useLocation();
-    const order = location.state?.order; // Retrieve order data
-    const company = location.state?.company;
+    const orderId = location.state?.orderId;
 
-    if (!order) {
-        return <h3 className="text-center text-danger">No order selected</h3>;
+    const [order, setOrder] = useState(null);
+    const [company, setCompany] = useState(null);
+
+    useEffect(() => {
+        const fetchOrderDetails = async () => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+            const data = await res.json();
+            setOrder(data);
+
+            // Fetch company info
+            const compRes = await fetch(`http://localhost:5000/api/companies`);
+            const companies = await compRes.json();
+            const matched = companies.find(c => 
+            c.company_name?.trim().toLowerCase() === data.company_name?.trim().toLowerCase()
+            );
+
+            if (!matched) {
+            console.warn(`Company not found for order: ${data.company_name}`);
+            }
+
+            setCompany(matched || {});
+        } catch (err) {
+            console.error("Failed to fetch order or company:", err);
+        }
+        };
+
+        if (orderId) fetchOrderDetails();
+    }, [orderId]);
+
+    if (!order || !company) {
+        return <h3 className="text-center text-danger">Loading Invoice...</h3>;
     }
 
     const convertNumberToWords = (num) => {
@@ -64,13 +93,13 @@ const CreateBill = () => {
         <div className="bg-light" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
         <div style={{ backgroundColor: "#e5e7e9", display: "flex", justifyContent: "space-around", borderBottom: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
             <div>
-            <strong>INVOICE NO.</strong> {order.invoiceNo}
+            <strong>INVOICE NO.</strong> {order.invoice_no}
             </div>
             <div>
-            <strong>CHALAN NO:</strong> {order.invoiceNo.slice(-3)}
+            <strong>CHALAN NO:</strong> {order.invoice_no.slice(-3)}
             </div>
             <div>
-            <strong>INVOICE DATE:</strong> {order.invoiceDate}
+            <strong>INVOICE DATE:</strong> {order.invoice_date}
             </div>
         </div>
 
@@ -85,10 +114,18 @@ const CreateBill = () => {
                 }}
             >
                 {/* Left Section - Buyer Details */}
-                <div style={{ flex: 1, paddingRight: "10px", borderRight: "1px solid black" }}>
-                    <p className="mt-1"><strong style={{ marginBottom: "2px", paddingLeft: "10px", fontSize: "15px" }}>{company.companyName}</strong></p>
-                    <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
+                <div style={{ flex: 1, paddingRight: "10px" }}>
+                    <p className="mt-1"><strong style={{ marginBottom: "2px", paddingLeft: "10px", fontSize: "15px" }}>{company.company_name}</strong></p>
+                    {/* <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
                         {company.address.split("\n").map((line, index) => (
+                            <React.Fragment key={index}>
+                            {line}
+                            <br />
+                            </React.Fragment>
+                        ))}
+                    </p> */}
+                    <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
+                        {(company.address ? company.address.split("\n") : []).map((line, index) => (
                             <React.Fragment key={index}>
                             {line}
                             <br />
@@ -98,10 +135,10 @@ const CreateBill = () => {
                 </div>
 
                 {/* Right Section - GSTIN & Other Details */}
-                <div style={{ flex: 1, paddingLeft: "10px", textAlign: "start" }}>
-                    <p className="mt-1" style={{ fontSize: "13px", margin: "4px 0" }}><strong>GSTIN NO.:</strong> {company.gstNo || "N/A"} </p>
+                <div style={{ flex: 1, paddingLeft: "10px", textAlign: "start", borderLeft: "1px solid black" }}>
+                    <p className="mt-1" style={{ fontSize: "13px", margin: "4px 0" }}><strong>GSTIN NO.:</strong> {company.gst_no || "N/A"} </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE:</strong> {company.state} </p>
-                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE CODE:</strong> {company.stateCode} </p>
+                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE CODE:</strong> {company.state_code} </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>PO REFF:</strong> <input type="text" placeholder="Enter PO REFF" style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none" }}></input> </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>PO DATE:</strong> <input type="text" placeholder="Enter PO DATE" style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none" }}></input> </p>
                 </div>
@@ -166,13 +203,13 @@ const CreateBill = () => {
 
                 {/* Right Section - Amount Details */}
                 <div style={{ flex: 1, padding: "2px", borderLeft: "1px solid black", textAlign: "start" }}>
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>GRAND TOTAL: ₹{order.finalTotal}</p>
+                    <p style={{ margin: "1px 0", fontSize: "13px" }}>GRAND TOTAL: ₹{order.final_total}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>TRANSPORTATION CHARGES: {order.transport === "Yes" ? `₹${order.transportPrice}` : "₹0"}</p>
+                    <p style={{ margin: "1px 0", fontSize: "13px" }}>TRANSPORTATION CHARGES: {order.transport === "Yes" ? `₹${order.transport_price}` : "₹0"}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL TAXABLE AMOUNT:</strong> ₹{order.grandTotal}</p>
+                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL TAXABLE AMOUNT:</strong> ₹{order.grand_total}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
                     <p style={{ margin: "1px 0", fontSize: "13px" }}>CGST @ 6%: ₹{order.cgst}</p>
@@ -184,11 +221,11 @@ const CreateBill = () => {
                     <p style={{ margin: "1px 0", fontSize: "13px" }}>IGST @ 12%: ₹{order.igst}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL AMOUNT:</strong> ₹{order.salesAmount}</p>
+                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL AMOUNT:</strong> ₹{order.sales_amount}</p>
                 </div>
             </div>
 
-            <strong>Amount Chargeable (in words):- {convertNumberToWords(order.salesAmount)}</strong>
+            <strong>Amount Chargeable (in words):- {convertNumberToWords(order.sales_amount)}</strong>
             <p className="text-end mt-3" style={{ margin: "5px 0" }}> Remarks :- Total Amount is rounded off to the nearest value </p>
 
             <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid black" }}>

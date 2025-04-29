@@ -3,20 +3,45 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const ViewOrder = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const order = location.state?.order; // Get order details from navigation state
+const navigate = useNavigate();
+const companyName = location.state?.companyName;
 
-  const [companyDetails, setCompanyDetails] = useState(null);
+const [orders, setOrders] = useState([]);
+const [companyDetails, setCompanyDetails] = useState(null);
 
-  useEffect(() => {
-    if (order?.companyName) {
-      const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-      const matchedCompany = savedCompanies.find(comp => comp.companyName === order.companyName);
-      setCompanyDetails(matchedCompany || null);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch all orders of the company
+      const res = await fetch(`http://localhost:5000/api/orders/company/${encodeURIComponent(companyName)}`);
+      const orderData = await res.json();
+      setOrders(orderData);
+
+      // Fetch company details
+      const companyRes = await fetch("http://localhost:5000/api/companies");
+      const companies = await companyRes.json();
+      const match = companies.find(c => c.company_name === companyName);
+      setCompanyDetails({
+        companyName: match.company_name,
+        customerName: match.customer_name,
+        address: match.address,
+        state: match.state,
+        stateCode: match.state_code,
+        contact: match.contact,
+        email: match.email,
+        gstNo: match.gst_no,
+      });
+    } catch (err) {
+      console.error("Error loading company details:", err);
     }
-  }, [order]);
+  };
 
-  if (!order) {
+  if (companyName) {
+    fetchData();
+  }
+}, [companyName]);
+
+  if (!companyName) {
     return <h2 className="text-center mt-5">No Order Data Found</h2>;
   }
 
@@ -84,120 +109,135 @@ const ViewOrder = () => {
               </tr>
             </thead>
             <tbody>
-              {(() => {
-                const allOrders = JSON.parse(localStorage.getItem("orders")) || [];
-                const companyOrders = allOrders.filter(o => o.companyName === order.companyName);
+  {orders.length > 0 ? (
+    orders.map((orderItem, index) => (
+      <tr
+        key={index}
+        style={
+          orderItem.cancelled
+            ? {
+                opacity: 0.5,
+                textDecoration: "line-through",
+                textDecorationColor: "#FF073A",
+              }
+            : {}
+        }
+        title={orderItem.cancelled ? "This invoice has been cancelled" : ""}
+      >
+        <td className="table-dark text-center">{orderItem.invoice_no}</td>
+        <td className="table-dark text-center">{orderItem.invoice_date}</td>
+        <td className="table-dark text-center">{orderItem.invoice_month}</td>
 
-                return companyOrders.length > 0 ? (
-                  companyOrders.map((orderItem, index) => {
-                    return (
-                      <tr key={index} style={orderItem.cancelled ? { opacity: 0.5, textDecoration: "line-through", textDecorationColor: "#FF073A" } : {}} title={orderItem.cancelled ? "This invoice has been cancelled" : ""}>
-                        <td className="table-dark text-center">{orderItem.invoiceNo || "N/A"}</td>
-                        <td className="table-dark text-center">{orderItem.invoiceDate || "N/A"}</td>
-                        <td className="table-dark text-center">{orderItem.invoiceMonth || "N/A"}</td>
-                        
-                        <td className="table-dark text-center">
-                          {orderItem.products.map((product, i) => (
-                            <div 
-                              key={i} 
-                              title={product.productDetails} // Shows full text on hover
-                            >
-                              {product.productDetails}
-                              {i !== orderItem.products.length - 1 && <hr />}
-                            </div>
-                          ))}
-                        </td>
+        <td className="table-dark text-center">
+          {orderItem.products.map((product, i) => (
+            <div key={i} title={product.productDetails}>
+              {product.productDetails}
+              {i !== orderItem.products.length - 1 && <hr />}
+            </div>
+          ))}
+        </td>
 
-                        <td className="table-dark">
-                          {orderItem.products.map((product, i) => (
-                            <div key={i} className="text-center">
-                              {product.quantity}
-                              {i !== orderItem.products.length - 1 && <hr />}
-                            </div>
-                          ))}
-                        </td>
+        <td className="table-dark text-center">
+          {orderItem.products.map((product, i) => (
+            <div key={i}>{product.quantity}{i !== orderItem.products.length - 1 && <hr />}</div>
+          ))}
+        </td>
 
-                        <td className="table-dark">
-                          {orderItem.products.map((product, i) => (
-                            <div key={i} className="text-center">
-                              {product.unit}
-                              {i !== orderItem.products.length - 1 && <hr />}
-                            </div>
-                          ))}
-                        </td>
+        <td className="table-dark text-center">
+          {orderItem.products.map((product, i) => (
+            <div key={i}>{product.unit}{i !== orderItem.products.length - 1 && <hr />}</div>
+          ))}
+        </td>
 
-                        <td className="table-dark">
-                          {orderItem.products.map((product, i) => (
-                            <div key={i} className="text-center">
-                              ₹{product.price}
-                              {i !== orderItem.products.length - 1 && <hr />}
-                            </div>
-                          ))}
-                        </td>
+        <td className="table-dark text-center">
+          {orderItem.products.map((product, i) => (
+            <div key={i}>₹{product.price}{i !== orderItem.products.length - 1 && <hr />}</div>
+          ))}
+        </td>
 
-                        <td className="table-dark text-center">{orderItem.gst}</td>
-                        <td className="table-dark text-center">₹{orderItem.cgst}</td>
-                        <td className="table-dark text-center">₹{orderItem.sgst}</td>
-                        <td className="table-dark text-center">₹{orderItem.igst}</td>
-                        <td className="table-dark text-center">{orderItem.transport === "Yes" ? `₹${orderItem.transportPrice}` : "N/A"}</td>
-                        <td className="table-dark text-center">₹{orderItem.salesAmount}</td>
-                        <td className="table-dark text-center">{orderItem.jobWorkSupplier !== "" ? `${orderItem.jobWorkSupplier}` : "N/A"}</td>
-                        <td className="table-dark text-center">
-                          <span className={`badge ${orderItem.cancelled ? "bg-secondary" : orderItem.paymentStatus === "Paid"
-                            ? "bg-success"
-                            : orderItem.paymentStatus === "Partial"
-                            ? "bg-warning"
-                            : "bg-danger"}`}>
-                            {orderItem.cancelled ? "Cancelled" : orderItem.paymentStatus}
-                          </span>
-                        </td>
+        <td className="table-dark text-center">{orderItem.gst}</td>
+        <td className="table-dark text-center">₹{orderItem.cgst}</td>
+        <td className="table-dark text-center">₹{orderItem.sgst}</td>
+        <td className="table-dark text-center">₹{orderItem.igst}</td>
+        <td className="table-dark text-center">
+          {orderItem.transport === "Yes" ? `₹${orderItem.transport_price}` : "N/A"}
+        </td>
+        <td className="table-dark text-center">₹{orderItem.sales_amount}</td>
+        <td className="table-dark text-center">
+          {orderItem.job_work_supplier !== "" ? orderItem.job_work_supplier : "N/A"}
+        </td>
+        <td className="table-dark text-center">
+          <span
+            className={`badge ${
+              orderItem.cancelled
+                ? "bg-secondary"
+                : orderItem.payment_status === "Paid"
+                ? "bg-success"
+                : orderItem.payment_status === "Partial"
+                ? "bg-warning"
+                : "bg-danger"
+            }`}
+          >
+            {orderItem.cancelled ? "Cancelled" : orderItem.payment_status}
+          </span>
+        </td>
 
-                        <td className="table-dark text-center">
-                          {orderItem.cancelled ? (
-                            "-"
-                          ) : orderItem.paymentStatus === "Partial" ? (
-                            <span className="text-warning fw-bold">₹{orderItem.amountPaid}</span>
-                          ) : orderItem.paymentStatus === "Paid" ? (
-                            <span className="fw-bold" style={{ color: "lightgreen" }}>₹{orderItem.salesAmount}</span>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
+        <td className="table-dark text-center">
+          {orderItem.cancelled ? (
+            "-"
+          ) : orderItem.payment_status === "Partial" ? (
+            <span className="text-warning fw-bold">₹{orderItem.amount_paid}</span>
+          ) : orderItem.payment_status === "Paid" ? (
+            <span className="fw-bold" style={{ color: "lightgreen" }}>
+              ₹{orderItem.sales_amount}
+            </span>
+          ) : (
+            "-"
+          )}
+        </td>
 
-                        <td className="table-dark text-center">
-                          {orderItem.paymentStatus === "Partial" ? (
-                            <span className="text-danger fw-bold">₹{orderItem.salesAmount - orderItem.amountPaid}</span>
-                          ) : orderItem.paymentStatus === "Pending" ? (
-                            <span className="text-danger fw-bold">₹{orderItem.salesAmount}</span>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                        <td className="table-dark text-center">{orderItem.paymentType || "-"}</td>
-                        <td className="table-dark text-center">
-                          {orderItem.paymentType === "Check" ? (
-                            <>
-                              <div><strong>Bank:</strong> {orderItem.bankName}</div>
-                              <div><strong>Cheque No:</strong> {orderItem.checkNo}</div>
-                            </>
-                          ) : orderItem.paymentType === "Online" ? (
-                            <div><strong>Txn ID:</strong> {orderItem.transactionId}</div>
-                          ) : orderItem.paymentType === "Cash" ? (
-                            "-"
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="14" className="text-center">No products found</td>
-                  </tr>
-                );
-              })()}
-            </tbody>
+        <td className="table-dark text-center">
+          {orderItem.payment_status === "Partial" ? (
+            <span className="text-danger fw-bold">
+              ₹{orderItem.sales_amount - orderItem.amount_paid}
+            </span>
+          ) : orderItem.payment_status === "Pending" ? (
+            <span className="text-danger fw-bold">₹{orderItem.sales_amount}</span>
+          ) : (
+            "-"
+          )}
+        </td>
+
+        <td className="table-dark text-center">{orderItem.payment_type || "-"}</td>
+
+        <td className="table-dark text-center">
+          {orderItem.payment_type === "Check" ? (
+            <>
+              <div>
+                <strong>Bank:</strong> {orderItem.bank_name}
+              </div>
+              <div>
+                <strong>Check No:</strong> {orderItem.check_no}
+              </div>
+            </>
+          ) : orderItem.payment_type === "Online" ? (
+            <div>
+              <strong>Txn ID:</strong> {orderItem.transaction_id}
+            </div>
+          ) : (
+            "-"
+          )}
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="18" className="text-center bg-dark text-light">
+        No products found
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
       </div>

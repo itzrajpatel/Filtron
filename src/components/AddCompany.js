@@ -21,17 +21,27 @@ const AddCompany = () => {
     setCompanyData({ ...companyData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const existingCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-    const updatedCompanies = [...existingCompanies, companyData];
-
-    localStorage.setItem("companies", JSON.stringify(updatedCompanies));
-
-    alert("Company Added Successfully!");
-    navigate("/company");
-  };
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/companies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(companyData),
+      });
+  
+      if (response.ok) {
+        alert("Company Added Successfully!");
+        navigate("/company");
+      } else {
+        alert("Error adding company.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error.");
+    }
+  };  
 
   return (
     <div className="container mt-5">

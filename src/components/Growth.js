@@ -37,50 +37,71 @@ const Growth = () => {
 
   // Fetch data
   useEffect(() => {
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    const activeOrders = orders.filter(order => !order.cancelled);
+    const fetchData = async () => {
+      try {
+        const ordersRes = await fetch("http://localhost:5000/api/orders");
+        const ordersData = await ordersRes.json();
+        const purchasesRes = await fetch("http://localhost:5000/api/purchases");
+        const purchasesData = await purchasesRes.json();
   
-    const orderCounts = {};
-    const revenueTotals = {};
+        const activeOrders = ordersData.filter(order => !order.cancelled);
   
-    months.forEach(month => {
-      orderCounts[month] = 0;
-      revenueTotals[month] = 0;
-    });
+        const orderCounts = {};
+        const revenueTotals = {};
+        const purchaseCounts = {};
   
-    activeOrders.forEach(order => {
-      const month = order.invoiceMonth;
-      if (month in orderCounts) {
-        orderCounts[month]++;
-        revenueTotals[month] += parseFloat(order.salesAmount || 0);
+        months.forEach(month => {
+          orderCounts[month] = 0;
+          revenueTotals[month] = 0;
+          purchaseCounts[month] = 0;
+        });
+  
+        activeOrders.forEach(order => {
+          const month = order.invoice_month;
+          if (month in orderCounts) {
+            orderCounts[month]++;
+            revenueTotals[month] += parseFloat(order.sales_amount || 0);
+          }
+        });
+  
+        purchasesData.forEach(purchase => {
+          const month = purchase.invoice_month;
+          if (month in purchaseCounts) {
+            purchaseCounts[month]++; // 🆕 count purchase
+          }
+        });
+  
+        const chartData = months.map(month => ({
+          month,
+          orders: orderCounts[month],
+          revenue: parseFloat(revenueTotals[month].toFixed(2)),
+          purchase: purchaseCounts[month], // 🆕 Include purchase
+        }));
+  
+        setMonthlyData(chartData);
+  
+        // Profit Calculation (same as before)
+        const totalOrderRevenue = activeOrders.reduce((sum, o) => sum + parseFloat(o.sales_amount || 0), 0);
+        const totalPurchaseCost = purchasesData.reduce((sum, p) => sum + parseFloat(p.sales_amount || 0), 0);
+  
+        const profit = totalOrderRevenue - totalPurchaseCost;
+        const profitRatio = totalOrderRevenue > 0 ? (profit / totalOrderRevenue) * 100 : 0;
+  
+        setProfitValue(profit);
+        setProfitPercent(profitRatio);
+  
+        setProfitData([
+          { name: "Revenue", value: totalOrderRevenue },
+          { name: "Purchase", value: totalPurchaseCost }
+        ]);
+  
+      } catch (error) {
+        console.error("Failed to fetch orders or purchases:", error);
       }
-    });
+    };
   
-    const chartData = months.map(month => ({
-      month,
-      orders: orderCounts[month],
-      revenue: parseFloat(revenueTotals[month].toFixed(2)),
-    }));
-  
-    setMonthlyData(chartData);
-
-    //TESTING
-    const totalOrderRevenue = activeOrders.reduce((sum, o) => sum + parseFloat(o.salesAmount || 0), 0);
-
-    const purchases = JSON.parse(localStorage.getItem("purchase")) || [];
-    const totalPurchaseCost = purchases.reduce((sum, p) => sum + parseFloat(p.salesAmount || 0), 0);
-
-    const profit = totalOrderRevenue - totalPurchaseCost;
-    const profitRatio = totalOrderRevenue > 0 ? (profit / totalOrderRevenue) * 100 : 0;
-
-    setProfitValue(profit);
-    setProfitPercent(profitRatio);
-
-    setProfitData([
-      { name: "Revenue", value: totalOrderRevenue },
-      { name: "Purchase", value: totalPurchaseCost }
-    ])
-  }, []);  
+    fetchData();
+  }, []);      
 
   return (
     <div className="container-fluid mt-5 px-2 px-sm-4">
@@ -170,6 +191,15 @@ const Growth = () => {
               radius={[6, 6, 0, 0]}
               animationDuration={1500}
             />
+
+            {/* Purchase bar linked to left Y Axis */}
+            <Bar
+              yAxisId="left"
+              dataKey="purchase"
+              fill="#ff7f7f" // Light Red color
+              radius={[6, 6, 0, 0]}
+              animationDuration={1500}
+            />
           </BarChart>                    
           ) : (
             <LineChart
@@ -236,6 +266,18 @@ const Growth = () => {
                 animationDuration={1500}
                 animationEasing="ease-in-out"
               />
+
+              <Line
+                type="monotone"
+                yAxisId="left"
+                dataKey="purchase"
+                stroke="#ff7f7f"
+                strokeWidth={3}
+                dot={{ r: 6 }}
+                activeDot={{ r: 8 }}
+                animationDuration={1500}
+                animationEasing="ease-in-out"
+              />
             </LineChart>
           )}
         </ResponsiveContainer>
@@ -266,6 +308,19 @@ const Growth = () => {
             ></div>
             <span style={{ color: "white", fontSize: "14px" }}>Revenue</span>
           </div>
+
+          <div style={{ display: "flex", alignItems: "center", marginLeft: "20px" }}>
+            <div
+              style={{
+                width: "20px",
+                height: "10px",
+                backgroundColor: "#ff7f7f", // Red for purchase
+                marginRight: "8px",
+                borderRadius: "2px",
+              }}
+            ></div>
+            <span style={{ color: "white", fontSize: "14px" }}>Purchase</span>
+          </div>
         </div>
       </div>
 
@@ -274,51 +329,51 @@ const Growth = () => {
         Total Profit
       </h2>
       <div className="position-relative d-flex justify-content-center mb-5">
-  <PieChart width={300} height={300}>
-    <Pie
-      data={profitData}
-      dataKey="value"
-      nameKey="name"
-      cx="50%"
-      cy="50%"
-      innerRadius={100}
-      outerRadius={130}
-      startAngle={90}
-      endAngle={-270}
-      paddingAngle={2}
-      labelLine={false}
-      isAnimationActive={true}
-    >
-      <Cell fill="#ffc658" /> {/* Revenue */}
-      <Cell fill="crimson" /> {/* Purchase */}
-    </Pie>
-    <Tooltip
-      formatter={(value, name) => [`₹${value.toFixed(2)}`, name]}
-      contentStyle={{ backgroundColor: "#222", border: "none", borderRadius: "5px" }}
-      itemStyle={{ color: "#fff" }}
-      labelStyle={{ color: "#fff" }}
-    />
-  </PieChart>
+        <PieChart width={300} height={300}>
+          <Pie
+            data={profitData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={100}
+            outerRadius={130}
+            startAngle={90}
+            endAngle={-270}
+            paddingAngle={2}
+            labelLine={false}
+            isAnimationActive={true}
+          >
+            <Cell fill="#ffc658" /> {/* Revenue */}
+            <Cell fill="crimson" /> {/* Purchase */}
+          </Pie>
+          <Tooltip
+            formatter={(value, name) => [`₹${value.toFixed(2)}`, name]}
+            contentStyle={{ backgroundColor: "#222", border: "none", borderRadius: "5px" }}
+            itemStyle={{ color: "#fff" }}
+            labelStyle={{ color: "#fff" }}
+          />
+        </PieChart>
 
-  {/* Center content inside the chart */}
-  <div style={{
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    color: "white",
-    textAlign: "center",
-    fontSize: "1.1rem",
-    fontWeight: "600",
-    pointerEvents: "none"
-  }}>
-    <div>Profit</div>
-    <div>₹{profitValue.toFixed(2)}</div>
-    <div style={{ fontSize: "0.9rem", color: "#aaa" }}>
-      {profitPercent.toFixed(1)}%
-    </div>
-  </div>
-</div>
+        {/* Center content inside the chart */}
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          color: "white",
+          textAlign: "center",
+          fontSize: "1.1rem",
+          fontWeight: "600",
+          pointerEvents: "none"
+        }}>
+          <div>Profit</div>
+          <div>₹{profitValue.toFixed(2)}</div>
+          <div style={{ fontSize: "0.9rem", color: "#aaa" }}>
+            {profitPercent.toFixed(1)}%
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

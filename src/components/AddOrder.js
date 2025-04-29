@@ -34,9 +34,27 @@ const AddOrder = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-    setCompanies(savedCompanies);
-  }, []);
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/companies");
+        const data = await response.json();
+  
+        // Optional: format keys to camelCase
+        const formatted = data.map(c => ({
+          companyName: c.company_name,
+          customerName: c.customer_name,
+          stateCode: c.state_code,
+          // Add other fields if needed
+        }));
+  
+        setCompanies(formatted);
+      } catch (err) {
+        console.error("Failed to fetch companies:", err);
+      }
+    };
+  
+    fetchCompanies();
+  }, []);  
 
   // Handle changes in form inputs
   const handleChange = (e) => {
@@ -163,65 +181,66 @@ useEffect(() => {
 }, [calculateTotals]); // ✅ Now includes calculateTotals
   
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Ensure required fields are not empty
+  
     if (!formData.companyName || !products.length) {
-        alert("Please enter a company name and at least one product.");
-        return;
+      alert("Please enter a company name and at least one product.");
+      return;
     }
 
-    // Assign current date if not present
     const orderDate = formData.date || new Date().toISOString().split("T")[0];
-
-    // Fetch existing orders from localStorage
-    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    
-    // Generate Invoice Number
+  
     const currentYear = new Date().getFullYear();
     const nextYear = currentYear + 1;
-    const formattedIndex = String(existingOrders.length + 1).padStart(3, "0"); // Ensure 3-digit format
+    const countResponse = await fetch("http://localhost:5000/api/orders");
+    const allOrders = await countResponse.json();
+    const formattedIndex = String(allOrders.length + 1).padStart(3, "0");
     const newInvoiceNo = `DTI/${String(currentYear).slice(-2)}-${String(nextYear).slice(-2)}/${formattedIndex}`;
-
-    // Generate Invoice Date & Invoice Month
+  
     const today = new Date();
-    const invoiceDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getFullYear()}`;
+    const invoiceDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
     const invoiceMonth = today.toLocaleString("default", { month: "long" });
-
-    // Trim string values in formData
+  
     const cleanedFormData = {
-        ...formData,
-        companyName: formData.companyName.trim(),
-        customerName: formData.customerName.trim(),
-        jobWorkSupplier: formData.jobWorkSupplier ? formData.jobWorkSupplier.trim() : "",
-        date: orderDate,
+      ...formData,
+      companyName: formData.companyName.trim(),
+      customerName: formData.customerName.trim(),
+      jobWorkSupplier: formData.jobWorkSupplier ? formData.jobWorkSupplier.trim() : "",
+      date: formData.date || today.toISOString().split("T")[0]
     };
-
-    // Create the new order with Invoice details
-    const newOrder = {
-      id: Date.now(),
+  
+    const orderPayload = {
       invoiceNo: newInvoiceNo,
-      invoiceDate: invoiceDate,
-      invoiceMonth: invoiceMonth,
+      invoiceDate,
+      invoiceMonth,
       ...cleanedFormData,
       amountPaid: formData.paymentStatus === "Partial" ? formData.amountPaid : "",
       products,
-
-      //TESTING
       paymentType: formData.paymentType,
       bankName: formData.bankName,
       checkNo: formData.checkNo,
-      transactionId: formData.transactionId,
+      transactionId: formData.transactionId
     };
-
-    // Save updated order list
-    const updatedOrders = [...existingOrders, newOrder];
-    localStorage.setItem("orders", JSON.stringify(updatedOrders));
-
-    alert("Invoice Added Successfully!");
-    navigate("/invoice");
-  };
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload)
+      });
+  
+      if (response.ok) {
+        alert("Invoice Added Successfully!");
+        navigate("/invoice");
+      } else {
+        alert("Failed to add invoice.");
+      }
+    } catch (err) {
+      console.error("Error saving Invoice:", err);
+      alert("Server error occurred.");
+    }
+  };  
 
   const removeProduct = (indexToRemove) => {
     setProducts((prevProducts) => prevProducts.filter((_, index) => index !== indexToRemove));
@@ -379,7 +398,7 @@ useEffect(() => {
               <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange} required>
                 <option value="">Select Payment Type</option>
                 <option value="Cash">Cash</option>
-                <option value="Check">Cheque</option>
+                <option value="Check">Check</option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -392,8 +411,8 @@ useEffect(() => {
                   <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" />
                 </div>
                 <div className="mb-3">
-                  <label>Cheque No.</label>
-                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Cheque Number" />
+                  <label>Check No.</label>
+                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" />
                 </div>
               </>
             )}

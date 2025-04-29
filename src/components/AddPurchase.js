@@ -36,9 +36,18 @@ const AddPurchase = () => {
   });
 
   useEffect(() => {
-    const savedCompanies = JSON.parse(localStorage.getItem("companies")) || [];
-    setCompanies(savedCompanies);
-  }, []);
+    const fetchCompanies = async () => {
+      const res = await fetch("http://localhost:5000/api/companies");
+      const data = await res.json();
+      const formatted = data.map(c => ({
+        companyName: c.company_name,
+        state: c.state,
+        stateCode: c.state_code
+      }));
+      setCompanies(formatted);
+    };
+    fetchCompanies();
+  }, []);    
 
   const [products, setProducts] = useState([
     { productName: "", productCode: "", hsnNo: "", productDescription: "", quantity: "", price: "", total: 0, unit: "PCS" }
@@ -127,22 +136,22 @@ const AddPurchase = () => {
   }, [calculateTotals]);    
 
   const addProduct = () => {
-    setProducts([...products, { productName: "", productCode: "", hsnNo: "", productDescription: "", quantity: "", price: "", total: 0, unit: "PCS" }]);
+    setProducts([...products, { productName: "", productCode: "", hsnNo: "", productDescription: "", quantity: "", price: "", total: 0, unit: "" }]);
   };
 
   const removeProduct = (index) => {
     setProducts(products.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const existing = JSON.parse(localStorage.getItem("purchase")) || [];
+  
     const today = new Date();
     const invoiceDate = formData.invoiceDate || today.toISOString().split("T")[0];
     const invoiceMonth = formData.invoiceMonth || today.toLocaleString("default", { month: "long" });
   
     const newPurchase = {
-      id: Date.now(),
+      id: Date.now(), // Not used in PostgreSQL but retained for compatibility
       createdAt: today.toISOString().split("T")[0],
       invoiceNo: formData.invoiceNo,
       invoiceMonth,
@@ -151,10 +160,24 @@ const AddPurchase = () => {
       products
     };
   
-    localStorage.setItem("purchase", JSON.stringify([...existing, newPurchase]));
-    alert("Purchase saved successfully!");
-    navigate("/purchase");
-  };  
+    try {
+      const response = await fetch("http://localhost:5000/api/purchases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPurchase)
+      });
+  
+      if (response.ok) {
+        alert("Purchase saved successfully!");
+        navigate("/purchase");
+      } else {
+        alert("Failed to save purchase");
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      alert("Server error occurred");
+    }
+  };    
 
   return (
     <div className="container mt-4">
@@ -227,8 +250,14 @@ const AddPurchase = () => {
             <div className="col-md-2">
               <input type="text" name="hsnNo" className="form-control" placeholder="HSN No." value={product.hsnNo} onChange={(e) => handleProductChange(index, e)} required />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-1">
               <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} required />
+            </div>
+            <div className="col-md-1">
+              <select name="unit" className="form-control" value={product.unit} onChange={(e) => handleProductChange(index, e)} required>
+                <option value="PCS">PCS</option>
+                <option value="MTR">MTR</option>
+              </select>
             </div>
             <div className="col-md-2">
               <input type="number" name="price" className="form-control" placeholder="Price" value={product.price} onChange={(e) => handleProductChange(index, e)} required />

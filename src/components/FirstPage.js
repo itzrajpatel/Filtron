@@ -17,7 +17,7 @@ const FirstPage = () => {
 
   return (
     <div className="container mt-3">
-        <Link className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/first"
+        <Link className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/"
           style={{
             animation: "fadeSlideUp 1.5s ease-out",
             fontSize: "clamp(1.5rem, 5vw, 80px)",

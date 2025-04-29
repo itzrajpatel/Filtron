@@ -1,11 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/Chalan.css";
 
 const Chalan = () => {
     const location = useLocation();
-    const order = location.state?.order; // Retrieve order data
-    const company = location.state?.company;
+    const orderId = location.state?.orderId;
+
+    const [order, setOrder] = useState(null);
+    const [company, setCompany] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const orderRes = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+                const orderData = await orderRes.json();
+                setOrder(orderData);
+
+                const companyRes = await fetch(`http://localhost:5000/api/companies`);
+                const companies = await companyRes.json();
+
+                const matchedCompany = companies.find(c =>
+                    c.company_name?.trim().toLowerCase() === orderData.company_name?.trim().toLowerCase()
+                );
+
+                setCompany(matchedCompany || null);
+
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            }
+        };
+
+        if (orderId) fetchData();
+    }, [orderId]);
+
+    if (!order || !company) {
+        return <h3 className="text-center text-danger">Loading Chalan...</h3>;
+    }
 
     if (!order) {
         return <h3 className="text-center text-danger">No order selected</h3>;
@@ -16,7 +46,7 @@ const Chalan = () => {
       <h3 style={{ textAlign: "center", margin: "20px 0", textDecoration: "underline" }}>BUYER DETAILS:</h3>
       <div style={{ display: "flex", justifyContent: "space-around", borderTop: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
         <div>
-          <strong>CHALAN NO:</strong> {order.invoiceNo.slice(-3)}
+        <strong>CHALAN NO:</strong> {order.invoice_no?.slice(-3)}
         </div>
         <div>
           <strong>CHALAN DATE:</strong> <input type="text" placeholder="Enter date" style={{ height: "20px", width: "100px", padding: "5px", fontSize: "14px", border: "none" }}></input>
@@ -38,8 +68,8 @@ const Chalan = () => {
                         <strong style={{ textDecoration: "underline" }}>BILING ADDRESS</strong>
                     </div>
                 </div>
-                <strong style={{ paddingLeft: "5px" }}>{company.companyName}</strong>
-                <p className="mt-3" style={{ lineHeight: "2.3", paddingLeft: "10px" }}>
+                <strong style={{ paddingLeft: "5px" }}>{company.company_name}</strong>
+                <p className="mt-3" style={{ paddingLeft: "5px" }}>
                     {company.address.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
                         {line}
@@ -56,8 +86,8 @@ const Chalan = () => {
                         <strong style={{ textDecoration: "underline" }}>SHIPING ADDRESS</strong>
                     </div>
                 </div>
-                <strong style={{ paddingLeft: "5px" }}>{company.companyName}</strong>
-                <p className="mt-3" style={{ lineHeight: "2.3", paddingLeft: "10px" }}>
+                <strong style={{ paddingLeft: "5px" }}>{company.company_name}</strong>
+                <p className="mt-3" style={{ paddingLeft: "5px" }}>
                     {company.address.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
                         {line}

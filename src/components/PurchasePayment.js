@@ -1,36 +1,30 @@
 import React, { useState, useEffect } from "react";
-import "../styles/PurchasePayment.css";
+import "../styles/Purchase.css";
+import { format } from 'date-fns';
 
 // TESTING
 import { Modal, Button, Form } from "react-bootstrap";
 
-const Purchase = () => {
+const PurchasePayment = () => {
   const [purchases, setPurchases] = useState([]);
 
   // TESTING
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // TESTING
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
+  const filteredPurchases = purchases.filter((purchase) => {
+    const companyMatch = selectedCompany === "" || purchase.company_name === selectedCompany;
+    const statusMatch = selectedPaymentStatus === "" || purchase.payment_status === selectedPaymentStatus;
+    return companyMatch && statusMatch;
+  });  
 
   // TESTING
   const handleEditClick = (purchase, index) => {
     setSelectedPurchase({ ...purchase, srNo: index }); // Save index inside selected purchase
     setShowModal(true);
-  };  
-
-  // TESTING
-  const handleSave = () => {
-    const updatedPurchases = purchases.map((p, idx) =>
-      idx === selectedPurchase.srNo ? selectedPurchase : p
-    );
-  
-    setPurchases(updatedPurchases);
-    localStorage.setItem("purchase", JSON.stringify(updatedPurchases));
-    setShowModal(false);
-  };  
+  };                    
 
   // TESTING
   const calculateTotals = (purchase) => {
@@ -72,17 +66,51 @@ const Purchase = () => {
 
   // TESTING
   const handleChange = (e, index, field) => {
+    const fieldMap = {
+      invoiceDate: "invoice_date",
+      invoiceNo: "invoice_no",
+      invoiceMonth: "invoice_month",
+      typeOfPurchase: "type_of_purchase",
+      productCode: "product_code",
+      productName: "product_name",
+      transportCharge: "transport_charge",
+      grandTotal: "grand_total",
+      finalTotal: "final_total",
+      salesAmount: "sales_amount",
+      grossAmount: "gross_amount",
+      paymentStatus: "payment_status",
+      amountPaid: "amount_paid",
+      paymentType: "payment_type",
+      bankName: "bank_name",
+      checkNo: "check_no",
+      transactionId: "transaction_id",
+      dateOfPayment: "date_of_payment",
+      lrNo: "lr_no",
+      transporter: "transporter",
+      discount: "discount",
+      gst: "gst",
+      cgst: "cgst",
+      sgst: "sgst",
+      igst: "igst",
+      tcs: "tcs",
+      freight: "freight",
+      companyName: "company_name",
+      stateCode: "state_code",
+      state: "state"
+    };
+  
     const updated = { ...selectedPurchase };
+    const dbField = fieldMap[field] || field; // fallback if field is already in snake_case
   
     if (index === null) {
-      updated[field] = e.target.value;
+      updated[dbField] = e.target.value;
   
-      if (field === "paymentStatus") {
-        updated.amountPaid = updated.paymentStatus === "Partial" ? updated.amountPaid : "";
-        updated.paymentType = "";
-        updated.bankName = "";
-        updated.checkNo = "";
-        updated.transactionId = "";
+      if (dbField === "payment_status") {
+        updated.amount_paid = updated.payment_status === "Partial" ? updated.amount_paid : "";
+        updated.payment_type = "";
+        updated.bank_name = "";
+        updated.check_no = "";
+        updated.transaction_id = "";
       }
     } else {
       updated.products[index][field] = e.target.value;
@@ -91,18 +119,100 @@ const Purchase = () => {
     // ➔ Recalculate totals on important fields
     if (
       (index !== null && (field === "quantity" || field === "price")) ||
-      (index === null && (field === "transportCharge" || field === "discount" || field === "tcs" || field === "freight"))
+      (index === null &&
+        (field === "transportCharge" || field === "discount" || field === "tcs" || field === "freight"))
     ) {
       const totals = calculateTotals(updated);
       setSelectedPurchase({ ...updated, ...totals });
     } else {
       setSelectedPurchase(updated);
     }
-  };
+  };  
 
+  // TESTING
+  const handleSave = async () => {
+    const original = purchases[selectedPurchase.srNo];
+  
+    const hasChanged = JSON.stringify(original) !== JSON.stringify(selectedPurchase);
+    if (!hasChanged) {
+      alert("No changes made.");
+      setShowModal(false);
+      return;
+    }
+  
+    const purchaseId = original.id;
+  
+    // Convert camelCase to snake_case
+    const payload = {
+      companyName: selectedPurchase.company_name,
+      state: selectedPurchase.state,
+      stateCode: selectedPurchase.state_code,
+      typeOfPurchase: selectedPurchase.type_of_purchase,
+      productCode: selectedPurchase.product_code,
+      productName: selectedPurchase.product_name,
+      invoiceNo: selectedPurchase.invoice_no,
+      invoiceMonth: selectedPurchase.invoice_month,
+      invoiceDate: selectedPurchase.invoice_date,
+      discount: selectedPurchase.discount,
+      transport: selectedPurchase.transport,
+      lrNo: selectedPurchase.lr_no,
+      transporter: selectedPurchase.transporter,
+      transportCharge: selectedPurchase.transport_charge,
+      gst: selectedPurchase.gst,
+      cgst: selectedPurchase.cgst,
+      sgst: selectedPurchase.sgst,
+      igst: selectedPurchase.igst,
+      tcs: selectedPurchase.tcs,
+      freight: selectedPurchase.freight,
+      finalTotal: selectedPurchase.final_total,
+      grandTotal: selectedPurchase.grand_total,
+      salesAmount: selectedPurchase.sales_amount,
+      grossAmount: selectedPurchase.gross_amount,
+      paymentStatus: selectedPurchase.payment_status,
+      amountPaid: selectedPurchase.amount_paid,
+      paymentType: selectedPurchase.payment_type,
+      bankName: selectedPurchase.bank_name,
+      checkNo: selectedPurchase.check_no,
+      transactionId: selectedPurchase.transaction_id,
+      dateOfPayment: selectedPurchase.date_of_payment,
+      products: selectedPurchase.products,
+    };
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/purchases/${purchaseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        const updated = await fetch("http://localhost:5000/api/purchases");
+        const updatedData = await updated.json();
+        setPurchases(updatedData);
+        setShowModal(false);
+        alert("Purchase updated successfully.");
+      } else {
+        alert("Failed to update purchase.");
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Error updating purchase.");
+    }
+  };  
+
+  // Get Purchase data
   useEffect(() => {
-    const savedPurchases = JSON.parse(localStorage.getItem("purchase")) || [];
-    setPurchases(savedPurchases);
+    const fetchPurchases = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/purchases");
+        const data = await response.json();
+        setPurchases(data);
+      } catch (err) {
+        console.error("Failed to fetch purchases:", err);
+      }
+    };
+  
+    fetchPurchases();
   }, []);
 
   return (
@@ -120,7 +230,7 @@ const Purchase = () => {
             onChange={(e) => setSelectedCompany(e.target.value)}
           >
             <option value="">All Companies</option>
-            {[...new Set(purchases.map(p => p.companyName))].map((name, idx) => (
+            {[...new Set(purchases.map(p => p.company_name))].map((name, idx) => (
               <option key={idx} value={name}>{name}</option>
             ))}
           </select>
@@ -139,8 +249,7 @@ const Purchase = () => {
           </select>
         </div>
       </div>
-      
-      {/* Table Section */}
+
       <div className="scroll-container glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out", borderRadius: "12px", overflowX: "auto", whiteSpace: "nowrap", scrollbarColor: "white transparent" }}>
         <table className="table table-bordered table-striped" style={{ border: "1px solid grey" }}>
           <thead className="table-dark">
@@ -155,79 +264,82 @@ const Purchase = () => {
               <th className="text-center">Payment Type</th>
               <th className="text-center">Payment Details</th>
               <th className="text-center">Payment Date</th>
+              
+              {/* TESTING */}
               <th className="text-center">Edit</th>
             </tr>
           </thead>
           <tbody>
             {purchases.length > 0 ? (
-              purchases.filter(purchase => {
-                const matchesCompany = selectedCompany === "" || purchase.companyName === selectedCompany;
-                const matchesStatus = selectedPaymentStatus === "" || purchase.paymentStatus === selectedPaymentStatus;
-                return matchesCompany && matchesStatus;
-              }).map((purchase, index) => (
+              filteredPurchases.map((purchase, index) => (
                 <tr key={index}>
                   <td className="table-dark text-center">{index + 1}</td>
-                  <td className="table-dark text-center">{purchase.companyName}</td>
-                  <td className="table-dark text-center">{purchase.invoiceNo}</td>
-                  <td className="table-dark text-center">₹{purchase.salesAmount}</td>
+                  <td className="table-dark text-center">{purchase.company_name}</td>
+                  <td className="table-dark text-center">{purchase.invoice_no}</td>
+                  <td className="table-dark text-center">₹{purchase.sales_amount}</td>
                   <td className="table-dark text-center">
-                    <span className={`badge ${purchase.paymentStatus === "Paid" ? "bg-success" : purchase.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
-                        {purchase.paymentStatus}
+                    <span className={`badge ${purchase.payment_status === "Paid" ? "bg-success" : purchase.payment_status === "Partial" ? "bg-warning" : "bg-danger"}`}>
+                        {purchase.payment_status}
                       </span>
                   </td>
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                       <span className="text-warning fw-bold">₹{purchase.amountPaid}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.salesAmount}</span>
+                    {purchase.payment_status === "Partial" ? (
+                       <span className="text-warning fw-bold">₹{purchase.amount_paid}</span>
+                    ) : purchase.payment_status === "Paid" ? (
+                      <span className="fw-bold" style={{ color: "lightgreen" }}>₹{purchase.sales_amount}</span>
                     ) : (
                       "-"
                     )}
                   </td>
 
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span className="text-danger fw-bold">₹{purchase.salesAmount - purchase.amountPaid}</span>
-                    ) : purchase.paymentStatus === "Pending" ? (
-                      <span className="text-danger fw-bold">₹{purchase.salesAmount}</span>
+                    {purchase.payment_status === "Partial" ? (
+                      <span className="text-danger fw-bold">₹{purchase.sales_amount - purchase.amount_paid}</span>
+                    ) : purchase.payment_status === "Pending" ? (
+                      <span className="text-danger fw-bold">₹{purchase.sales_amount}</span>
                     ) : (
                       "-"
                     )}
                   </td>
 
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span>{purchase.paymentType}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span>{purchase.paymentType}</span>
+                    {purchase.payment_status === "Partial" ? (
+                      <span>{purchase.payment_type}</span>
+                    ) : purchase.payment_status === "Paid" ? (
+                      <span>{purchase.payment_type}</span>
                     ) : (
                       "-"
                     )}
                   </td>
 
                   <td className="table-dark text-center">
-                    {purchase.paymentType === "Check" ? (
+                    {purchase.payment_type === "Check" ? (
                       <span>
-                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
-                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                        {purchase.bank_name && <div>Bank: {purchase.bank_name}</div>}
+                        {purchase.check_no && <div>Cheque No: {purchase.check_no}</div>}
+                        {purchase.transaction_id && <div>Txn: {purchase.transaction_id}</div>}
                       </span>
-                    ) : purchase.paymentType === "Online" ? (
+                    ) : purchase.payment_type === "Online" ? (
                       <span>
-                        {purchase.bankName && <div>Bank: {purchase.bankName}</div>}
-                        {purchase.checkNo && <div>Cheque No: {purchase.checkNo}</div>}
-                        {purchase.transactionId && <div>Txn: {purchase.transactionId}</div>}
+                        {purchase.bank_name && <div>Bank: {purchase.bank_name}</div>}
+                        {purchase.check_no && <div>Cheque No: {purchase.check_no}</div>}
+                        {purchase.transaction_id && <div>Txn: {purchase.transaction_id}</div>}
                       </span>
                     ) : (
                       "-"
                     )}
                   </td>
 
+                  {/* <td className="table-dark text-center">
+                    {(purchase.payment_status === "Partial" || purchase.payment_status === "Paid") && purchase.date_of_payment ? (
+                      <span>{purchase.date_of_payment}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </td> */}
                   <td className="table-dark text-center">
-                    {purchase.paymentStatus === "Partial" ? (
-                      <span>{purchase.dateOfPayment}</span>
-                    ) : purchase.paymentStatus === "Paid" ? (
-                      <span>{purchase.dateOfPayment}</span>
+                    {(purchase.payment_status === "Partial" || purchase.payment_status === "Paid") && purchase.date_of_payment ? (
+                      <span>{format(new Date(purchase.date_of_payment), "dd-MM-yyyy")}</span>
                     ) : (
                       "-"
                     )}
@@ -243,7 +355,7 @@ const Purchase = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="27" className="text-center text-light bg-transparent">No Purchase Added Yet</td>
+                <td colSpan="35" className="text-center text-light bg-transparent">No Purchase Added Yet</td>
               </tr>
             )}
           </tbody>
@@ -261,7 +373,7 @@ const Purchase = () => {
               <Form.Group className="mt-3">
                 <Form.Label>Payment Status</Form.Label>
                 <Form.Select
-                  value={selectedPurchase.paymentStatus}
+                  value={selectedPurchase.payment_status}
                   onChange={(e) => handleChange(e, null, "paymentStatus")}
                 >
                   <option value="Pending">Pending</option>
@@ -270,23 +382,23 @@ const Purchase = () => {
                 </Form.Select>
               </Form.Group>
 
-              {selectedPurchase.paymentStatus === "Partial" && (
+              {selectedPurchase.payment_status === "Partial" && (
                 <Form.Group className="mt-3">
                   <Form.Label>Amount Paid</Form.Label>
                   <Form.Control
                     type="number"
-                    value={selectedPurchase.amountPaid}
+                    value={selectedPurchase.amount_paid}
                     onChange={(e) => handleChange(e, null, "amountPaid")}
                   />
                 </Form.Group>
               )}
 
-              {["Paid", "Partial"].includes(selectedPurchase.paymentStatus) && (
+              {["Paid", "Partial"].includes(selectedPurchase.payment_status) && (
                 <>
                   <Form.Group className="mt-3">
                     <Form.Label>Payment Type</Form.Label>
                     <Form.Select
-                      value={selectedPurchase.paymentType || ""}
+                      value={selectedPurchase.payment_type || ""}
                       onChange={(e) => handleChange(e, null, "paymentType")}
                     >
                       <option value="">Select Payment Type</option>
@@ -296,13 +408,13 @@ const Purchase = () => {
                     </Form.Select>
                   </Form.Group>
 
-                  {selectedPurchase.paymentType === "Check" && (
+                  {selectedPurchase.payment_type === "Check" && (
                     <>
                       <Form.Group className="mt-3">
                         <Form.Label>Bank Name</Form.Label>
                         <Form.Control
                           type="text"
-                          value={selectedPurchase.bankName || ""}
+                          value={selectedPurchase.bank_name || ""}
                           onChange={(e) => handleChange(e, null, "bankName")}
                         />
                       </Form.Group>
@@ -310,19 +422,19 @@ const Purchase = () => {
                         <Form.Label>Cheque No.</Form.Label>
                         <Form.Control
                           type="text"
-                          value={selectedPurchase.checkNo || ""}
+                          value={selectedPurchase.check_no || ""}
                           onChange={(e) => handleChange(e, null, "checkNo")}
                         />
                       </Form.Group>
                     </>
                   )}
 
-                  {selectedPurchase.paymentType === "Online" && (
+                  {selectedPurchase.payment_type === "Online" && (
                     <Form.Group className="mt-3">
                       <Form.Label>Transaction ID</Form.Label>
                       <Form.Control
                         type="text"
-                        value={selectedPurchase.transactionId || ""}
+                        value={selectedPurchase.transaction_id || ""}
                         onChange={(e) => handleChange(e, null, "transactionId")}
                       />
                     </Form.Group>
@@ -332,7 +444,7 @@ const Purchase = () => {
                     <Form.Label>Date of Payment</Form.Label>
                     <Form.Control
                       type="date"
-                      value={selectedPurchase.dateOfPayment}
+                      value={selectedPurchase.date_of_payment}
                       onChange={(e) => handleChange(e, null, "dateOfPayment")}
                     />
                   </Form.Group>
@@ -350,4 +462,4 @@ const Purchase = () => {
   );
 };
 
-export default Purchase;
+export default PurchasePayment;
