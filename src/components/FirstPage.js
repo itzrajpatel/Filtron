@@ -89,7 +89,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/company");
                 } else {
-                  alert("Login to access details");
+                  alert("Login to access data!");
                 }
               }}
               style={buttonStyle}
@@ -105,7 +105,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/invoice");
                 } else {
-                  alert("Login to access details");
+                  alert("Login to access data!");
                 }
               }}
               style={buttonStyle}
@@ -121,7 +121,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/purchase");
                 } else {
-                  alert("Login to access details");
+                  alert("Login to access data!");
                 }
               }}
               style={buttonStyle}
@@ -137,7 +137,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/growth");
                 } else {
-                  alert("Login to access details");
+                  alert("Login to access data!");
                 }
               }}
               style={buttonStyle}
