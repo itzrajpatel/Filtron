@@ -116,14 +116,6 @@ const CreateBill = () => {
                 {/* Left Section - Buyer Details */}
                 <div style={{ flex: 1, paddingRight: "10px" }}>
                     <p className="mt-1"><strong style={{ marginBottom: "2px", paddingLeft: "10px", fontSize: "15px" }}>{company.company_name}</strong></p>
-                    {/* <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
-                        {company.address.split("\n").map((line, index) => (
-                            <React.Fragment key={index}>
-                            {line}
-                            <br />
-                            </React.Fragment>
-                        ))}
-                    </p> */}
                     <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
                         {(company.address ? company.address.split("\n") : []).map((line, index) => (
                             <React.Fragment key={index}>
@@ -136,7 +128,7 @@ const CreateBill = () => {
 
                 {/* Right Section - GSTIN & Other Details */}
                 <div style={{ flex: 1, paddingLeft: "10px", textAlign: "start", borderLeft: "1px solid black" }}>
-                    <p className="mt-1" style={{ fontSize: "13px", margin: "4px 0" }}><strong>GSTIN NO.:</strong> {company.gst_no || "N/A"} </p>
+                    <p className="mt-1" style={{ fontSize: "13px", margin: "4px 0" }}><strong>GSTIN NO.:</strong> {company.gst_no || "-"} </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE:</strong> {company.state} </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE CODE:</strong> {company.state_code} </p>
                     <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>PO REFF:</strong> <input type="text" placeholder="Enter PO REFF" style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none" }}></input> </p>
@@ -175,10 +167,10 @@ const CreateBill = () => {
                         order.products.map((product, index) => (
                         <tr key={index}>
                             <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>{index + 1}</td>
-                            <td className="text-center" style={{ border: "1px solid black" }}><input type="text" placeholder="Enter HSN code" style={{ fontSize: "13px", padding: "5px", border: "none", textAlign: "center" }}></input></td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "N/A"}</td>
+                            <td className="text-center" style={{ border: "1px solid black" }}>{product.hsnNo || "-"}</td>
+                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "-"}</td>
                             <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.quantity || 0}</td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "N/A"}</td>
+                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "-"}</td>
                             <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>₹{product.price || 0}</td>
                             <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>₹{(product.quantity * product.price).toFixed(2) || 0}</td>
                         </tr>

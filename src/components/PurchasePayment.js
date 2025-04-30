@@ -242,7 +242,7 @@ const PurchasePayment = () => {
             value={selectedPaymentStatus}
             onChange={(e) => setSelectedPaymentStatus(e.target.value)}
           >
-            <option value="">All Status</option>
+            <option value="">Payment Status</option>
             <option value="Pending">Pending</option>
             <option value="Partial">Partial</option>
             <option value="Paid">Paid</option>

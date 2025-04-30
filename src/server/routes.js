@@ -145,11 +145,12 @@ router.get("/companies", async (req, res) => {
       for (const p of products) {
         await client.query(
           `INSERT INTO order_products (
-            order_id, product_details, quantity, unit, price, total
-          ) VALUES ($1, $2, $3, $4, $5, $6)`,
+            order_id, product_details, hsn_no, quantity, unit, price, total
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
           [
             orderId,
             p.productDetails,
+            p.hsnNo,
             safeNum(p.quantity),
             p.unit,
             safeNum(p.price),
@@ -178,6 +179,7 @@ router.get("/companies", async (req, res) => {
           json_agg(
             json_build_object(
               'productDetails', p.product_details,
+              'hsnNo', p.hsn_no,
               'quantity', p.quantity,
               'unit', p.unit,
               'price', p.price,
@@ -208,6 +210,7 @@ router.get("/companies", async (req, res) => {
           json_agg(
             json_build_object(
               'productDetails', p.product_details,
+              'hsnNo', p.hsn_no,
               'quantity', p.quantity,
               'unit', p.unit,
               'price', p.price,
@@ -292,11 +295,12 @@ router.put("/orders/:id", async (req, res) => {
     // Re-insert updated products
     for (const p of products) {
       await client.query(
-        `INSERT INTO order_products (order_id, product_details, quantity, unit, price, total)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
+        `INSERT INTO order_products (order_id, product_details, hsn_no, quantity, unit, price, total)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
          [
           orderId,
           p.productDetails,
+          p.hsnNo,
           safeNum(p.quantity),
           p.unit,
           safeNum(p.price),
@@ -546,6 +550,7 @@ router.get("/orders/:id", async (req, res) => {
       SELECT o.*, json_agg(
         json_build_object(
           'productDetails', p.product_details,
+          'hsnNo', p.hsn_no,
           'quantity', p.quantity,
           'unit', p.unit,
           'price', p.price,

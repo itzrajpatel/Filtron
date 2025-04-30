@@ -223,7 +223,7 @@ const Orders = () => {
             value={selectedPaymentStatus}
             onChange={(e) => setSelectedPaymentStatus(e.target.value)}
           >
-            <option value="">All Status</option>
+            <option value="">Payment Status</option>
             <option value="Pending">Pending</option>
             <option value="Partial">Partial</option>
             <option value="Paid">Received</option>
@@ -242,6 +242,7 @@ const Orders = () => {
               <th className="text-center">Invoice Month</th>
               <th className="text-center">Company Name</th>
               <th className="text-center">Product Details</th>
+              <th className="text-center">HSN No.</th>
               <th className="text-center">Quantity</th>
               <th className="text-center">Unit</th>
               <th className="text-center">Price</th>
@@ -319,6 +320,15 @@ const Orders = () => {
 
                     <td className="table-dark text-center">
                       {order.products.map((product, i) => (
+                        <div key={i} className="text-center">
+                          {product.hsnNo}
+                          {i !== order.products.length - 1 && <hr />}
+                        </div>
+                      ))}
+                    </td>
+
+                    <td className="table-dark text-center">
+                      {order.products.map((product, i) => (
                         <div key={i} className="text-center" sty>
                           {product.quantity}
                           {i !== order.products.length - 1 && <hr />}
@@ -350,8 +360,12 @@ const Orders = () => {
                     <td className="table-dark text-center">₹{order.salesAmount}</td>
                     <td className="table-dark text-center">{order.job_work_supplier !== "" ? `${order.job_work_supplier}` : "-"}</td>
                     <td className="table-dark text-center">
-                      <span className={`badge ${order.paymentStatus === "Paid" ? "bg-success" : order.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
-                        {order.paymentStatus}
+                      <span className={`badge ${order.cancelled ? "bg-secondary" : order.payment_status === "Paid"
+                        ? "bg-success"
+                        : order.payment_status === "Partial"
+                        ? "bg-warning"
+                        : "bg-danger"}`}>
+                        {order.cancelled ? "Cancelled" : order.payment_status}
                       </span>
                     </td>
                     <td className="table-dark text-center">
@@ -466,6 +480,15 @@ const Orders = () => {
                     type="text"
                     value={product.productDetails}
                     onChange={(e) => handleChange(e, index, "productDetails")}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mt-3">
+                  <Form.Label>HSN No.</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={product.hsnNo}
+                    onChange={(e) => handleChange(e, index, "hsnNo")}
                   />
                 </Form.Group>
           

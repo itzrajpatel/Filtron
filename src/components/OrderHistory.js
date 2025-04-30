@@ -56,7 +56,8 @@ if (!companyName) {
                 <th className="text-center">Invoice No.</th>
                 <th className="text-center">Invoice Date</th>
                 <th className="text-center">Invoice Month</th>
-                <th className="text-center">Product Name</th>
+                <th className="text-center">Product Details</th>
+                <th className="text-center">HSN No.</th>
                 <th className="text-center">Quantity</th>
                 <th className="text-center">Unit</th>
                 <th className="text-center">Price</th>
@@ -87,6 +88,15 @@ if (!companyName) {
                       {orderItem.products.map((product, i) => (
                         <div key={i} title={product.productDetails}>
                           {product.productDetails}
+                          {i !== orderItem.products.length - 1 && <hr />}
+                        </div>
+                      ))}
+                    </td>
+
+                    <td className="table-dark text-center">
+                      {orderItem.products.map((product, i) => (
+                        <div key={i} className="text-center">
+                          {product.hsnNo}
                           {i !== orderItem.products.length - 1 && <hr />}
                         </div>
                       ))}

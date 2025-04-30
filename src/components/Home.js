@@ -90,7 +90,7 @@ const Home = () => {
                   <td className="table-dark text-center">{company.stateCode}</td>
                   <td className="table-dark text-center" style={{ whiteSpace: "nowrap" }}>{company.contact}</td>
                   <td className="table-dark text-center">{company.email}</td>
-                  <td className="table-dark text-center">{company.gstNo || "N/A"}</td>
+                  <td className="table-dark text-center">{company.gstNo || "-"}</td>
                 </tr>
               ))
             ) : (

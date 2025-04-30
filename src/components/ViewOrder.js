@@ -67,7 +67,7 @@ useEffect(() => {
           <p style={{ color: "white" }}><strong style={{ fontFamily: "Orbitron, sans-serif", color: "#a4d8fc" }}>State:</strong> {companyDetails.state} ({companyDetails.stateCode})</p>
           <p style={{ color: "white" }}><strong style={{ fontFamily: "Orbitron, sans-serif", color: "#a4d8fc" }}>Contact:</strong> {companyDetails.contact}</p>
           <p style={{ color: "white" }}><strong style={{ fontFamily: "Orbitron, sans-serif", color: "#a4d8fc" }}>Email:</strong> {companyDetails.email}</p>
-          <p style={{ color: "white" }}><strong style={{ fontFamily: "Orbitron, sans-serif", color: "#a4d8fc" }}>GST No:</strong> {companyDetails.gstNo || "N/A"}</p>
+          <p style={{ color: "white" }}><strong style={{ fontFamily: "Orbitron, sans-serif", color: "#a4d8fc" }}>GST No:</strong> {companyDetails.gstNo || "-"}</p>
         </div>
       )}
 
@@ -90,7 +90,8 @@ useEffect(() => {
                 <th className="text-center">Invoice No.</th>
                 <th className="text-center">Invoice Date</th>
                 <th className="text-center">Invoice Month</th>
-                <th className="text-center">Product Name</th>
+                <th className="text-center">Product Details</th>
+                <th className="text-center">HSN No.</th>
                 <th className="text-center">Quantity</th>
                 <th className="text-center">Unit</th>
                 <th className="text-center">Price</th>
@@ -139,6 +140,15 @@ useEffect(() => {
 
         <td className="table-dark text-center">
           {orderItem.products.map((product, i) => (
+            <div key={i} className="text-center">
+              {product.hsnNo}
+              {i !== orderItem.products.length - 1 && <hr />}
+            </div>
+          ))}
+        </td>
+
+        <td className="table-dark text-center">
+          {orderItem.products.map((product, i) => (
             <div key={i}>{product.quantity}{i !== orderItem.products.length - 1 && <hr />}</div>
           ))}
         </td>
@@ -160,11 +170,11 @@ useEffect(() => {
         <td className="table-dark text-center">₹{orderItem.sgst}</td>
         <td className="table-dark text-center">₹{orderItem.igst}</td>
         <td className="table-dark text-center">
-          {orderItem.transport === "Yes" ? `₹${orderItem.transport_price}` : "N/A"}
+          {orderItem.transport === "Yes" ? `₹${orderItem.transport_price}` : "-"}
         </td>
         <td className="table-dark text-center">₹{orderItem.sales_amount}</td>
         <td className="table-dark text-center">
-          {orderItem.job_work_supplier !== "" ? orderItem.job_work_supplier : "N/A"}
+          {orderItem.job_work_supplier !== "" ? orderItem.job_work_supplier : "-"}
         </td>
         <td className="table-dark text-center">
           <span

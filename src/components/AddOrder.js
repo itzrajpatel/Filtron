@@ -27,7 +27,7 @@ const AddOrder = () => {
   });
 
   const [products, setProducts] = useState([
-    { productDetails: "", quantity: "", unit: "PCS", price: "", total: 0 }
+    { productDetails: "", hsnNo: "", quantity: "", unit: "PCS", price: "", total: 0 }
   ]);
 
   const [companies, setCompanies] = useState([]);
@@ -272,13 +272,24 @@ useEffect(() => {
         <label className="form-label">Product Details</label>
         {products.map((product, index) => (
           <div className="row mb-3" key={index}>
-            <div className="col-md-2">
+            <div className="col-md-3">
               <input type="text" name="productDetails" className="form-control" placeholder="Product Details" value={product.productDetails} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-2">
-              <input type="number" name="quantity" className="form-control" placeholder="Quantity" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
+  <input
+    type="text"
+    name="hsnNo"
+    className="form-control"
+    placeholder="HSN No."
+    value={product.hsnNo}
+    onChange={(e) => handleProductChange(index, e)}
+    required
+  />
+</div>
+            <div className="col-md-1">
+              <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-1">
               <select name="unit" className="form-control" value={product.unit} onChange={(e) => handleProductChange(index, e)} required>
                 <option value="PCS">PCS</option>
                 <option value="MTR">MTR</option>
@@ -290,7 +301,7 @@ useEffect(() => {
             <div className="col-md-2">
               <input type="text" name="total" className="form-control" value={product.total} readOnly />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-1">
               <button
                 type="button"
                 className="btn btn-danger"

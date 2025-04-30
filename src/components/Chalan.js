@@ -121,9 +121,9 @@ const Chalan = () => {
                     order.products.map((product, index) => (
                     <tr key={index}>
                         <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>{index + 1}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "N/A"}</td>
+                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "-"}</td>
                         <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.quantity || 0}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "N/A"}</td>
+                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "-"}</td>
                         <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>₹{product.price || 0}</td>
                         <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>₹{(product.quantity * product.price).toFixed(2) || 0}</td>
                     </tr>
