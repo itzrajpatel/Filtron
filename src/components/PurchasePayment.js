@@ -389,6 +389,7 @@ const PurchasePayment = () => {
                     type="number"
                     value={selectedPurchase.amount_paid}
                     onChange={(e) => handleChange(e, null, "amountPaid")}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </Form.Group>
               )}

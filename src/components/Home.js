@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 
 const Home = () => {
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState([]);  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,14 +25,14 @@ const Home = () => {
         }));
   
         console.log("Formatted company list:", formatted); // 👈 confirm formatting
-        setCompanies(formatted);
+        setCompanies(formatted);       
       } catch (err) {
         console.error("Failed to fetch companies:", err);
       }
     };
   
     fetchCompanies();
-  }, []);
+  }, []);    
 
   // Function to handle redirection
   const handleOrderHistory = (company) => {
@@ -88,7 +88,7 @@ const Home = () => {
                   </td>
                   <td className="table-dark text-center">{company.state}</td>
                   <td className="table-dark text-center">{company.stateCode}</td>
-                  <td className="table-dark text-center">{company.contact}</td>
+                  <td className="table-dark text-center" style={{ whiteSpace: "nowrap" }}>{company.contact}</td>
                   <td className="table-dark text-center">{company.email}</td>
                   <td className="table-dark text-center">{company.gstNo || "N/A"}</td>
                 </tr>

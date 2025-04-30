@@ -20,17 +20,19 @@ import Purchase from "./components/Purchase";
 import AddPurchase from "./components/AddPurchase";
 import Growth from "./components/Growth";
 import PurchasePayment from "./components/PurchasePayment";
+import Login from "./components/Login";
 
 // This is a new component where we can safely use useLocation
 const AppRoutes = () => {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/";
+  const hideNavbar = ["/", "/login"].includes(location.pathname);
 
   return (
     <>
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<First />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/company" element={<Home />} />
         <Route path="/add-company" element={<AddCompany />} />
         <Route path="/invoice" element={<Orders />} />

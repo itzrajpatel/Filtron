@@ -530,6 +530,7 @@ const Purchase = () => {
                       type="number"
                       value={product.hsnNo}
                       onChange={(e) => handleChange(e, index, "hsnNo")}
+                      onWheel={(e) => e.target.blur()}
                     />
                   </Form.Group>
 
@@ -539,6 +540,7 @@ const Purchase = () => {
                       type="number"
                       value={product.quantity}
                       onChange={(e) => handleChange(e, index, "quantity")}
+                      onWheel={(e) => e.target.blur()}
                     />
                   </Form.Group>
 
@@ -557,6 +559,7 @@ const Purchase = () => {
                       type="number"
                       value={product.price}
                       onChange={(e) => handleChange(e, index, "price")}
+                      onWheel={(e) => e.target.blur()}
                     />
                   </Form.Group>
 
@@ -607,6 +610,7 @@ const Purchase = () => {
                   type="number"
                   value={selectedPurchase.transport_charge}
                   onChange={(e) => handleChange(e, null, "transportCharge")}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
 
@@ -616,6 +620,7 @@ const Purchase = () => {
                   type="number"
                   value={selectedPurchase.discount}
                   onChange={(e) => handleChange(e, null, "discount")}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
 
@@ -625,6 +630,7 @@ const Purchase = () => {
                   type="number"
                   value={selectedPurchase.tcs}
                   onChange={(e) => handleChange(e, null, "tcs")}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
 
@@ -634,6 +640,7 @@ const Purchase = () => {
                   type="number"
                   value={selectedPurchase.freight}
                   onChange={(e) => handleChange(e, null, "freight")}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
 
@@ -683,6 +690,7 @@ const Purchase = () => {
                     type="number"
                     value={selectedPurchase.amount_paid}
                     onChange={(e) => handleChange(e, null, "amountPaid")}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </Form.Group>
               )}

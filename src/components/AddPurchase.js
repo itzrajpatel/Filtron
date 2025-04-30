@@ -251,7 +251,7 @@ const AddPurchase = () => {
               <input type="text" name="hsnNo" className="form-control" placeholder="HSN No." value={product.hsnNo} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-1">
-              <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} required />
+              <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-1">
               <select name="unit" className="form-control" value={product.unit} onChange={(e) => handleProductChange(index, e)} required>
@@ -260,7 +260,7 @@ const AddPurchase = () => {
               </select>
             </div>
             <div className="col-md-2">
-              <input type="number" name="price" className="form-control" placeholder="Price" value={product.price} onChange={(e) => handleProductChange(index, e)} required />
+              <input type="number" name="price" className="form-control" placeholder="Price" value={product.price} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-2">
               <input type="text" name="total" className="form-control" value={product.total} readOnly />
@@ -279,7 +279,7 @@ const AddPurchase = () => {
         <div className="row">
           <div className="col-md-2 mb-3">
             <label className="form-label">Discount</label>
-            <input type="number" name="discount" className="form-control" value={formData.discount} onChange={handleChange} />
+            <input type="number" name="discount" className="form-control" value={formData.discount} onChange={handleChange} onWheel={(e) => e.target.blur()} />
           </div>
           <div className="col-md-2 mb-3">
             <label className="form-label">Transport</label>
@@ -304,6 +304,7 @@ const AddPurchase = () => {
               className="form-control"
               value={formData.transportCharge}
               onChange={handleChange}
+              onWheel={(e) => e.target.blur()}
             />
           </div>
         </div>
@@ -331,14 +332,14 @@ const AddPurchase = () => {
 
         <div className="mb-3">
           <label className="form-label">TCS</label>
-          <input type="number" name="tcs" className="form-control" value={formData.tcs} onChange={handleChange} />
+          <input type="number" name="tcs" className="form-control" value={formData.tcs} onChange={handleChange} onWheel={(e) => e.target.blur()} />
         </div>
 
         <div className="mb-4">Sales Amount: ₹{formData.salesAmount}</div>
 
         <div className="mb-3">
           <label className="form-label">Freight</label>
-          <input type="number" name="freight" className="form-control" value={formData.freight} onChange={handleChange} />
+          <input type="number" name="freight" className="form-control" value={formData.freight} onChange={handleChange} onWheel={(e) => e.target.blur()} />
         </div>
         <div className="mb-4">Gross Amount: ₹{formData.grossAmount}</div>
 
@@ -354,7 +355,7 @@ const AddPurchase = () => {
         {formData.paymentStatus === "Partial" && (
           <div className="mb-3">
             <label className="form-label">Amount Paid</label>
-            <input type="number" name="amountPaid" className="form-control" value={formData.amountPaid} onChange={handleChange} />
+            <input type="number" name="amountPaid" className="form-control" value={formData.amountPaid} onChange={handleChange} onWheel={(e) => e.target.blur()} />
           </div>
         )}
 

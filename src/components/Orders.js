@@ -226,7 +226,7 @@ const Orders = () => {
             <option value="">All Status</option>
             <option value="Pending">Pending</option>
             <option value="Partial">Partial</option>
-            <option value="Paid">Paid</option>
+            <option value="Paid">Received</option>
           </select>
         </div>
       </div>
@@ -346,9 +346,9 @@ const Orders = () => {
                     <td className="table-dark text-center">₹{order.cgst}</td>
                     <td className="table-dark text-center">₹{order.sgst}</td>
                     <td className="table-dark text-center">₹{order.igst}</td>
-                    <td className="table-dark text-center">{order.transport === "Yes" ? `₹${order.transportPrice}` : "N/A"}</td>
+                    <td className="table-dark text-center">{order.transport === "Yes" ? `₹${order.transportPrice}` : "-"}</td>
                     <td className="table-dark text-center">₹{order.salesAmount}</td>
-                    <td className="table-dark text-center">{order.job_work_supplier !== "" ? `${order.job_work_supplier}` : "N/A"}</td>
+                    <td className="table-dark text-center">{order.job_work_supplier !== "" ? `${order.job_work_supplier}` : "-"}</td>
                     <td className="table-dark text-center">
                       <span className={`badge ${order.paymentStatus === "Paid" ? "bg-success" : order.paymentStatus === "Partial" ? "bg-warning" : "bg-danger"}`}>
                         {order.paymentStatus}
@@ -475,6 +475,7 @@ const Orders = () => {
                     type="number"
                     value={product.quantity}
                     onChange={(e) => handleChange(e, index, "quantity")}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </Form.Group>
           
@@ -484,6 +485,7 @@ const Orders = () => {
                     type="number"
                     value={product.price}
                     onChange={(e) => handleChange(e, index, "price")}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </Form.Group>
                 <hr />
@@ -508,6 +510,7 @@ const Orders = () => {
                   type="number"
                   value={selectedOrder.transportPrice}
                   onChange={(e) => handleChange(e, null, "transportPrice")}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
             )}
@@ -519,8 +522,8 @@ const Orders = () => {
                 onChange={(e) => handleChange(e, null, "paymentStatus")}
               >
                 <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
                 <option value="Partial">Partial</option>
+                <option value="Paid">Received</option>
               </Form.Select>
             </Form.Group>
           
@@ -532,6 +535,7 @@ const Orders = () => {
                   value={selectedOrder.amountPaid}
                   onChange={(e) => handleChange(e, null, "amountPaid")}
                   placeholder="Enter Amount Paid"
+                  onWheel={(e) => e.target.blur()}
                 />
               </Form.Group>
             )}
@@ -564,7 +568,7 @@ const Orders = () => {
                     </Form.Group>
           
                     <Form.Group className="mt-3">
-                      <Form.Label>Check No.</Form.Label>
+                      <Form.Label>Cheque No.</Form.Label>
                       <Form.Control
                         type="text"
                         value={selectedOrder.checkNo || ""}

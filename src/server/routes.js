@@ -4,6 +4,49 @@ const router = express.Router();
 const pool = require("./db");
 const { parse, isValid } = require('date-fns');
 
+router.post("/login", async (req, res) => {
+  const { username } = req.body;
+
+  if (username === "FtIndia") {
+    try {
+      await pool.query(
+        "UPDATE users SET logged_in = true WHERE username = $1",
+        [username]
+      );
+      res.status(200).json({ message: "Login status updated" });
+    } catch (err) {
+      console.error("Login DB error:", err);
+      res.status(500).json({ message: "Failed to update login status" });
+    }
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+});
+
+router.post("/logout", async (req, res) => {
+  try {
+    await pool.query("UPDATE users SET logged_in = false WHERE username = 'FtIndia'");
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    res.status(500).json({ message: "Failed to logout" });
+  }
+});
+
+router.get("/login-status", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT logged_in FROM users WHERE username = 'FtIndia'");
+    if (result.rows.length > 0) {
+      res.status(200).json({ logged_in: result.rows[0].logged_in });
+    } else {
+      res.status(404).json({ logged_in: false });
+    }
+  } catch (err) {
+    console.error("Login status fetch error:", err);
+    res.status(500).json({ logged_in: false });
+  }
+});
+
 // STORE COMPANY DATA
 router.post("/companies", async (req, res) => {
   const {

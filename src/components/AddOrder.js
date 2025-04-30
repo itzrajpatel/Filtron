@@ -276,7 +276,7 @@ useEffect(() => {
               <input type="text" name="productDetails" className="form-control" placeholder="Product Details" value={product.productDetails} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-2">
-              <input type="number" name="quantity" className="form-control" placeholder="Quantity" value={product.quantity} onChange={(e) => handleProductChange(index, e)} required />
+              <input type="number" name="quantity" className="form-control" placeholder="Quantity" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-2">
               <select name="unit" className="form-control" value={product.unit} onChange={(e) => handleProductChange(index, e)} required>
@@ -285,7 +285,7 @@ useEffect(() => {
               </select>
             </div>
             <div className="col-md-2">
-              <input type="number" name="price" className="form-control" placeholder="Price" value={product.price} onChange={(e) => handleProductChange(index, e)} required />
+              <input type="number" name="price" className="form-control" placeholder="Price" value={product.price} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-2">
               <input type="text" name="total" className="form-control" value={product.total} readOnly />
@@ -322,7 +322,7 @@ useEffect(() => {
         {formData.transport === "Yes" && (
           <div className="mb-3">
             <label className="form-label">Transport Price</label>
-            <input type="number" name="transportPrice" className="form-control" value={formData.transportPrice} onChange={handleChange} />
+            <input type="number" name="transportPrice" className="form-control" value={formData.transportPrice} onChange={handleChange} onWheel={(e) => e.target.blur()} />
           </div>
         )}
 
@@ -372,8 +372,8 @@ useEffect(() => {
           <label className="form-label">Payment Status</label>
           <select name="paymentStatus" className="form-control" value={formData.paymentStatus} onChange={handleChange} required>
             <option value="Pending">Pending</option>
-            <option value="Paid">Paid</option>
             <option value="Partial">Partial</option>
+            <option value="Paid">Received</option>
           </select>
           {formData.paymentStatus === "Partial" && (
             <div className="mt-3 mb-3">

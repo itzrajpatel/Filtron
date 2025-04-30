@@ -74,7 +74,7 @@ const AddCompany = () => {
           </div>
           <div className="col-md-6">
             <label className="form-label">State Code</label>
-            <input type="number" name="stateCode" className="form-control" value={companyData.stateCode} onChange={handleChange} required />
+            <input type="number" name="stateCode" className="form-control" value={companyData.stateCode} onChange={handleChange} onWheel={(e) => e.target.blur()} required />
           </div>
         </div>
 
@@ -82,7 +82,16 @@ const AddCompany = () => {
         <div className="row mb-3">
           <div className="col-md-6">
             <label className="form-label">Contact</label>
-            <input type="tel" name="contact" className="form-control" value={companyData.contact} onChange={handleChange} required />
+            <input
+              type="tel"
+              name="contact"
+              className="form-control"
+              value={companyData.contact}
+              onChange={handleChange}
+              pattern="^\+?[0-9 ]{10,13}$"
+              title="Please enter a valid contact number (10 to 15 digits, optional + at start)"
+              required
+            />
           </div>
           <div className="col-md-6">
             <label className="form-label">Email</label>
