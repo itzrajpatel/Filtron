@@ -235,17 +235,20 @@ const Purchase = () => {
               <th className="text-center">Sr No.</th>
               <th className="text-center">Date</th>
               <th className="text-center">Type of Purchase</th>
+              <th className="text-center">Company Name</th>
+              <th className="text-center">Location</th>
+              <th className="text-center">State Code</th>
+              <th className="text-center">Item Name</th>
+              <th className="text-center">Item Code</th>
               <th className="text-center">Invoice No</th>
               <th className="text-center">Invoice Date</th>
               <th className="text-center">Invoice Month</th>
-              <th className="text-center">Company Name</th>
-              <th className="text-center">Item Name</th>
-              <th className="text-center">Item Code</th>
-              <th className="text-center">Item Details</th>
               <th className="text-center">HSN No.</th>
+              <th className="text-center">Item Details</th>
               <th className="text-center">Quantity</th>
               <th className="text-center">Unit</th>
               <th className="text-center">Price</th>
+              <th className="text-center">Final Total</th>
               <th className="text-center">Transport Charge</th>
               <th className="text-center">Discount</th>
               <th className="text-center">Grand Total</th>
@@ -276,20 +279,27 @@ const Purchase = () => {
               purchases.map((purchase, index) => (
                 <tr key={index}>
                   <td className="table-dark text-center">{index + 1}</td>
-                  {/* <td className="table-dark text-center">{purchase.created_at}</td> */}
                   <td className="table-dark text-center">
                     {purchase.created_at ? format(new Date(purchase.created_at), "yyyy-MM-dd") : ""}
                   </td>
                   <td className="table-dark text-center">{purchase.type_of_purchase}</td>
+                  <td className="table-dark text-center">{purchase.company_name}</td>
+                  <td className="table-dark text-center">{purchase.state}</td>
+                  <td className="table-dark text-center">{purchase.state_code}</td>
+                  <td className="table-dark text-center">{purchase.product_name}</td>
+                  <td className="table-dark text-center">{purchase.product_code}</td>
                   <td className="table-dark text-center">{purchase.invoice_no}</td>
-                  {/* <td className="table-dark text-center">{purchase.invoice_date}</td> */}
                   <td className="table-dark text-center">
                     {purchase.invoice_date ? format(new Date(purchase.invoice_date), "yyyy-MM-dd") : ""}
                   </td>
+
                   <td className="table-dark text-center">{purchase.invoice_month}</td>
-                  <td className="table-dark text-center">{purchase.company_name}</td>
-                  <td className="table-dark text-center">{purchase.product_name}</td>
-                  <td className="table-dark text-center">{purchase.product_code}</td>
+
+                  <td className="table-dark text-center">
+                    {purchase.products.map((product, i) => (
+                      <div key={i}>{product.hsnNo}{i !== purchase.products.length - 1 && <hr />}</div>
+                    ))}
+                  </td>
 
                   <td className="table-dark text-center">
                     {purchase.products.map((product, i) => (
@@ -303,13 +313,6 @@ const Purchase = () => {
                         {product.productDescription}
                         {i !== purchase.products.length - 1 && <hr />}
                       </div>
-                    ))}
-                  </td>
-
-
-                  <td className="table-dark text-center">
-                    {purchase.products.map((product, i) => (
-                      <div key={i}>{product.hsnNo}{i !== purchase.products.length - 1 && <hr />}</div>
                     ))}
                   </td>
 
@@ -331,6 +334,7 @@ const Purchase = () => {
                     ))}
                   </td>
 
+                  <td className="table-dark text-center">₹{purchase.final_total}</td>
                   <td className="table-dark text-center">₹{purchase.transport_charge}</td>
                   <td className="table-dark text-center">₹{purchase.discount}</td>
                   <td className="table-dark text-center">₹{purchase.grand_total}</td>

@@ -83,7 +83,7 @@ const FirstPage = () => {
         <div className="row mt-5">
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons"
+              className="btn w-100 glow-buttons"
               onClick={async () => {
                 const isLoggedIn = await checkLoginStatus();
                 if (isLoggedIn) {
@@ -99,7 +99,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons"
+              className="btn w-100 glow-buttons"
               onClick={async () => {
                 const isLoggedIn = await checkLoginStatus();
                 if (isLoggedIn) {
@@ -115,7 +115,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons"
+              className="btn w-100 glow-buttons"
               onClick={async () => {
                 const isLoggedIn = await checkLoginStatus();
                 if (isLoggedIn) {
@@ -131,7 +131,7 @@ const FirstPage = () => {
             </div>
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
-              className="btn btn-primary w-100 glow-buttons"
+              className="btn w-100 glow-buttons"
               onClick={async () => {
                 const isLoggedIn = await checkLoginStatus();
                 if (isLoggedIn) {
@@ -145,7 +145,7 @@ const FirstPage = () => {
                 Growth
               </button>
             </div>
-            <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+            {/* <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               {isLoggedIn ? (
                 <button
                   className="btn btn-danger w-100 glow-buttons"
@@ -163,6 +163,27 @@ const FirstPage = () => {
                   Login
                 </button>
               )}
+            </div> */}
+            <div className="col-12 mb-5 d-flex justify-content-center justify-content-lg-center">
+              <div className="col-12 col-lg-6" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+                {isLoggedIn ? (
+                  <button
+                    className="btn w-100 glow-buttons"
+                    onClick={handleLogout}
+                    style={buttonStyle}
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button
+                    className="btn w-100 glow-buttons"
+                    onClick={() => navigate("/login")}
+                    style={buttonStyle}
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
             </div>
         </div>
     </div>

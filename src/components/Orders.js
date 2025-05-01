@@ -103,6 +103,7 @@ const Orders = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           invoice_date: selectedOrder.invoiceDate,
+          invoice_month: selectedOrder.invoiceMonth,
           payment_status: selectedOrder.paymentStatus,
           amount_paid: selectedOrder.amountPaid,
           payment_type: selectedOrder.paymentType,
@@ -153,7 +154,7 @@ const Orders = () => {
     const grandTotal = finalTotal + transportPrice;
   
     const gstRate = order.gst ? parseFloat(order.gst.replace("%", "")) / 100 : 0;
-    const isGujarat = order.stateCode === "24";
+    const isGujarat = selectedOrder.state_code === "24";
   
     const cgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
     const sgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
@@ -241,21 +242,22 @@ const Orders = () => {
               <th className="text-center">Invoice Date</th>
               <th className="text-center">Invoice Month</th>
               <th className="text-center">Company Name</th>
-              <th className="text-center">Product Details</th>
               <th className="text-center">HSN No.</th>
+              <th className="text-center">Product Details</th>
+              <th className="text-center">Price</th>
               <th className="text-center">Quantity</th>
               <th className="text-center">Unit</th>
-              <th className="text-center">Price</th>
+              <th className="text-center">Final Total</th>
+              <th className="text-center">Transport Charge</th>
               <th className="text-center">GST</th>
               <th className="text-center">CGST</th>
               <th className="text-center">SGST</th>
               <th className="text-center">IGST</th>
-              <th className="text-center">Transport</th>
-              <th className="text-center">Final Amount</th>
+              <th className="text-center">Sales Amount</th>
               <th className="text-center">Job Work / Supplier</th>
               <th className="text-center">Payment Status</th>
-              <th className="text-center">Amount Paid</th>
-              <th className="text-center">Pending Amount</th>
+              <th className="text-center">Amount Received</th>
+              <th className="text-center">Amount Pending</th>
               <th className="text-center">Payment Type</th>
               <th className="text-center">Payment Details</th>
               <th className="text-center">Edit Invoice</th>
@@ -302,6 +304,15 @@ const Orders = () => {
 
                     <td className="table-dark text-center">
                       {order.products.map((product, i) => (
+                        <div key={i} className="text-center">
+                          {product.hsnNo}
+                          {i !== order.products.length - 1 && <hr />}
+                        </div>
+                      ))}
+                    </td>
+
+                    <td className="table-dark text-center">
+                      {order.products.map((product, i) => (
                         <div 
                           key={i} 
                           style={{ 
@@ -321,7 +332,7 @@ const Orders = () => {
                     <td className="table-dark text-center">
                       {order.products.map((product, i) => (
                         <div key={i} className="text-center">
-                          {product.hsnNo}
+                          ₹{product.price}
                           {i !== order.products.length - 1 && <hr />}
                         </div>
                       ))}
@@ -335,6 +346,7 @@ const Orders = () => {
                         </div>
                       ))}
                     </td>
+                    
                     <td className="table-dark text-center">
                       {order.products.map((product, i) => (
                         <div key={i} className="text-center">
@@ -343,20 +355,13 @@ const Orders = () => {
                         </div>
                       ))}
                     </td>
-                    <td className="table-dark text-center">
-                      {order.products.map((product, i) => (
-                        <div key={i} className="text-center">
-                          ₹{product.price}
-                          {i !== order.products.length - 1 && <hr />}
-                        </div>
-                      ))}
-                    </td>
 
+                    <td className="table-dark text-center">{order.finalTotal}</td>
+                    <td className="table-dark text-center">{order.transport === "Yes" ? `₹${order.transportPrice}` : "-"}</td>
                     <td className="table-dark text-center">{order.gst}</td>
                     <td className="table-dark text-center">₹{order.cgst}</td>
                     <td className="table-dark text-center">₹{order.sgst}</td>
                     <td className="table-dark text-center">₹{order.igst}</td>
-                    <td className="table-dark text-center">{order.transport === "Yes" ? `₹${order.transportPrice}` : "-"}</td>
                     <td className="table-dark text-center">₹{order.salesAmount}</td>
                     <td className="table-dark text-center">{order.job_work_supplier !== "" ? `${order.job_work_supplier}` : "-"}</td>
                     <td className="table-dark text-center">
@@ -469,6 +474,15 @@ const Orders = () => {
                 type="date"
                 value={selectedOrder.invoiceDate}
                 onChange={(e) => handleChange(e, null, "invoiceDate")}
+              />
+            </Form.Group>
+
+            <Form.Group className="mt-3">
+              <Form.Label>Invoice Month</Form.Label>
+              <Form.Control
+                type="text"
+                value={selectedOrder.invoiceMonth}
+                onChange={(e) => handleChange(e, null, "invoiceMonth")}
               />
             </Form.Group>
           

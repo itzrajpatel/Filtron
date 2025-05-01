@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 
 const Home = () => {
-  const [companies, setCompanies] = useState([]);  
+  const [companies, setCompanies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,11 +40,33 @@ const Home = () => {
     navigate("/invoice-history", { state: { companyName: company.companyName } })  // Pass order details if needed
   };
 
+  const filteredCompanies = companies.filter((company) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      company.companyName.toLowerCase().includes(term) ||
+      company.customerName.toLowerCase().includes(term) ||
+      company.state.toLowerCase().includes(term) ||
+      company.email.toLowerCase().includes(term) ||
+      company.gstNo.toLowerCase().includes(term)
+    );
+  });  
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mt-3" style={{ fontFamily: "DM Serif Text, serif", color: "white", animation: "fadeSlideUp 1.5s ease-out" }}>Company Details</h2>
         <button className="btn btn-primary me-2 glow-button glow-table" onClick={() => navigate("/add-company")} style={{ animation: "fadeSlideUp 1.5s ease-out", backgroundColor: "transparent", color: "#fff", padding: "12px 24px", fontWeight: "600", fontSize: "16px", cursor: "pointer" }}> + Add Company</button>
+      </div>
+
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍  Search by Company, Customer, State, Email, GST No"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ maxWidth: "400px", marginBottom: "10px" }}
+        />
       </div>
 
       <div className="table-responsive glow-table scroll-container" style={{ animation: "fadeSlideUp 1.5s ease-out", borderRadius: "12px", overflowX: "auto", scrollbarColor: "white transparent" }}>
@@ -62,8 +85,8 @@ const Home = () => {
             </tr>
           </thead>
           <tbody>
-            {companies.length > 0 ? (
-              companies.map((company, index) => (
+            {filteredCompanies.length > 0 ? (
+              filteredCompanies.map((company, index) => (
                 <tr key={index}>
                   <td className="table-dark text-center">{index + 1}</td>
                   <td className="table-dark text-center">

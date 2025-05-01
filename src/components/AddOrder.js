@@ -272,21 +272,21 @@ useEffect(() => {
         <label className="form-label">Product Details</label>
         {products.map((product, index) => (
           <div className="row mb-3" key={index}>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <input type="text" name="productDetails" className="form-control" placeholder="Product Details" value={product.productDetails} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-2">
-  <input
-    type="text"
-    name="hsnNo"
-    className="form-control"
-    placeholder="HSN No."
-    value={product.hsnNo}
-    onChange={(e) => handleProductChange(index, e)}
-    required
-  />
-</div>
-            <div className="col-md-1">
+              <input
+                type="text"
+                name="hsnNo"
+                className="form-control"
+                placeholder="HSN No."
+                value={product.hsnNo}
+                onChange={(e) => handleProductChange(index, e)}
+                required
+              />
+            </div>
+            <div className="col-md-2">
               <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-1">
@@ -396,6 +396,7 @@ useEffect(() => {
                 value={formData.amountPaid}
                 onChange={handleChange}
                 placeholder="Enter Amount Paid"
+                onWheel={(e) => e.target.blur()}
               />
             </div>
           )}
@@ -409,7 +410,7 @@ useEffect(() => {
               <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange} required>
                 <option value="">Select Payment Type</option>
                 <option value="Cash">Cash</option>
-                <option value="Check">Check</option>
+                <option value="Check">Cheque</option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -422,7 +423,7 @@ useEffect(() => {
                   <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" />
                 </div>
                 <div className="mb-3">
-                  <label>Check No.</label>
+                  <label>Cheque No.</label>
                   <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" />
                 </div>
               </>

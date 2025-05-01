@@ -171,67 +171,72 @@ router.get("/companies", async (req, res) => {
   });  
 
 // FETCH ORDER DATA
-  router.get("/orders", async (req, res) => {
-    try {
-      const result = await pool.query(`
-        SELECT 
-          o.*, 
-          json_agg(
-            json_build_object(
-              'productDetails', p.product_details,
-              'hsnNo', p.hsn_no,
-              'quantity', p.quantity,
-              'unit', p.unit,
-              'price', p.price,
-              'total', p.total
-            )
-          ) AS products
-        FROM orders o
-        LEFT JOIN order_products p ON o.id = p.order_id
-        GROUP BY o.id
-        ORDER BY o.id ASC
-      `);
-      res.json(result.rows);
-    } catch (err) {
-      console.error("Failed to fetch orders:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
+router.get("/orders", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        o.*, 
+        c.state_code,
+        json_agg(
+          json_build_object(
+            'productDetails', p.product_details,
+            'hsnNo', p.hsn_no,
+            'quantity', p.quantity,
+            'unit', p.unit,
+            'price', p.price,
+            'total', p.total
+          )
+        ) AS products
+      FROM orders o
+      LEFT JOIN order_products p ON o.id = p.order_id
+      LEFT JOIN companies c ON TRIM(o.company_name) = TRIM(c.company_name)
+      GROUP BY o.id, c.state_code
+      ORDER BY o.id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Failed to fetch orders:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // FETCH ORDER DATA FOR PARTICULAR COMPANY
-  router.get("/orders/company/:companyName", async (req, res) => {
-    const { companyName } = req.params;
-  
-    try {
-      const result = await pool.query(
-        `
-        SELECT 
-          o.*, 
-          json_agg(
-            json_build_object(
-              'productDetails', p.product_details,
-              'hsnNo', p.hsn_no,
-              'quantity', p.quantity,
-              'unit', p.unit,
-              'price', p.price,
-              'total', p.total
-            )
-          ) AS products
-        FROM orders o
-        LEFT JOIN order_products p ON o.id = p.order_id
-        WHERE o.company_name = $1
-        GROUP BY o.id
-        ORDER BY o.id ASC
-        `,
-        [companyName]
-      );
-  
-      res.json(result.rows);
-    } catch (err) {
-      console.error("Error fetching orders by company:", err);
-      res.status(500).json({ message: "Failed to fetch orders for company" });
-    }
-  });
+router.get("/orders/company/:companyName", async (req, res) => {
+  const { companyName } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+        o.*, 
+        c.state_code,
+        json_agg(
+          json_build_object(
+            'productDetails', p.product_details,
+            'hsnNo', p.hsn_no,
+            'quantity', p.quantity,
+            'unit', p.unit,
+            'price', p.price,
+            'total', p.total
+          )
+        ) AS products
+      FROM orders o
+      LEFT JOIN order_products p ON o.id = p.order_id
+      LEFT JOIN companies c ON TRIM(o.company_name) = TRIM(c.company_name)
+      WHERE o.company_name = $1
+      GROUP BY o.id, c.state_code
+      ORDER BY o.id ASC
+      `,
+      [companyName]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching orders by company:", err);
+    res.status(500).json({ message: "Failed to fetch orders for company" });
+  }
+});
 
 // UPDATE ORDER AND PRODUCTS
 router.put("/orders/:id", async (req, res) => {
@@ -243,7 +248,7 @@ router.put("/orders/:id", async (req, res) => {
       invoice_date, payment_status, amount_paid,
       payment_type, bank_name, check_no, transaction_id,
       transport, transport_price, final_total, grand_total,
-      sales_amount, gst, cgst, sgst, igst, products
+      sales_amount, gst, cgst, sgst, igst, products, invoice_month
     } = req.body;
 
     await client.query("BEGIN");
@@ -266,8 +271,9 @@ router.put("/orders/:id", async (req, res) => {
         gst = $13,
         cgst = $14,
         sgst = $15,
-        igst = $16
-      WHERE id = $17`,
+        igst = $16,
+        invoice_month = $17
+      WHERE id = $18`,
       [
         invoice_date,
         payment_status,
@@ -285,6 +291,7 @@ router.put("/orders/:id", async (req, res) => {
         safeNum(cgst),
         safeNum(sgst),
         safeNum(igst),
+        invoice_month,
         orderId
       ]
     );
