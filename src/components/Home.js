@@ -58,7 +58,7 @@ const Home = () => {
         <button className="btn btn-primary me-2 glow-button glow-table" onClick={() => navigate("/add-company")} style={{ animation: "fadeSlideUp 1.5s ease-out", backgroundColor: "transparent", color: "#fff", padding: "12px 24px", fontWeight: "600", fontSize: "16px", cursor: "pointer" }}> + Add Company</button>
       </div>
 
-      <div className="mb-3">
+      <div className="mb-3" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
         <input
           type="text"
           className="form-control"
@@ -111,7 +111,7 @@ const Home = () => {
                   </td>
                   <td className="table-dark text-center">{company.state}</td>
                   <td className="table-dark text-center">{company.stateCode}</td>
-                  <td className="table-dark text-center" style={{ whiteSpace: "nowrap" }}>{company.contact}</td>
+                  <td className="table-dark text-center" style={{ whiteSpace: "nowrap" }}>+91 {company.contact}</td>
                   <td className="table-dark text-center">{company.email}</td>
                   <td className="table-dark text-center">{company.gstNo || "-"}</td>
                 </tr>

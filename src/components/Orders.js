@@ -487,7 +487,7 @@ const Orders = () => {
             </Form.Group>
           
             {selectedOrder.products.map((product, index) => (
-              <div className="mt-3" key={index}>
+              <div className="mt-3 border rounded p-3" key={index}>
                 <Form.Group>
                   <Form.Label>Product Details - {index + 1}</Form.Label>
                   <Form.Control
@@ -525,11 +525,10 @@ const Orders = () => {
                     onWheel={(e) => e.target.blur()}
                   />
                 </Form.Group>
-                <hr />
               </div>
             ))}
           
-            <Form.Group>
+            <Form.Group className="mt-3">
               <Form.Label>Transport</Form.Label>
               <Form.Select
                 value={selectedOrder.transport}

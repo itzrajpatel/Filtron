@@ -88,8 +88,9 @@ const AddCompany = () => {
               className="form-control"
               value={companyData.contact}
               onChange={handleChange}
-              pattern="^\+?[0-9 ]{10,13}$"
-              title="Please enter a valid contact number (10 to 15 digits, optional + at start)"
+              pattern="^[0-9]{10}$"
+              maxLength={10}
+              title="Please enter a valid contact number (only 10 digits)"
               required
             />
           </div>

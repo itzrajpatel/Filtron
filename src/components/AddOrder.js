@@ -343,7 +343,7 @@ useEffect(() => {
         {/* GST Selection */}
         <div className="mb-3">
           <label className="form-label">GST</label>
-          <select name="gst" className="form-control" value={formData.gst} onChange={handleGSTChange}>
+          <select name="gst" className="form-control" value={formData.gst} onChange={handleGSTChange} required>
             <option value="">Select GST</option>
             <option value="5%">5%</option>
             <option value="8%">8%</option>

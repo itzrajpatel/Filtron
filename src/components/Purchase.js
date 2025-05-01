@@ -8,6 +8,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   // TESTING
@@ -228,6 +229,17 @@ const Purchase = () => {
         </button>
       </div>
 
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍  Search by Purchase, Company, Item, Item Code, Invoice"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ maxWidth: "400px" }}
+        />
+      </div>
+
       <div className="scroll-container glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out", borderRadius: "12px", overflowX: "auto", whiteSpace: "nowrap", scrollbarColor: "white transparent" }}>
         <table className="table table-bordered table-striped" style={{ border: "1px solid grey" }}>
           <thead className="table-dark">
@@ -269,14 +281,21 @@ const Purchase = () => {
               <th className="text-center">Payment Type</th>
               <th className="text-center">Payment Details</th>
               <th className="text-center">Payment Date</th>
-              
-              {/* TESTING */}
               <th className="text-center">Edit</th>
             </tr>
           </thead>
           <tbody>
             {purchases.length > 0 ? (
-              purchases.map((purchase, index) => (
+              purchases.filter((purchase) => {
+                const lower = searchTerm.toLowerCase();
+                return (
+                  purchase.type_of_purchase?.toLowerCase().includes(lower) ||
+                  purchase.company_name?.toLowerCase().includes(lower) ||
+                  purchase.product_name?.toLowerCase().includes(lower) ||
+                  purchase.product_code?.toLowerCase().includes(lower) ||
+                  purchase.invoice_no?.toLowerCase().includes(lower)
+                );
+              }).map((purchase, index) => (
                 <tr key={index}>
                   <td className="table-dark text-center">{index + 1}</td>
                   <td className="table-dark text-center">
@@ -478,27 +497,26 @@ const Purchase = () => {
                 />
               </Form.Group> */}
               <Form.Group className="mt-3">
-  <Form.Label>Invoice Month</Form.Label>
-  <Form.Select
-    value={selectedPurchase.invoice_month}
-    onChange={(e) => handleChange(e, null, "invoiceMonth")}
-  >
-    <option value="">Select Month</option>
-    <option value="January">January</option>
-    <option value="February">February</option>
-    <option value="March">March</option>
-    <option value="April">April</option>
-    <option value="May">May</option>
-    <option value="June">June</option>
-    <option value="July">July</option>
-    <option value="August">August</option>
-    <option value="September">September</option>
-    <option value="October">October</option>
-    <option value="November">November</option>
-    <option value="December">December</option>
-  </Form.Select>
-</Form.Group>
-
+                <Form.Label>Invoice Month</Form.Label>
+                <Form.Select
+                  value={selectedPurchase.invoice_month}
+                  onChange={(e) => handleChange(e, null, "invoiceMonth")}
+                >
+                  <option value="">Select Month</option>
+                  <option value="January">January</option>
+                  <option value="February">February</option>
+                  <option value="March">March</option>
+                  <option value="April">April</option>
+                  <option value="May">May</option>
+                  <option value="June">June</option>
+                  <option value="July">July</option>
+                  <option value="August">August</option>
+                  <option value="September">September</option>
+                  <option value="October">October</option>
+                  <option value="November">November</option>
+                  <option value="December">December</option>
+                </Form.Select>
+              </Form.Group>
               <Form.Group className="mt-3">
                 <Form.Label>Item Name</Form.Label>
                 <Form.Control
