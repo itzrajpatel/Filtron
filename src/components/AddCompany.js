@@ -104,7 +104,6 @@ const AddCompany = () => {
         <div className="row mb-3">
           <div className="col-md-6">
             <label className="form-label">GST No</label>
-            {/* <input type="number" name="gstNo" className="form-control" value={companyData.gstNo} onChange={handleChange} /> */}
             <input 
               type="text" 
               name="gstNo" 
@@ -112,7 +111,9 @@ const AddCompany = () => {
               value={companyData.gstNo} 
               onChange={handleChange} 
               maxLength={15} // GST No in India is 15 characters long
-              pattern="[0-9A-Z]+" // Ensures only numbers and capital letters are allowed
+              minLength={15}
+              pattern="[0-9A-Z]{15}" // Ensures only numbers and capital letters are allowed
+              title="GST number must be exactly 15 characters long and contain only digits and capital letters"
             />
           </div>
         </div>

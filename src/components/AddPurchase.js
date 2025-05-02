@@ -270,7 +270,7 @@ const AddPurchase = () => {
             </div>
           </div>
         ))}
-        <button className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ background: "transparent", color: "#fff" }}>
+        <button type="button" className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ background: "transparent", color: "#fff" }}>
           + Add Product
         </button>
         <div className="mb-4">Final Total: ₹{formData.finalTotal}</div>
@@ -290,11 +290,11 @@ const AddPurchase = () => {
           </div>
           <div className="col-md-2 mb-3">
             <label className="form-label">LR No.</label>
-            <input type="text" name="lrNo" className="form-control" value={formData.lrNo} onChange={handleChange} />
+            <input type="text" name="lrNo" className="form-control" value={formData.lrNo} onChange={handleChange} required/>
           </div>
           <div className="col-md-2 mb-3">
             <label className="form-label">Transporter</label>
-            <input type="text" name="transporter" className="form-control" value={formData.transporter} onChange={handleChange} />
+            <input type="text" name="transporter" className="form-control" value={formData.transporter} onChange={handleChange} required/>
           </div>
           <div className="col-md-2 mb-3">
             <label className="form-label">Transport Charge</label>
@@ -313,7 +313,7 @@ const AddPurchase = () => {
         {/* Rest GST, TCS, Payment Fields */}
         <div className="mb-3">
           <label className="form-label">GST</label>
-          <select name="gst" className="form-control" value={formData.gst} onChange={handleChange}>
+          <select name="gst" className="form-control" value={formData.gst} onChange={handleChange} required>
             <option value="">Select GST</option>
             <option value="5%">5%</option>
             <option value="12%">12%</option>
@@ -355,7 +355,7 @@ const AddPurchase = () => {
         {formData.paymentStatus === "Partial" && (
           <div className="mb-3">
             <label className="form-label">Amount Paid</label>
-            <input type="number" name="amountPaid" className="form-control" value={formData.amountPaid} onChange={handleChange} onWheel={(e) => e.target.blur()} />
+            <input type="number" name="amountPaid" className="form-control" value={formData.amountPaid} onChange={handleChange} onWheel={(e) => e.target.blur()} required/>
           </div>
         )}
 
@@ -363,7 +363,7 @@ const AddPurchase = () => {
           <>
             <div className="mb-3">
               <label className="form-label">Payment Type</label>
-              <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange}>
+              <select name="paymentType" className="form-control" value={formData.paymentType} onChange={handleChange} required>
                 <option value="">Select Type</option>
                 <option value="Cash">Cash</option>
                 <option value="Check">Cheque</option>
@@ -375,11 +375,11 @@ const AddPurchase = () => {
               <>
                 <div className="mb-3">
                   <label className="form-label">Bank Name</label>
-                  <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} />
+                  <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} required/>
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Cheque No</label>
-                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} />
+                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} required/>
                 </div>
               </>
             )}
@@ -387,13 +387,13 @@ const AddPurchase = () => {
             {formData.paymentType === "Online" && (
               <div className="mb-3">
                 <label className="form-label">Transaction ID</label>
-                <input type="text" name="transactionId" className="form-control" value={formData.transactionId} onChange={handleChange} />
+                <input type="text" name="transactionId" className="form-control" value={formData.transactionId} onChange={handleChange} required/>
               </div>
             )}
 
             <div className="mb-3">
               <label className="form-label">Date of Payment</label>
-              <input type="date" name="dateOfPayment" className="form-control" value={formData.dateOfPayment} onChange={handleChange} />
+              <input type="date" name="dateOfPayment" className="form-control" value={formData.dateOfPayment} onChange={handleChange} required/>
             </div>
           </>
         )}

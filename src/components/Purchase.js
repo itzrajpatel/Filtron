@@ -588,6 +588,7 @@ const Purchase = () => {
                   {/* ➖ Remove Button */}
                   {selectedPurchase.products.length > 1 && (
                     <Button
+                      type="button"
                       variant="danger"
                       size="sm"
                       className="mt-2"
@@ -608,6 +609,7 @@ const Purchase = () => {
               {/* ➕ Add Product Button */}
               <div className="text-center mt-3">
                 <Button
+                  type="button"
                   variant="success"
                   onClick={() => {
                     const updated = { ...selectedPurchase };

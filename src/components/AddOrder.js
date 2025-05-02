@@ -314,7 +314,7 @@ useEffect(() => {
           </div>
         ))}
         {/* <button type="button" className="btn btn-success mb-3" onClick={addProduct}>+ Add Product</button> */}
-        <button className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff" }}>
+        <button type="button" className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff" }}>
           + Add Product
         </button>
 
@@ -397,6 +397,7 @@ useEffect(() => {
                 onChange={handleChange}
                 placeholder="Enter Amount Paid"
                 onWheel={(e) => e.target.blur()}
+                required
               />
             </div>
           )}
@@ -420,11 +421,11 @@ useEffect(() => {
               <>
                 <div className="mb-3">
                   <label>Bank Name</label>
-                  <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" />
+                  <input type="text" name="bankName" className="form-control" value={formData.bankName} onChange={handleChange} placeholder="Enter Bank Name" required/>
                 </div>
                 <div className="mb-3">
                   <label>Cheque No.</label>
-                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" />
+                  <input type="text" name="checkNo" className="form-control" value={formData.checkNo} onChange={handleChange} placeholder="Enter Check Number" required/>
                 </div>
               </>
             )}
@@ -433,7 +434,7 @@ useEffect(() => {
             {formData.paymentType === "Online" && (
               <div className="mb-3">
                 <label>Transaction ID</label>
-                <input type="text" name="transactionId" className="form-control" value={formData.transactionId} onChange={handleChange} placeholder="Enter Transaction ID" />
+                <input type="text" name="transactionId" className="form-control" value={formData.transactionId} onChange={handleChange} placeholder="Enter Transaction ID" required/>
               </div>
             )}
           </>

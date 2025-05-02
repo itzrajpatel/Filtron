@@ -244,9 +244,9 @@ const Orders = () => {
               <th className="text-center">Company Name</th>
               <th className="text-center">HSN No.</th>
               <th className="text-center">Product Details</th>
-              <th className="text-center">Price</th>
               <th className="text-center">Quantity</th>
               <th className="text-center">Unit</th>
+              <th className="text-center">Price</th>
               <th className="text-center">Final Total</th>
               <th className="text-center">Transport Charge</th>
               <th className="text-center">GST</th>
@@ -331,15 +331,6 @@ const Orders = () => {
 
                     <td className="table-dark text-center">
                       {order.products.map((product, i) => (
-                        <div key={i} className="text-center">
-                          ₹{product.price}
-                          {i !== order.products.length - 1 && <hr />}
-                        </div>
-                      ))}
-                    </td>
-
-                    <td className="table-dark text-center">
-                      {order.products.map((product, i) => (
                         <div key={i} className="text-center" sty>
                           {product.quantity}
                           {i !== order.products.length - 1 && <hr />}
@@ -351,6 +342,15 @@ const Orders = () => {
                       {order.products.map((product, i) => (
                         <div key={i} className="text-center">
                           {product.unit}
+                          {i !== order.products.length - 1 && <hr />}
+                        </div>
+                      ))}
+                    </td>
+
+                    <td className="table-dark text-center">
+                      {order.products.map((product, i) => (
+                        <div key={i} className="text-center">
+                          ₹{product.price}
                           {i !== order.products.length - 1 && <hr />}
                         </div>
                       ))}
