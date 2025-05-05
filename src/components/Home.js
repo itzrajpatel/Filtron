@@ -58,7 +58,7 @@ const Home = () => {
         <button className="btn btn-primary me-2 glow-button glow-table" onClick={() => navigate("/add-company")} style={{ animation: "fadeSlideUp 1.5s ease-out", backgroundColor: "transparent", color: "#fff", padding: "12px 24px", fontWeight: "600", fontSize: "16px", cursor: "pointer" }}> + Add Company</button>
       </div>
 
-      <div className="mb-3" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
+      <div className="mb-3">
         <input
           type="text"
           className="form-control"
