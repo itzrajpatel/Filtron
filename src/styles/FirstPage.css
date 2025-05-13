@@ -64,6 +64,10 @@
     animation: reflectionMove 3.5s infinite linear;
     z-index: 1;
   }
+
+  .modal-header .btn-close {
+    filter: invert(1);
+  }
   
   /* Animation for the reflection */
   @keyframes reflectionMove {

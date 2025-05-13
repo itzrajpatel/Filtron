@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/FirstPage.css";
-import TypewriterText from "./TypewriterText"
+import TypewriterText from "./TypewriterText";
+import { Modal, Button } from "react-bootstrap";
 
 const FirstPage = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleCloseLoginModal = () => setShowLoginModal(false);
+  const handleShowLoginModal = () => setShowLoginModal(true);
 
   const buttonStyle = {
     backgroundColor: "transparent",
@@ -47,8 +53,9 @@ const FirstPage = () => {
         method: "POST"
       });
       if (res.ok) {
-        alert("Logged out successfully!");
+        setShowLogoutModal(true);
         setIsLoggedIn(false);
+        setTimeout(() => setShowLogoutModal(false), 1000);
       } else {
         alert("Logout failed");
       }
@@ -60,7 +67,7 @@ const FirstPage = () => {
 
   return (
     <div className="container mt-3">
-        <Link className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/"
+        <h1 className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/"
           style={{
             animation: "fadeSlideUp 1.5s ease-out",
             fontSize: "clamp(1.5rem, 5vw, 80px)",
@@ -78,7 +85,7 @@ const FirstPage = () => {
             }}
           />
           Filtron Techniques
-        </Link>
+        </h1>
         <TypewriterText />
         <div className="row mt-5">
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
@@ -89,7 +96,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/company");
                 } else {
-                  alert("Login to access data!");
+                  handleShowLoginModal();
                 }
               }}
               style={buttonStyle}
@@ -105,7 +112,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/invoice");
                 } else {
-                  alert("Login to access data!");
+                  handleShowLoginModal();
                 }
               }}
               style={buttonStyle}
@@ -121,7 +128,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/purchase");
                 } else {
-                  alert("Login to access data!");
+                  handleShowLoginModal();
                 }
               }}
               style={buttonStyle}
@@ -137,7 +144,7 @@ const FirstPage = () => {
                 if (isLoggedIn) {
                   navigate("/growth");
                 } else {
-                  alert("Login to access data!");
+                  handleShowLoginModal();
                 }
               }}
               style={buttonStyle}
@@ -186,6 +193,25 @@ const FirstPage = () => {
               </div>
             </div>
         </div>
+
+        {/* Login Modal */}
+        <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered style={{ borderRadius: "12px" }}>
+          <Modal.Header closeButton className="bg-danger text-white">
+            <Modal.Title style={{ width: "100%", textAlign: "center" }}>Login to access data!</Modal.Title>
+          </Modal.Header>
+          <Modal.Footer className="bg-danger">
+            <Button variant="primary" onClick={handleCloseLoginModal} style={{ width: "100%", textAlign: "center" }}>
+              OK
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Logout Modal */}
+        <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered>
+          <Modal.Body className="bg-success text-white">
+            <Modal.Title style={{ width: "100%", textAlign: "center" }}>Logged out successfully!!!</Modal.Title>
+          </Modal.Body>
+        </Modal>
     </div>
   );
 };

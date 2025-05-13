@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
+import { Modal } from "react-bootstrap";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showInvalidModal, setShowInvalidModal] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -21,8 +24,11 @@ const Login = () => {
         });
   
         if (response.ok) {
-          alert("Login Successful!!!");
-          navigate("/");
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            setShowSuccessModal(false);
+            navigate("/");
+          }, 1000);
         } else {
           alert("Login failed to update status in database.");
         }
@@ -31,7 +37,8 @@ const Login = () => {
         alert("Server error occurred.");
       }
     } else {
-      alert("Invalid username or password");
+      setShowInvalidModal(true);
+      setTimeout(() => setShowInvalidModal(false), 1000);
     }
   };
 
@@ -115,6 +122,22 @@ const Login = () => {
           </form>
         </div>
       </div>
+
+      {/* Login Successful Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered style={{ borderRadius: "12px" }}>
+        <Modal.Body className="bg-success text-white">
+          <Modal.Title style={{ width: "100%", textAlign: "center" }}>Login Successful!!!</Modal.Title>
+        </Modal.Body>
+      </Modal>
+
+      {/* Login Invalid Modal */}
+      <Modal show={showInvalidModal} onHide={() => setShowInvalidModal(false)} centered style={{ borderRadius: "12px" }}>
+        <Modal.Body className="bg-danger text-white">
+          <Modal.Title style={{ width: "100%", textAlign: "center" }}>
+            Invalid username or password!!!
+          </Modal.Title>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

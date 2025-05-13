@@ -229,7 +229,7 @@ const Purchase = () => {
         </button>
       </div>
 
-      <div className="mb-3">
+      <div className="mb-3" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
         <input
           type="text"
           className="form-control"
@@ -240,9 +240,9 @@ const Purchase = () => {
         />
       </div>
 
-      <div className="scroll-container glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out", borderRadius: "12px", overflowX: "auto", whiteSpace: "nowrap", scrollbarColor: "white transparent" }}>
+      <div className="scroll-container glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out", borderRadius: "14px", overflow: "auto", whiteSpace: "nowrap", scrollbarColor: "white transparent", maxHeight: "800px" }}>
         <table className="table table-bordered table-striped" style={{ border: "1px solid grey" }}>
-          <thead className="table-dark">
+          <thead className="table-secondary" style={{ border: "1px solid grey" }}>
             <tr>
               <th className="text-center">Sr No.</th>
               <th className="text-center">Date</th>

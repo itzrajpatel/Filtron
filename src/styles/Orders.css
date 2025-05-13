@@ -70,6 +70,13 @@
     animation: reflectionMove 3.5s infinite linear;
     z-index: 1;
   }
+
+  /* Sticky header for the table */
+  .scroll-container table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
   
   /* Animation for the reflection */
   @keyframes reflectionMove {

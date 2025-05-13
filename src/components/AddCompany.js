@@ -41,7 +41,7 @@ const AddCompany = () => {
       console.error(err);
       alert("Server error.");
     }
-  };  
+  };
 
   return (
     <div className="container mt-5">
