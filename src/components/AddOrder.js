@@ -272,7 +272,7 @@ useEffect(() => {
         <label className="form-label">Product Details</label>
         {products.map((product, index) => (
           <div className="row mb-3" key={index}>
-            <div className="col-md-2">
+            <div className="col-md-3">
               <input type="text" name="productDetails" className="form-control" placeholder="Product Details" value={product.productDetails} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-2">
@@ -286,7 +286,7 @@ useEffect(() => {
                 required
               />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-1">
               <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
             </div>
             <div className="col-md-1">

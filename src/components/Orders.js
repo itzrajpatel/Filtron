@@ -237,33 +237,33 @@ const Orders = () => {
         <table className="table table-bordered table-striped" style={{ border: "1px solid grey" }}>
           <thead className="table-secondary" style={{ border: "1px solid grey" }}>
             <tr>
-              <th className="text-center">Sr No.</th>
-              <th className="text-center">Invoice No.</th>
-              <th className="text-center">Invoice Date</th>
-              <th className="text-center">Invoice Month</th>
-              <th className="text-center">Company Name</th>
-              <th className="text-center">HSN No.</th>
-              <th className="text-center">Product Details</th>
-              <th className="text-center">Quantity</th>
-              <th className="text-center">Unit</th>
-              <th className="text-center">Price</th>
-              <th className="text-center">Final Total</th>
-              <th className="text-center">Transport Charge</th>
-              <th className="text-center">GST</th>
-              <th className="text-center">CGST</th>
-              <th className="text-center">SGST</th>
-              <th className="text-center">IGST</th>
-              <th className="text-center">Sales Amount</th>
-              <th className="text-center">Job Work / Supplier</th>
-              <th className="text-center">Payment Status</th>
-              <th className="text-center">Amount Received</th>
-              <th className="text-center">Amount Pending</th>
-              <th className="text-center">Payment Type</th>
-              <th className="text-center">Payment Details</th>
-              <th className="text-center">Edit Invoice</th>
-              <th className="text-center">Cancel Invoice</th>
-              <th className="text-center">Create Invoice</th>
-              <th className="text-center">Create Chalan</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Sr No.</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Invoice No.</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Invoice Date</th>
+              <th className="text-center" style={{ whiteSpace: "wrap" }}>Invoice Month</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Company Name</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>HSN No.</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Product Details</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Quantity</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Unit</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Price</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Final Total</th>
+              <th className="text-center" style={{ whiteSpace: "wrap" }}>Transport Charge</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>GST</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>CGST</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>SGST</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>IGST</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Sales Amount</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Job Work / Supplier</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Status</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Amount Received</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Amount Pending</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Type</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Details</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Edit Invoice</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Cancel Invoice</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Create Invoice</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Create Chalan</th>
             </tr>
           </thead>
           <tbody>
@@ -316,7 +316,7 @@ const Orders = () => {
                         <div 
                           key={i} 
                           style={{ 
-                            maxWidth: "150px",
+                            maxWidth: "250px",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
