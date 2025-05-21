@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Modal, Button, Form } from "react-bootstrap";
 import "../styles/Orders.css";
 
+//TESTING
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -192,6 +198,59 @@ const Orders = () => {
       alert("Server error occurred.");
     }
     setShowCancelModal(false);
+  };
+
+  //TESTING
+  const handleExportToExcel = () => {
+    const dataToExport = [];
+
+    orders.forEach((order, index) => {
+      order.products.forEach((product, pIndex) => {
+        dataToExport.push({
+          SrNo: index + 1,
+          InvoiceNo: order.invoiceNo,
+          InvoiceDate: order.invoiceDate,
+          InvoiceMonth: order.invoiceMonth,
+          CompanyName: order.companyName,
+          CustomerName: order.customerName,
+          HSNNo: product.hsnNo,
+          ProductDetails: product.productDetails,
+          Quantity: product.quantity,
+          Unit: product.unit,
+          Price: product.price,
+          Total: product.total,
+          FinalTotal: order.finalTotal,
+          Transport: order.transport,
+          TransportPrice: order.transportPrice,
+          GST: order.gst,
+          CGST: order.cgst,
+          SGST: order.sgst,
+          IGST: order.igst,
+          SalesAmount: order.salesAmount,
+          JobWorkOrSupplier: order.job_work_supplier,
+          PaymentStatus: order.paymentStatus,
+          AmountPaid: order.amountPaid,
+          AmountPending: order.paymentStatus === "Partial"
+            ? (order.salesAmount - order.amountPaid).toFixed(2)
+            : order.paymentStatus === "Pending"
+            ? order.salesAmount
+            : "0",
+          PaymentType: order.paymentType,
+          BankName: order.bankName,
+          CheckNo: order.checkNo,
+          TransactionId: order.transactionId,
+          Cancelled: order.cancelled ? "Yes" : "No"
+        });
+      });
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(fileData, "Orders.xlsx");
   };
 
   return (
@@ -458,6 +517,26 @@ const Orders = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* TESTING */}
+      <div className="text-center mt-4 mb-4">
+        <button
+          className="btn btn-primary glow-button glow-table"
+          onClick={handleExportToExcel}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+
+        </button>
       </div>
       
       {/* Bootstrap Modal for Editing Invoice */}

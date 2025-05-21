@@ -3,12 +3,23 @@ import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
 import { Modal } from "react-bootstrap";
 
+//TESTING
+import { useEffect } from "react";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showInvalidModal, setShowInvalidModal] = useState(false);
   const navigate = useNavigate();
+
+  //TESTING
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginStatus");
+    if (loginStatus === "true") {
+      navigate("/home");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,11 +34,19 @@ const Login = () => {
           body: JSON.stringify({ username })
         });
   
+        // if (response.ok) {
+        //   setShowSuccessModal(true);
+        //   setTimeout(() => {
+        //     setShowSuccessModal(false);
+        //     navigate("/home");
+        //   }, 1000);
+        // }
         if (response.ok) {
+          localStorage.setItem("loginStatus", "true"); // Add this line
           setShowSuccessModal(true);
           setTimeout(() => {
             setShowSuccessModal(false);
-            navigate("/");
+            navigate("/home");
           }, 1000);
         } else {
           alert("Login failed to update status in database.");

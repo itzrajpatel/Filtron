@@ -22,29 +22,32 @@ import Growth from "./components/Growth";
 import PurchasePayment from "./components/PurchasePayment";
 import Login from "./components/Login";
 
+//TESTING
+import PrivateRoute from "./components/PrivateRoute";
+
 // This is a new component where we can safely use useLocation
 const AppRoutes = () => {
   const location = useLocation();
-  const hideNavbar = ["/", "/login"].includes(location.pathname);
+  const hideNavbar = ["/", "/home"].includes(location.pathname);
 
   return (
     <>
       {!hideNavbar && <Navbar />}
       <Routes>
-        <Route path="/" element={<First />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/company" element={<Home />} />
-        <Route path="/add-company" element={<AddCompany />} />
-        <Route path="/invoice" element={<Orders />} />
-        <Route path="/purchase" element={<Purchase />} />
-        <Route path="/purchase/add-purchase" element={<AddPurchase />} />
-        <Route path="/invoice/add-invoice" element={<AddOrder />} />
-        <Route path="/invoice/view-invoice" element={<ViewOrder />} />
-        <Route path="/invoice-history" element={<OrderHistory />} />
-        <Route path="/create-bill" element={<CreateBill />} />
-        <Route path="/create-chalan" element={<Chalan />} />
-        <Route path="/growth" element={<Growth />} />
-        <Route path="/purchase-payment" element={<PurchasePayment />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<PrivateRoute> <First /> </PrivateRoute>} />
+        <Route path="/company" element={<PrivateRoute> <Home /> </PrivateRoute>} />
+        <Route path="/add-company" element={<PrivateRoute> <AddCompany /> </PrivateRoute>} />
+        <Route path="/invoice" element={<PrivateRoute> <Orders /> </PrivateRoute>} />
+        <Route path="/purchase" element={<PrivateRoute> <Purchase /> </PrivateRoute>} />
+        <Route path="/purchase/add-purchase" element={<PrivateRoute> <AddPurchase /> </PrivateRoute>} />
+        <Route path="/invoice/add-invoice" element={<PrivateRoute> <AddOrder /> </PrivateRoute>} />
+        <Route path="/invoice/view-invoice" element={<PrivateRoute> <ViewOrder /> </PrivateRoute>} />
+        <Route path="/invoice-history" element={<PrivateRoute> <OrderHistory /> </PrivateRoute>} />
+        <Route path="/create-bill" element={<PrivateRoute> <CreateBill /> </PrivateRoute>} />
+        <Route path="/create-chalan" element={<PrivateRoute> <Chalan /> </PrivateRoute>} />
+        <Route path="/growth" element={<PrivateRoute> <Growth /> </PrivateRoute>} />
+        <Route path="/purchase-payment" element={<PrivateRoute> <PurchasePayment /> </PrivateRoute>} />
       </Routes>
     </>
   );

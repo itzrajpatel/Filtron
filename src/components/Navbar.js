@@ -16,7 +16,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark rounded mt-3" style={{ borderRadius: '1rem', animation: "fadeSlideUp 1.5s ease-out" }}>
       <div className="container floating-navbar">
         {/* Left Side - Brand Name */}
-        <Link className="navbar-brand d-flex justify-content-start align-items-center" to="/">
+        <Link className="navbar-brand d-flex justify-content-start align-items-center" to="/home">
           <img 
             src="/logo.png" 
             alt="Logo" 
@@ -39,7 +39,7 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/" onClick={closeNavbar}>Home</Link>
+              <Link className="nav-link" to="/home" onClick={closeNavbar}>Home</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/company" onClick={closeNavbar}>Company</Link>

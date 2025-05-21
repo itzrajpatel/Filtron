@@ -2,18 +2,84 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Purchase.css";
 import { format } from 'date-fns';
-
-// TESTING
 import { Modal, Button, Form } from "react-bootstrap";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
-
-  // TESTING
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handleExportToExcel = () => {
+    const exportData = [];
+
+    purchases.forEach((purchase, index) => {
+      const totals = calculateTotals(purchase);
+      purchase.products.forEach((product, i) => {
+        exportData.push({
+          "Sr No.": index + 1,
+          "Company Name": purchase.company_name,
+          "State": purchase.state,
+          "State Code": purchase.state_code,
+          "Invoice No": purchase.invoice_no,
+          "Invoice Date": purchase.invoice_date,
+          "Invoice Month": purchase.invoice_month,
+          "Type of Purchase": purchase.type_of_purchase,
+          "HSN No.": product.hsnNo,
+          "Product Description": product.productDescription,
+          "Item Name": purchase.product_name,
+          "Item Code": purchase.product_code,
+          "Quantity": product.quantity,
+          "Unit": product.unit,
+          "Price": product.price,
+          "Total": (product.quantity * product.price).toFixed(2),
+          "Discount": purchase.discount,
+          "Transport Charge": purchase.transport_charge,
+          "TCS": purchase.tcs,
+          "Freight": purchase.freight,
+          "Final Total": totals.final_total,
+          "Grand Total": totals.grand_total,
+          "GST (%)": purchase.gst,
+          "CGST": totals.cgst,
+          "SGST": totals.sgst,
+          "IGST": totals.igst,
+          "Sales Amount": totals.sales_amount,
+          "Gross Amount": totals.gross_amount,
+          "Payment Status": purchase.payment_status,
+          "Amount Paid": purchase.amount_paid,
+          "Pending Amount":
+            purchase.payment_status === "Partial"
+              ? (purchase.sales_amount - purchase.amount_paid).toFixed(2)
+              : purchase.payment_status === "Pending"
+              ? purchase.sales_amount
+              : 0,
+          "Payment Type": purchase.payment_type,
+          "Bank Name": purchase.bank_name,
+          "Check No": purchase.check_no,
+          "Transaction ID": purchase.transaction_id,
+          "Date of Payment": purchase.date_of_payment,
+          "Transport": purchase.transport,
+          "Transporter": purchase.transporter,
+          "LR No.": purchase.lr_no,
+        });
+      });
+    });
+
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase Details");
+
+    // Generate and save Excel file
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, "PurchaseDetails.xlsx");
+  };
 
   // TESTING
   const handleEditClick = (purchase, index) => {
@@ -451,6 +517,26 @@ const Purchase = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* TESTING */}
+      <div className="text-center mt-4 mb-4">
+        <button
+          className="btn btn-primary glow-button glow-table"
+          onClick={handleExportToExcel}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+
+        </button>
       </div>
 
       {/* TESTING */}

@@ -74,14 +74,14 @@ const Home = () => {
           <thead className="table-secondary" style={{ border: "1px solid grey" }}>
             <tr>
               <th className="text-center">Sr No.</th>
-              <th className="text-center">Company Name</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Company Name</th>
               <th className="text-center">Customer Name</th>
-              <th className="text-center">Address</th>
-              <th className="text-center">State</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Address</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>State</th>
               <th className="text-center">State Code</th>
-              <th className="text-center">Contact</th>
-              <th className="text-center">Email</th>
-              <th className="text-center">GST No</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Contact</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Email</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>GST No</th>
             </tr>
           </thead>
           <tbody>

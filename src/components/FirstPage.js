@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/FirstPage.css";
-import TypewriterText from "./TypewriterText";
 import { Modal, Button } from "react-bootstrap";
+// import TypewriterText from "./TypewriterText";
 
 const FirstPage = () => {
   const navigate = useNavigate();
@@ -55,7 +55,13 @@ const FirstPage = () => {
       if (res.ok) {
         setShowLogoutModal(true);
         setIsLoggedIn(false);
-        setTimeout(() => setShowLogoutModal(false), 1000);
+        // setTimeout(() => setShowLogoutModal(false), 1000);
+        // navigate("/")
+        setTimeout(() => {
+          setShowLogoutModal(false);
+          localStorage.removeItem("loginStatus");
+          navigate("/");
+        }, 1000);
       } else {
         alert("Logout failed");
       }
@@ -67,7 +73,7 @@ const FirstPage = () => {
 
   return (
     <div className="container mt-3">
-        <h1 className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/"
+        <h1 className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center"
           style={{
             animation: "fadeSlideUp 1.5s ease-out",
             fontSize: "clamp(1.5rem, 5vw, 80px)",
@@ -76,17 +82,27 @@ const FirstPage = () => {
             lineHeight: "1.2"
           }}
         >
-          <img
-            src="/logo.png"
-            alt="Logo"
-            style={{
-              width: "clamp(40px, 12vw, 70px)",
-              height: "clamp(40px, 12vw, 70px)",
-            }}
-          />
           Filtron Techniques
         </h1>
-        <TypewriterText />
+        {/* <TypewriterText /> */}
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          width: "100%", 
+          height: "auto",
+          padding: "1rem"
+        }}>
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ 
+              width: "clamp(80px, 20vw, 150px)", 
+              maxWidth: "100%", 
+              height: "auto" 
+            }} 
+          />
+        </div>
         <div className="row mt-5">
             <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
               <button
@@ -149,28 +165,9 @@ const FirstPage = () => {
               }}
               style={buttonStyle}
               >
-                Growth
+                Reports
               </button>
             </div>
-            {/* <div className="col-12 col-md-6 mb-5" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
-              {isLoggedIn ? (
-                <button
-                  className="btn btn-danger w-100 glow-buttons"
-                  onClick={handleLogout}
-                  style={buttonStyle}
-                >
-                  Logout
-                </button>
-              ) : (
-                <button
-                  className="btn btn-primary w-100 glow-buttons"
-                  onClick={() => navigate("/login")}
-                  style={buttonStyle}
-                >
-                  Login
-                </button>
-              )}
-            </div> */}
             <div className="col-12 mb-5 d-flex justify-content-center justify-content-lg-center">
               <div className="col-12 col-lg-6" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
                 {isLoggedIn ? (
@@ -184,7 +181,7 @@ const FirstPage = () => {
                 ) : (
                   <button
                     className="btn w-100 glow-buttons"
-                    onClick={() => navigate("/login")}
+                    onClick={() => navigate("/")}
                     style={buttonStyle}
                   >
                     Login

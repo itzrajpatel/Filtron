@@ -276,15 +276,7 @@ useEffect(() => {
               <input type="text" name="productDetails" className="form-control" placeholder="Product Details" value={product.productDetails} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-2">
-              <input
-                type="text"
-                name="hsnNo"
-                className="form-control"
-                placeholder="HSN No."
-                value={product.hsnNo}
-                onChange={(e) => handleProductChange(index, e)}
-                required
-              />
+              <input type="text" name="hsnNo" className="form-control" placeholder="HSN No." value={product.hsnNo} maxLength={8} onChange={(e) => handleProductChange(index, e)} required />
             </div>
             <div className="col-md-1">
               <input type="number" name="quantity" className="form-control" placeholder="Qty" value={product.quantity} onChange={(e) => handleProductChange(index, e)} onWheel={(e) => e.target.blur()} required />
@@ -313,7 +305,6 @@ useEffect(() => {
             </div>
           </div>
         ))}
-        {/* <button type="button" className="btn btn-success mb-3" onClick={addProduct}>+ Add Product</button> */}
         <button type="button" className="btn btn-primary glow-button glow-table mb-3" onClick={addProduct} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff" }}>
           + Add Product
         </button>

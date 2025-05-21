@@ -344,8 +344,8 @@ const Growth = () => {
             labelLine={false}
             isAnimationActive={true}
           >
-            <Cell fill="#ffc658" /> {/* Revenue */}
-            <Cell fill="crimson" /> {/* Purchase */}
+            <Cell fill="#82ca9d" /> {/* Revenue */}
+            <Cell fill="#8884d8" /> {/* Purchase */}
           </Pie>
           <Tooltip
             formatter={(value, name) => [`₹${value.toFixed(2)}`, name]}
@@ -367,7 +367,9 @@ const Growth = () => {
           fontWeight: "600",
           pointerEvents: "none"
         }}>
-          <div>Profit</div>
+          <div style={{ color: profitValue >= 0 ? "#4CAF50" : "red", fontSize: "20px", fontWeight: "bold" }}>
+            {profitValue >= 0 ? "Profit 🔺" : "Loss 🔻"}
+          </div>
           <div>₹{profitValue.toFixed(2)}</div>
           <div style={{ fontSize: "0.9rem", color: "#aaa" }}>
             {profitPercent.toFixed(1)}%

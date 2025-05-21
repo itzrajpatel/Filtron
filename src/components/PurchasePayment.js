@@ -1,12 +1,66 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Purchase.css";
 import { format } from 'date-fns';
-
-// TESTING
 import { Modal, Button, Form } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const PurchasePayment = () => {
   const [purchases, setPurchases] = useState([]);
+
+  const handleExportToExcel = () => {
+    const exportData = [];
+
+    filteredPurchases.forEach((purchase, index) => {
+      const baseInfo = {
+        "Sr No.": index + 1,
+        "Company Name": purchase.company_name,
+        "Invoice No": purchase.invoice_no,
+        "Sales Amount": purchase.sales_amount,
+        "Payment Status": purchase.payment_status,
+        "Amount Paid": purchase.amount_paid,
+        "Pending Amount": purchase.payment_status === "Partial"
+          ? (purchase.sales_amount - purchase.amount_paid).toFixed(2)
+          : purchase.payment_status === "Pending"
+          ? purchase.sales_amount
+          : 0,
+        "Payment Type": purchase.payment_type || "-",
+        "Bank Name": purchase.bank_name || "-",
+        "Cheque No": purchase.check_no || "-",
+        "Transaction ID": purchase.transaction_id || "-",
+        "Payment Date": purchase.date_of_payment
+          ? format(new Date(purchase.date_of_payment), "dd-MM-yyyy")
+          : "-"
+      };
+
+      if (purchase.products && Array.isArray(purchase.products)) {
+        purchase.products.forEach((product, prodIndex) => {
+          exportData.push({
+            ...baseInfo,
+            "Product No.": prodIndex + 1,
+            "Product Code": product.product_code || "-",
+            "Product Name": product.product_name || "-",
+            "Quantity": product.quantity || "-",
+            "Price": product.price || "-"
+          });
+        });
+      } else {
+        // In case no products are present
+        exportData.push({ ...baseInfo });
+      }
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "PurchasePayments");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(blob, "PurchasePayments.xlsx");
+  };
 
   // TESTING
   const [selectedPurchase, setSelectedPurchase] = useState(null);
@@ -360,6 +414,26 @@ const PurchasePayment = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* TESTING */}
+      <div className="text-center mt-4 mb-4">
+        <button
+          className="btn btn-primary glow-button glow-table"
+          onClick={handleExportToExcel}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+      
+        </button>
       </div>
 
       {/* TESTING */}
