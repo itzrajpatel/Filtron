@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import OrdersTable from "../components/OrdersTable";
+import { Modal } from 'react-bootstrap';
 import {
   BarChart,
   LineChart,
@@ -22,11 +24,10 @@ const Growth = () => {
   const [monthlyData, setMonthlyData] = useState([]);
   const [chartType, setChartType] = useState("bar");
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-
-  //TESTING
   const [profitValue, setProfitValue] = useState(0);
   const [profitPercent, setProfitPercent] = useState(0);
   const [profitData, setProfitData] = useState([]);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
 
   // Handle screen resizing
   useEffect(() => {
@@ -105,11 +106,47 @@ const Growth = () => {
 
   return (
     <div className="container-fluid mt-5 px-2 px-sm-4">
-      <h2 className="text-center mb-4 text-white"
-        style={{ fontFamily: "DM Serif Text, serif", animation: "fadeSlideUp 1.5s ease-out" }}>
+      {/* <OrdersTable /> */}
+
+      <div className="text-center mb-5">
+        <button
+          className="btn btn-primary glow-button glow-table"
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+          onClick={() => setShowOrdersModal(true)}
+        >
+          GSTR-1B
+        </button>
+      </div>
+
+      <Modal
+        show={showOrdersModal}
+        onHide={() => setShowOrdersModal(false)}
+        size="xl"
+        centered
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton style={{ backgroundColor: "#1c1c1c", color: "#fff" }}>
+          <div className="w-100 text-center">
+            <Modal.Title>GSTR-1B</Modal.Title>
+          </div>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: "#1c1c1c" }}>
+          <OrdersTable />
+        </Modal.Body>
+      </Modal>
+
+      <h2 className="text-center mb-4 text-white" style={{ marginTop: "150px", fontFamily: "DM Serif Text, serif", animation: "fadeSlideUp 1.5s ease-out" }}>
         Monthly Growth
       </h2>
-
       {/* Toggle Switch Right-Aligned */}
       <div className="d-flex justify-content-end mb-3">
         <div className="form-check form-switch">
