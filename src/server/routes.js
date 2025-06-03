@@ -4,6 +4,10 @@ const router = express.Router();
 const pool = require("./db");
 const { parse, isValid } = require('date-fns');
 
+// TESTING
+const nodemailer = require("nodemailer");
+const puppeteer = require("puppeteer");
+
 router.post("/login", async (req, res) => {
   const { username } = req.body;
 
@@ -573,6 +577,58 @@ router.get("/orders/:id", async (req, res) => {
   } catch (err) {
     console.error("Error fetching order by ID:", err);
     res.status(500).json({ message: "Failed to fetch order" });
+  }
+});
+
+// Email
+router.post("/send-invoice-email", async (req, res) => {
+  const { to, subject, html } = req.body;
+
+  if (!to || !subject || !html) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    // Step 1: Convert HTML to PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      headless: "new",
+      executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // use system Chrome
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({ format: "A4" });
+    await browser.close();
+
+    // Step 2: Setup Nodemailer with App Password
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // Step 3: Send Email with PDF Attachment
+    await transporter.sendMail({
+      from: `"Filtron Techniques" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text: "Please find attached the invoice PDF.",
+      attachments: [
+        {
+          filename: `${subject.replace(/\s+/g, "_")}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    });
+
+    res.status(200).json({ message: "PDF emailed successfully!" });
+  } catch (err) {
+    console.error("Failed to send invoice email:", err);
+    res.status(500).json({ message: "Failed to send invoice email", error: err.toString() });
   }
 });
 

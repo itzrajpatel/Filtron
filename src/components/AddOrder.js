@@ -150,31 +150,41 @@ const AddOrder = () => {
 
   // Calculate Final Total, Grand Total, and Sales Amount
   const calculateTotals = useCallback(() => {
-    const finalTotal = products.reduce((sum, p) => sum + parseFloat(p.total || 0), 0);
-    const transportPrice = formData.transport === "Yes" && formData.transportPrice !== "" 
-        ? parseFloat(formData.transportPrice) || 0 
-        : 0; 
-    const grandTotal = finalTotal + transportPrice;
-  
-    const gstRate = formData.gst ? parseFloat(formData.gst) / 100 : 0;
-    const isGujarat = formData.stateCode === "24";
-  
-    const cgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
-    const sgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
-    const igst = !isGujarat ? grandTotal * gstRate : 0;
-  
-    const salesAmount = grandTotal + cgst + sgst + igst;
-  
-    setFormData((prev) => ({
-        ...prev,
-        finalTotal: finalTotal.toFixed(2),
-        grandTotal: grandTotal.toFixed(2),
-        cgst: cgst.toFixed(2),
-        sgst: sgst.toFixed(2),
-        igst: igst.toFixed(2),
-        salesAmount: salesAmount.toFixed(2),
-    }));
-  }, [products, formData.transport, formData.transportPrice, formData.gst, formData.stateCode]);  
+  const finalTotalRaw = products.reduce((sum, p) => sum + parseFloat(p.total || 0), 0);
+  const transportPrice = formData.transport === "Yes" && formData.transportPrice !== "" 
+    ? parseFloat(formData.transportPrice) || 0 
+    : 0;
+  const grandTotalRaw = finalTotalRaw + transportPrice;
+
+  const gstRate = formData.gst ? parseFloat(formData.gst) / 100 : 0;
+  const isGujarat = formData.stateCode === "24";
+
+  const cgst = isGujarat ? (grandTotalRaw * gstRate) / 2 : 0;
+  const sgst = isGujarat ? (grandTotalRaw * gstRate) / 2 : 0;
+  const igst = !isGujarat ? grandTotalRaw * gstRate : 0;
+
+  const salesAmountRaw = grandTotalRaw + cgst + sgst + igst;
+
+  // Round based on decimal part
+  const roundCustom = (num) => {
+    const decimal = num - Math.floor(num);
+    return decimal >= 0.5 ? Math.ceil(num) : Math.floor(num);
+  };
+
+  const finalTotal = roundCustom(finalTotalRaw);
+  const grandTotal = roundCustom(grandTotalRaw);
+  const salesAmount = roundCustom(salesAmountRaw);
+
+  setFormData((prev) => ({
+    ...prev,
+    finalTotal: finalTotal,
+    grandTotal: grandTotal,
+    cgst: cgst.toFixed(2),
+    sgst: sgst.toFixed(2),
+    igst: igst.toFixed(2),
+    salesAmount: salesAmount,
+  }));
+}, [products, formData.transport, formData.transportPrice, formData.gst, formData.stateCode]);  
 
 useEffect(() => {
     calculateTotals();

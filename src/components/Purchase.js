@@ -7,6 +7,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
@@ -20,53 +22,57 @@ const Purchase = () => {
 
     purchases.forEach((purchase, index) => {
       const totals = calculateTotals(purchase);
-      purchase.products.forEach((product, i) => {
-        exportData.push({
-          "Sr No.": index + 1,
-          "Company Name": purchase.company_name,
-          "State": purchase.state,
-          "State Code": purchase.state_code,
-          "Invoice No": purchase.invoice_no,
-          "Invoice Date": purchase.invoice_date,
-          "Invoice Month": purchase.invoice_month,
-          "Type of Purchase": purchase.type_of_purchase,
-          "HSN No.": product.hsnNo,
-          "Product Description": product.productDescription,
-          "Item Name": purchase.product_name,
-          "Item Code": purchase.product_code,
-          "Quantity": product.quantity,
-          "Unit": product.unit,
-          "Price": product.price,
-          "Total": (product.quantity * product.price).toFixed(2),
-          "Discount": purchase.discount,
-          "Transport Charge": purchase.transport_charge,
-          "TCS": purchase.tcs,
-          "Freight": purchase.freight,
-          "Final Total": totals.final_total,
-          "Grand Total": totals.grand_total,
-          "GST (%)": purchase.gst,
-          "CGST": totals.cgst,
-          "SGST": totals.sgst,
-          "IGST": totals.igst,
-          "Sales Amount": totals.sales_amount,
-          "Gross Amount": totals.gross_amount,
-          "Payment Status": purchase.payment_status,
-          "Amount Paid": purchase.amount_paid,
-          "Pending Amount":
-            purchase.payment_status === "Partial"
-              ? (purchase.sales_amount - purchase.amount_paid).toFixed(2)
-              : purchase.payment_status === "Pending"
-              ? purchase.sales_amount
-              : 0,
-          "Payment Type": purchase.payment_type,
-          "Bank Name": purchase.bank_name,
-          "Check No": purchase.check_no,
-          "Transaction ID": purchase.transaction_id,
-          "Date of Payment": purchase.date_of_payment,
-          "Transport": purchase.transport,
-          "Transporter": purchase.transporter,
-          "LR No.": purchase.lr_no,
-        });
+      const hsnList = purchase.products.map(p => p.hsnNo || "-").join("\n\n");
+      const descriptionList = purchase.products.map(p => p.productDescription || "-").join("\n\n");
+      const quantityList = purchase.products.map(p => p.quantity || "-").join("\n\n");
+      const unitList = purchase.products.map(p => p.unit || "-").join("\n\n");
+      const priceList = purchase.products.map(p => p.price || "-").join("\n\n");
+      const totalList = purchase.products.map(p => (p.quantity * p.price).toFixed(2)).join("\n\n");
+      exportData.push({
+        "Sr No.": index + 1,
+        "Company Name": purchase.company_name,
+        "State": purchase.state,
+        "State Code": purchase.state_code,
+        "Invoice No": purchase.invoice_no,
+        "Invoice Date": purchase.invoice_date,
+        "Invoice Month": purchase.invoice_month,
+        "Type of Purchase": purchase.type_of_purchase,
+        "HSN No.": hsnList,
+        "Product Description": descriptionList,
+        "Item Name": purchase.product_name,
+        "Item Code": purchase.product_code,
+        "Quantity": quantityList,
+        "Unit": unitList,
+        "Price": priceList,
+        "Total": totalList,
+        "Discount": purchase.discount,
+        "Transport Charge": purchase.transport_charge,
+        "TCS": purchase.tcs,
+        "Freight": purchase.freight,
+        "Final Total": totals.final_total,
+        "Grand Total": totals.grand_total,
+        "GST (%)": purchase.gst,
+        "CGST": totals.cgst,
+        "SGST": totals.sgst,
+        "IGST": totals.igst,
+        "Sales Amount": totals.sales_amount,
+        "Gross Amount": totals.gross_amount,
+        "Payment Status": purchase.payment_status,
+        "Amount Paid": purchase.amount_paid,
+        "Pending Amount":
+          purchase.payment_status === "Partial"
+            ? (purchase.sales_amount - purchase.amount_paid).toFixed(2)
+            : purchase.payment_status === "Pending"
+            ? purchase.sales_amount
+            : 0,
+        "Payment Type": purchase.payment_type,
+        "Bank Name": purchase.bank_name,
+        "Check No": purchase.check_no,
+        "Transaction ID": purchase.transaction_id,
+        "Date of Payment": purchase.date_of_payment,
+        "Transport": purchase.transport,
+        "Transporter": purchase.transporter,
+        "LR No.": purchase.lr_no,
       });
     });
 
@@ -80,6 +86,59 @@ const Purchase = () => {
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, "PurchaseDetails.xlsx");
   };
+
+  const handleExportToPDF = () => {
+  const doc = new jsPDF();
+  const tableColumn = [
+    "Sr No.",
+    "Company Name",
+    "Invoice No",
+    "Invoice Date",
+    "Item Name",
+    "HSN No.",
+    "Quantity",
+    "Price",
+    "Total",
+    "Grand Total"
+  ];
+
+  const tableRows = [];
+
+  purchases.forEach((purchase, index) => {
+    const totals = calculateTotals(purchase);
+    const hsnList = purchase.products.map(p => p.hsnNo || "-").join("\n\n");
+    const descriptionList = purchase.products.map(p => p.productDescription || "-").join("\n\n");
+    const quantityList = purchase.products.map(p => p.quantity || "-").join("\n\n");
+    const priceList = purchase.products.map(p => p.price || "-").join("\n\n");
+    const totalList = purchase.products.map(p => (p.quantity * p.price).toFixed(2)).join("\n\n");
+
+    const row = [
+        index + 1,
+        purchase.company_name,
+        purchase.invoice_no,
+        purchase.invoice_date,
+        purchase.product_name,
+        hsnList,
+        descriptionList,
+        quantityList,
+        priceList,
+        totalList,
+        totals.grand_total,
+      ];
+      tableRows.push(row);
+    });
+
+  doc.text("Purchase Report", 14, 10);
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 20,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  doc.save("PurchaseDetails.pdf");
+};
 
   // TESTING
   const handleEditClick = (purchase, index) => {
@@ -534,8 +593,25 @@ const Purchase = () => {
             cursor: "pointer"
           }}
         >
-          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+          Save to Excel <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
 
+        </button>
+
+        {/* Save to PDF */}
+        <button
+          className="btn btn-danger glow-button glow-table ms-3"
+          onClick={handleExportToPDF}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save to PDF <FontAwesomeIcon icon={faSave} style={{ color: "#FF6B6B", marginLeft: "10px", fontSize: "18px" }} />
         </button>
       </div>
 

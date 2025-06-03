@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const OrdersTable = () => {
   const [orders, setOrders] = useState([]);
@@ -44,55 +46,107 @@ const OrdersTable = () => {
 
     // Save & download in "xlsx" format
     const handleExportToExcel = () => {
-    const filteredOrders = orders.filter(
-      order => selectedMonth === "" || order.invoice_month?.toLowerCase() === selectedMonth.toLowerCase()
-    );
+      const filteredOrders = orders.filter(
+        order => selectedMonth === "" || order.invoice_month?.toLowerCase() === selectedMonth.toLowerCase()
+      );
 
-    const dataToExport = filteredOrders.map((order, index) => {
-      const hsnList = order.products.map(p => p.hsnNo || "-").join(",\n");
-      const unitList = order.products.map(p => p.unit || "-").join(",\n");
+      const dataToExport = filteredOrders.map((order, index) => {
+        const hsnList = order.products.map(p => p.hsnNo || "-").join("\n\n");
+        const unitList = order.products.map(p => p.unit || "-").join("\n\n");
 
-      return {
-        "Sr No": index + 1,
-        "Invoice No": order.invoice_no,
-        "Invoice Date": order.invoice_date,
-        "Invoice Month": order.invoice_month,
-        "Company Name": order.company_name,
-        "GST No": order.gstNo,
-        "HSN Codes": hsnList,
-        "Units": unitList,
-        "Grand Total": order.grand_total,
-        "GST %": order.gst,
-        "CGST": order.cgst,
-        "SGST": order.sgst,
-        "IGST": order.igst,
-        "Total Amount": order.sales_amount
-      };
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-
-    // Ensure newline characters are respected in Excel
-    Object.keys(worksheet).forEach(cell => {
-      if (worksheet[cell] && typeof worksheet[cell].v === "string" && worksheet[cell].v.includes("\n")) {
-        worksheet[cell].s = {
-          alignment: { wrapText: true }
+        return {
+          "Sr No": index + 1,
+          "Invoice No": order.invoice_no,
+          "Invoice Date": order.invoice_date,
+          "Invoice Month": order.invoice_month,
+          "Company Name": order.company_name,
+          "GST No": order.gstNo,
+          "HSN Codes": hsnList,
+          "Units": unitList,
+          "Grand Total": order.grand_total,
+          "GST %": order.gst,
+          "CGST": order.cgst,
+          "SGST": order.sgst,
+          "IGST": order.igst,
+          "Total Amount": order.sales_amount
         };
-      }
-    });
+      });
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
-    const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
+      // Ensure newline characters are respected in Excel
+      Object.keys(worksheet).forEach(cell => {
+        if (worksheet[cell] && typeof worksheet[cell].v === "string" && worksheet[cell].v.includes("\n")) {
+          worksheet[cell].s = {
+            alignment: { wrapText: true }
+          };
+        }
+      });
 
-    const filename = selectedMonth
-      ? "GSTR-1B.xlsx" //`${selectedMonth}_GSTR-1B.xlsx`
-      : "GSTR-1B.xlsx";
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
 
-    saveAs(fileData, filename);
-  };
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
+      const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+      const filename = selectedMonth
+        ? `${selectedMonth}_GSTR-1B.xlsx`
+        : "GSTR-1B.xlsx";
+
+      saveAs(fileData, filename);
+    };
+
+    // Save & download in "pdf" format
+    const handleExportToPDF = () => {
+      const filteredOrders = orders.filter(
+        order =>
+          selectedMonth === '' ||
+          order.invoice_month?.toLowerCase() === selectedMonth.toLowerCase()
+      );
+
+      const doc = new jsPDF({ orientation: 'landscape' });
+
+      const tableColumn = [
+        'Sr No', 'Invoice No', 'Invoice Date', 'Customer', 'GST No',
+        'HSN Codes', 'Units', 'Amount', 'GST %', 'CGST', 'SGST', 'IGST', 'Total'
+      ];
+
+      const tableRows = filteredOrders.map((order, index) => {
+        const hsnList = order.products.map(p => p.hsnNo || '-').join('\n\n');
+        const unitList = order.products.map(p => p.unit || '-').join('\n\n');
+
+        return [
+          index + 1,
+          order.invoice_no,
+          order.invoice_date,
+          order.company_name,
+          order.gstNo || '-',
+          hsnList,
+          unitList,
+          `${order.grand_total}`,
+          `${order.gst}`,
+          `${order.cgst}`,
+          `${order.sgst}`,
+          `${order.igst}`,
+          `${order.sales_amount}`
+        ];
+      });
+
+      doc.text('GSTR-1B Orders Report', 14, 15);
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [52, 73, 94] }
+      });
+
+      const filename = selectedMonth
+        ? `${selectedMonth}_GSTR-1B.pdf`
+        : 'GSTR-1B.pdf';
+
+      doc.save(filename);
+    };
 
   return (
     <div className="container mt-4">
@@ -102,7 +156,7 @@ const OrdersTable = () => {
         <label htmlFor="monthFilter" className="text-white me-2">Filter by Month:</label>
         <select
           id="monthFilter"
-          className="form-select"
+          className="form-select mt-1 mb-4"
           style={{ maxWidth: "300px" }}
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
@@ -192,8 +246,24 @@ const OrdersTable = () => {
             cursor: "pointer"
           }}
         >
-          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+          Save to Excel <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
 
+        </button>
+
+        <button
+          className="btn btn-danger glow-button glow-table ms-3"
+          onClick={handleExportToPDF}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save to PDF <FontAwesomeIcon icon={faSave} style={{ color: "#FF6B6B", marginLeft: "10px", fontSize: "18px" }} />
         </button>
       </div>
     </div>

@@ -85,7 +85,38 @@ const CreateBill = () => {
         }
     
         return word + " Only";
-    };                
+    };
+
+    const handleEmailInvoice = async () => {
+        if (!company?.email) {
+            alert("No email found for the company.");
+            return;
+        }
+
+        try {
+            const invoiceHTML = document.querySelector(".invoice-container").innerHTML;
+
+            const res = await fetch("http://localhost:5000/api/send-invoice-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                to: company.email,
+                subject: `Invoice ${order.invoice_no} from Filtron Techniques`,
+                html: invoiceHTML
+            })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+            alert("Invoice emailed successfully!");
+            } else {
+            alert(`Failed to send email: ${result.message || "Unknown error"}`);
+            }
+        } catch (error) {
+            console.error("Error sending email:", error);
+            alert("An error occurred while sending the invoice.");
+        }
+    };
 
   return (
     <div className="invoice-container">
@@ -103,7 +134,7 @@ const CreateBill = () => {
             </div>
         </div>
 
-        <h3 className="mt-1" style={{ textAlign: "center", fontSize: "20px", fontFamily: "tinos", textDecoration: "underline" }}>BUYER DETAILS:</h3>
+        <h3 className="mt-1" style={{ textAlign: "center", fontSize: "13px", fontFamily: "tinos", textDecoration: "underline", fontWeight: "bold" }}>BUYER DETAILS:</h3>
 
             <div style={{ 
                 borderTop: "2px solid black",
@@ -116,7 +147,7 @@ const CreateBill = () => {
                 {/* Left Section - Buyer Details */}
                 <div style={{ flex: 1, paddingRight: "10px" }}>
                     <p className="mt-1"><strong style={{ marginBottom: "2px", paddingLeft: "10px", fontSize: "15px" }}>{company.company_name}</strong></p>
-                    <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "15.5px", margin: "-15px", paddingBottom: "15px" }}>
+                    <p style={{ lineHeight: "1.5", paddingLeft: "25px", fontSize: "14.5px", margin: "-15px" }}>
                         {(company.address ? company.address.split("\n") : []).map((line, index) => (
                             <React.Fragment key={index}>
                             {line}
@@ -127,12 +158,42 @@ const CreateBill = () => {
                 </div>
 
                 {/* Right Section - GSTIN & Other Details */}
-                <div style={{ flex: 1, paddingLeft: "10px", textAlign: "start", borderLeft: "1px solid black" }}>
-                    <p className="mt-1" style={{ fontSize: "13px", margin: "4px 0" }}><strong>GSTIN NO.:</strong> {company.gst_no || "-"} </p>
-                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE:</strong> {company.state} </p>
-                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>STATE CODE:</strong> {company.state_code} </p>
-                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>PO REFF:</strong> <input type="text" placeholder="Enter PO REFF" style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none" }}></input> </p>
-                    <p style={{ fontSize: "13px", margin: "4px 0" }}><strong>PO DATE:</strong> <input type="text" placeholder="Enter PO DATE" style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none" }}></input> </p>
+                <div style={{ flex: 1, paddingLeft: "10px", borderLeft: "1px solid black" }}>
+                    {[
+                        { label: "GSTIN NO.:", value: company.gst_no || "-" },
+                        { label: "STATE:", value: company.state },
+                        { label: "STATE CODE:", value: company.state_code },
+                    ].map((item, index) => (
+                        <div key={index} style={{ display: "flex", fontSize: "12px", margin: "4px 0" }}>
+                            <div style={{ flex: 1, textAlign: "start", fontWeight: "bold" }}>{item.label}</div>
+                            <div style={{ flex: 1, textAlign: "center" }}>{item.value}</div>
+                            <div style={{ flex: 1 }}></div>
+                        </div>
+                    ))}
+
+                    <div style={{ display: "flex", fontSize: "12px", margin: "4px 0", alignItems: "center" }}>
+                        <div style={{ flex: 1, textAlign: "start", fontWeight: "bold" }}>PO REFF:</div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                            <input 
+                                type="text" 
+                                placeholder="Enter PO REFF" 
+                                style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none", backgroundColor: "transparent", textAlign: "center" }}
+                            />
+                        </div>
+                        <div style={{ flex: 1 }}></div>
+                    </div>
+
+                    <div style={{ display: "flex", fontSize: "12px", margin: "4px 0", alignItems: "center" }}>
+                        <div style={{ flex: 1, textAlign: "start", fontWeight: "bold" }}>PO DATE:</div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                            <input 
+                                type="text" 
+                                placeholder="Enter PO DATE" 
+                                style={{ height: "20px", width: "150px", fontSize: "13px", padding: "5px", border: "none", backgroundColor: "transparent", textAlign: "center" }}
+                            />
+                        </div>
+                        <div style={{ flex: 1 }}></div>
+                    </div>
                 </div>
             </div>
 
@@ -163,62 +224,60 @@ const CreateBill = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {order.products && order.products.length > 0 ? (
-                        order.products.map((product, index) => (
-                        <tr key={index}>
-                            <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>{index + 1}</td>
-                            <td className="text-center" style={{ border: "1px solid black" }}>{product.hsnNo || "-"}</td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "-"}</td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.quantity || 0}</td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "-"}</td>
-                            <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>₹{product.price || 0}</td>
-                            <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>₹{(product.quantity * product.price).toFixed(2) || 0}</td>
+                    {[...order.products, ...Array(4 - order.products.length).fill({})]
+                        .slice(0, 4)
+                        .map((product, index) => (
+                        <tr key={index} style={{ height: "50px" }}>
+                            <td className="text-center" style={{ padding: "8px" }}>{product.productDetails ? index + 1 : ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black" }}>{product.hsnNo || ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>{product.productDetails || ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>{product.quantity || ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>{product.unit || ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>{product.price ? `₹${product.price}` : ""}</td>
+                            <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px", fontWeight: "bold" }}>
+                                {product.quantity && product.price ? `₹${(product.quantity * product.price).toFixed(2)}` : ""}
+                            </td>
                         </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="6" className="text-center">No Products Available</td>
-                        </tr>
-                    )}
+                    ))}
                 </tbody>
             </table>
 
             <div style={{ display: "flex", marginTop: "10px", borderBottom: "2px solid black", borderTop: "2px solid black" }}>
                 {/* Left Section - Bank Details */}
                 <div style={{ flex: 1 }}>
-                    <h4 className="text-center" style={{ padding: "10px", fontSize: "20px", textDecoration: "underline", backgroundColor: "#d7dbdd" }}>BANK DETAILS FOR NEFT / RTGS</h4>
-                    <p style={{ paddingLeft: "10px", margin: "2px 0" }}><strong>BANK NAME:</strong> HDFC BANK LTD</p>
-                    <p style={{ paddingLeft: "10px", margin: "2px 0" }}><strong>BRANCH:</strong> MEMNAGAR / GURUKUL AHMEDABAD</p>
-                    <p style={{ paddingLeft: "10px", margin: "2px 0" }}><strong>A/C NO:</strong> 50200027039621</p>
-                    <p style={{ paddingLeft: "10px", margin: "2px 0" }}><strong>IFSC CODE:</strong> HDFC0001675</p>
+                    <h4 className="text-center" style={{ padding: "10px", fontSize: "13px", textDecoration: "underline", backgroundColor: "#d7dbdd", borderBottom: "1px solid black" }}>BANK DETAILS FOR NEFT / RTGS</h4>
+                    <p style={{ fontSize: "12px", paddingLeft: "10px", margin: "2px 0" }}><strong>BANK NAME:</strong> HDFC BANK LTD</p>
+                    <p style={{ fontSize: "12px", paddingLeft: "10px", margin: "2px 0" }}><strong>BRANCH:</strong> MEMNAGAR / GURUKUL AHMEDABAD</p>
+                    <p style={{ fontSize: "12px", paddingLeft: "10px", margin: "2px 0" }}><strong>A/C NO:</strong> 50200027039621</p>
+                    <p style={{ fontSize: "12px", paddingLeft: "10px", margin: "2px 0" }}><strong>IFSC CODE:</strong> HDFC0001675</p>
                 </div>
 
                 {/* Right Section - Amount Details */}
                 <div style={{ flex: 1, padding: "2px", borderLeft: "1px solid black", textAlign: "start" }}>
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>GRAND TOTAL: ₹{order.final_total}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}>GRAND TOTAL: ₹{order.final_total}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>TRANSPORTATION CHARGES: {order.transport === "Yes" ? `₹${order.transport_price}` : "₹0"}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}>TRANSPORTATION CHARGES: {order.transport === "Yes" ? `₹${order.transport_price}` : "₹0"}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL TAXABLE AMOUNT:</strong> ₹{order.grand_total}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}><strong>TOTAL TAXABLE AMOUNT: ₹{order.grand_total}</strong></p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>CGST @ 6%: ₹{order.cgst}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}>CGST @ 6%: ₹{order.cgst}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>SGST @ 6%: ₹{order.sgst}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}>SGST @ 6%: ₹{order.sgst}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}>IGST @ 12%: ₹{order.igst}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}>IGST @ 12%: ₹{order.igst}</p>
                     <hr style={{ margin: "1px 0", borderTop: "1px solid black" }} />
                     
-                    <p style={{ margin: "1px 0", fontSize: "13px" }}><strong>TOTAL AMOUNT:</strong> ₹{order.sales_amount}</p>
+                    <p style={{ margin: "1px 0", fontSize: "11px" }}><strong>TOTAL AMOUNT: ₹{order.sales_amount}</strong></p>
                 </div>
             </div>
 
-            <strong>Amount Chargeable (in words):- {convertNumberToWords(order.sales_amount)}</strong>
-            <p className="text-end mt-3" style={{ margin: "5px 0" }}> Remarks :- Total Amount is rounded off to the nearest value </p>
+            <strong style={{ fontSize: "14px" }}>Amount Chargeable (in words):- {convertNumberToWords(order.sales_amount)}</strong>
+            <p className="text-end mt-3" style={{ fontSize: "13px" ,margin: "5px 0" }}> Remarks :- Total Amount is rounded off to the nearest value </p>
 
             <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid black" }}>
                 {/* Left Section - Payment & Delivery Terms */}
@@ -226,35 +285,53 @@ const CreateBill = () => {
                     
                     {/* Top Section - Payment & Delivery Terms */}
                     <div style={{ borderBottom: "1px solid black", textAlign: "center" }}>
-                        <p style={{ paddingLeft: "5px", margin: "5px 0" }}><strong>Payment Terms :</strong> <input type="text" placeholder="Enter Payment Terms" style={{ height: "20px", width: "150px", padding: "5px", fontSize: "14px", border: "none", textAlign: "center" }}></input> </p>
-                        <p style={{ paddingLeft: "5px", margin: "5px 0" }}><strong>Delivery Terms :</strong> <input type="text" placeholder="Enter Delivery Terms" style={{ height: "20px", width: "150px", padding: "5px", fontSize: "14px", border: "none", textAlign: "center" }}></input> </p>
-                        <p style={{ paddingLeft: "25px", margin: "5px 0" }}><strong>Booking For :</strong> <input type="text" placeholder="Enter Booking For" style={{ height: "20px", width: "150px", padding: "5px", fontSize: "14px", border: "none", textAlign: "center" }}></input></p>
+                        <p style={{ fontSize: "12px", paddingLeft: "5px", margin: "5px 0" }}><strong>Payment Terms :</strong> <input type="text" placeholder="Enter Payment Terms" style={{ height: "13px", width: "150px", padding: "5px", fontSize: "13px", border: "none", textAlign: "center", backgroundColor: "transparent" }}></input> </p>
+                        <p style={{ fontSize: "12px", paddingLeft: "5px", margin: "5px 0" }}><strong>Delivery Terms :</strong> <input type="text" placeholder="Enter Delivery Terms" style={{ height: "13px", width: "150px", padding: "5px", fontSize: "13px", border: "none", textAlign: "center", backgroundColor: "transparent" }}></input> </p>
+                        <p style={{ fontSize: "12px", paddingLeft: "20px", margin: "5px 0" }}><strong>Booking For :</strong> <input type="text" placeholder="Enter Booking For" style={{ height: "13px", width: "150px", padding: "5px", fontSize: "13px", border: "none", textAlign: "center", backgroundColor: "transparent" }}></input></p>
                     </div>
 
                     {/* Bottom Section - Company Registration Details */}
-                    <div >
-                        <p style={{ paddingLeft: "5px", margin: "5px 0" }}><strong>COMPANY REGISTRATION DETAILS:-</strong></p>
+                    <div>
+                        <p style={{ fontSize: "13px", paddingLeft: "5px", margin: "5px 0", textDecoration: "underline" }}><strong>COMPANY REGISTRATION DETAILS:-</strong></p>
                         
                         {/* Row 1: GSTIN & STATE */}
                         <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                            <p style={{ paddingLeft: "5px", fontSize: "14px" }}><strong>GSTIN:</strong> 24AKXPP2376H1ZL </p>
-                            <p style={{ paddingRight: "10px", fontSize: "14px" }}><strong>STATE:</strong> GUJARAT </p>
+                            <p style={{ paddingLeft: "5px", fontSize: "12px" }}><strong>GSTIN:</strong> 24AKXPP2376H1ZL </p>
+                            <p style={{ paddingRight: "10px", fontSize: "12px" }}><strong>STATE:</strong> GUJARAT </p>
                         </div>
 
                         {/* Row 2: I/E CODE & STATE CODE */}
                         <div style={{ display: "flex", justifyContent: "space-between", width: "100%", }}>
-                            <p style={{ paddingLeft: "5px", fontSize: "14px" }}><strong>I/E CODE:</strong> AKXPP2376H </p>
-                            <p style={{ paddingRight: "15px", fontSize: "14px" }}><strong>STATE CODE:</strong> 24 </p>
+                            <p style={{ paddingLeft: "5px", fontSize: "12px" }}><strong>I/E CODE:</strong> AKXPP2376H </p>
+                            <p style={{ paddingRight: "15px", fontSize: "12px" }}><strong>STATE CODE:</strong> 24 </p>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Section - Authorized Signatory */}
                 <div style={{ flex: 1, textAlign: "start" }}>
-                    <strong style={{ paddingLeft: "5px" }}>For, <strong style={{ textDecoration: "underline" }}> FILTRON TECHNIQUES, AHMEDABAD</strong></strong>
-                    <p style={{ marginTop: "105px", paddingLeft: "5px", fontWeight: "bolder" }}>Authorized Signatory</p>
+                    <strong style={{ paddingLeft: "5px" }}>For, <strong style={{ textDecoration: "underline", fontSize: "15px" }}> FILTRON TECHNIQUES, AHMEDABAD</strong></strong>
+                    <p className="sign" style={{ marginTop: "100px", paddingLeft: "10px", fontWeight: "bolder" }}>Authorized Signatory</p>
                 </div>
             </div>
+        </div>
+
+        <div className="text-center mt-5 mb-5 no-print">
+            <button
+            className="btn btn-primary glow-button glow-table"
+            onClick={handleEmailInvoice}
+            style={{
+                animation: "fadeSlideUp 1.5s ease-out",
+                background: "transparent",
+                color: "#fff",
+                padding: "12px 24px",
+                fontWeight: "600",
+                fontSize: "16px",
+                cursor: "pointer"
+            }}
+            >
+                Email
+            </button>
         </div>
     </div>
   );

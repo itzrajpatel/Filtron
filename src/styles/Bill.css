@@ -1,39 +1,52 @@
 @media print {
     body {
-        visibility: hidden; /* Hide everything initially */
+        visibility: hidden;
+        margin: 0;
+        padding: 0;
     }
 
     .invoice-container {
         visibility: visible;
         position: absolute;
-        left: 0;
-        top: 200px;
+        top: 55mm;
+        left: 0mm;
         width: 100%;
-        margin: 0;
-        padding: 0;
+        font-size: 9.5px;
     }
 
-    .navbar, 
-    .footer, 
+    .navbar,
+    .footer,
     .no-print {
-        display: none !important; /* Hide navigation, footers, and any extra UI elements */
+        display: none !important;
     }
 
     @page {
         size: A4;
-        margin: 0; /* Removes default browser margins */
+        margin-left: 0mm;
     }
 
     .invoice-title {
-        color: #000 !important; /* Black for print */
+        color: #000 !important;
     }
-    
-    /* If there are more than 3 products, make the font smaller for printing */
+
+    .product-table {
+        font-size: 9px;
+    }
+
     .product-table.medium-products {
-        font-size: 10px; /* 4-6 products */
+        font-size: 8px;
     }
 
     .product-table.many-products {
-        font-size: 9px; /* 7+ products */
+        font-size: 8px;
+    }
+
+    input {
+        font-size: 9px;
+        padding: 2px;
+    }
+
+    .sign {
+        font-size: 15px;
     }
 }

@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button, Form } from "react-bootstrap";
 import "../styles/Orders.css";
-
-//TESTING
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -147,36 +147,42 @@ const Orders = () => {
   };  
 
   const calculateTotals = (order) => {
-    const finalTotal = order.products.reduce((sum, p) => {
-      const qty = parseFloat(p.quantity) || 0;
-      const price = parseFloat(p.price) || 0;
-      return sum + qty * price;
-    }, 0);
-  
-    const transportPrice = order.transport === "Yes" && order.transportPrice
-      ? parseFloat(order.transportPrice) || 0
-      : 0;
-  
-    const grandTotal = finalTotal + transportPrice;
-  
-    const gstRate = order.gst ? parseFloat(order.gst.replace("%", "")) / 100 : 0;
-    const isGujarat = selectedOrder.state_code === "24";
-  
-    const cgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
-    const sgst = isGujarat ? (grandTotal * gstRate) / 2 : 0;
-    const igst = !isGujarat ? grandTotal * gstRate : 0;
-  
-    const salesAmount = grandTotal + cgst + sgst + igst;
-  
-    return {
-      finalTotal: finalTotal.toFixed(2),
-      grandTotal: grandTotal.toFixed(2),
-      cgst: cgst.toFixed(2),
-      sgst: sgst.toFixed(2),
-      igst: igst.toFixed(2),
-      salesAmount: salesAmount.toFixed(2),
-    };
+  const finalTotalRaw = order.products.reduce((sum, p) => {
+    const qty = parseFloat(p.quantity) || 0;
+    const price = parseFloat(p.price) || 0;
+    return sum + qty * price;
+  }, 0);
+
+  const transportPrice = order.transport === "Yes" && order.transportPrice
+    ? parseFloat(order.transportPrice) || 0
+    : 0;
+
+  const grandTotalRaw = finalTotalRaw + transportPrice;
+
+  const gstRate = order.gst ? parseFloat(order.gst.replace("%", "")) / 100 : 0;
+  const isGujarat = selectedOrder?.state_code === "24";
+
+  const cgst = isGujarat ? (grandTotalRaw * gstRate) / 2 : 0;
+  const sgst = isGujarat ? (grandTotalRaw * gstRate) / 2 : 0;
+  const igst = !isGujarat ? grandTotalRaw * gstRate : 0;
+
+  const salesAmountRaw = grandTotalRaw + cgst + sgst + igst;
+
+  // Custom rounding function: round up if decimal ≥ 0.5, else round down
+  const customRound = (num) => {
+    const decimal = num - Math.floor(num);
+    return decimal >= 0.5 ? Math.ceil(num) : Math.floor(num);
   };
+
+  return {
+    finalTotal: customRound(finalTotalRaw),
+    grandTotal: customRound(grandTotalRaw),
+    cgst: cgst.toFixed(2),
+    sgst: sgst.toFixed(2),
+    igst: igst.toFixed(2),
+    salesAmount: customRound(salesAmountRaw),
+  };
+};
 
   const handleCancelOrder = async () => {
     try {
@@ -200,47 +206,59 @@ const Orders = () => {
     setShowCancelModal(false);
   };
 
-  //TESTING
+  // Save & download in "xlsx" format
   const handleExportToExcel = () => {
     const dataToExport = [];
 
-    orders.forEach((order, index) => {
-      order.products.forEach((product, pIndex) => {
-        dataToExport.push({
-          SrNo: index + 1,
-          InvoiceNo: order.invoiceNo,
-          InvoiceDate: order.invoiceDate,
-          InvoiceMonth: order.invoiceMonth,
-          CompanyName: order.companyName,
-          CustomerName: order.customerName,
-          HSNNo: product.hsnNo,
-          ProductDetails: product.productDetails,
-          Quantity: product.quantity,
-          Unit: product.unit,
-          Price: product.price,
-          Total: product.total,
-          FinalTotal: order.finalTotal,
-          Transport: order.transport,
-          TransportPrice: order.transportPrice,
-          GST: order.gst,
-          CGST: order.cgst,
-          SGST: order.sgst,
-          IGST: order.igst,
-          SalesAmount: order.salesAmount,
-          JobWorkOrSupplier: order.job_work_supplier,
-          PaymentStatus: order.paymentStatus,
-          AmountPaid: order.amountPaid,
-          AmountPending: order.paymentStatus === "Partial"
-            ? (order.salesAmount - order.amountPaid).toFixed(2)
-            : order.paymentStatus === "Pending"
-            ? order.salesAmount
-            : "0",
-          PaymentType: order.paymentType,
-          BankName: order.bankName,
-          CheckNo: order.checkNo,
-          TransactionId: order.transactionId,
-          Cancelled: order.cancelled ? "Yes" : "No"
-        });
+    const filteredOrders = orders.filter(order => {
+      const matchesCompany = selectedCompany === "" || order.company_name === selectedCompany;
+      const matchesStatus = selectedPaymentStatus === "" || order.paymentStatus === selectedPaymentStatus;
+      const isNotCancelled = !order.cancelled;
+      return matchesCompany && matchesStatus && isNotCancelled;
+    });
+
+    filteredOrders.forEach((order, index) => {
+      const hsnList = order.products.map(p => p.hsnNo || "-").join("\n\n");
+      const productDetailsList = order.products.map(p => p.productDetails || "-").join("\n\n");
+      const quantityList = order.products.map(p => p.quantity || "-").join("\n\n");
+      const unitList = order.products.map(p => p.unit || "-").join("\n\n");
+      const priceList = order.products.map(p => p.price || "-").join("\n\n");
+      const totalList = order.products.map(p => p.total || "-").join("\n\n");
+
+      dataToExport.push({
+        SrNo: index + 1,
+        InvoiceNo: order.invoiceNo,
+        InvoiceDate: order.invoiceDate,
+        InvoiceMonth: order.invoiceMonth,
+        CompanyName: order.companyName,
+        CustomerName: order.customerName,
+        HSNNo: hsnList,
+        ProductDetails: productDetailsList,
+        Quantity: quantityList,
+        Unit: unitList,
+        Price: priceList,
+        Total: totalList,
+        FinalTotal: order.finalTotal,
+        Transport: order.transport,
+        TransportPrice: order.transportPrice,
+        GST: order.gst,
+        CGST: order.cgst,
+        SGST: order.sgst,
+        IGST: order.igst,
+        SalesAmount: order.salesAmount,
+        JobWorkOrSupplier: order.job_work_supplier,
+        PaymentStatus: order.paymentStatus,
+        AmountPaid: order.amountPaid,
+        AmountPending: order.paymentStatus === "Partial"
+          ? (order.salesAmount - order.amountPaid).toFixed(2)
+          : order.paymentStatus === "Pending"
+          ? order.salesAmount
+          : "0",
+        PaymentType: order.paymentType,
+        BankName: order.bankName,
+        CheckNo: order.checkNo,
+        TransactionId: order.transactionId,
+        Cancelled: order.cancelled ? "Yes" : "No"
       });
     });
 
@@ -250,7 +268,64 @@ const Orders = () => {
 
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(fileData, "Orders.xlsx");
+    saveAs(fileData, "Invoice.xlsx");
+  };
+
+  // Save & download in "pdf" format
+  const handleExportToPDF = () => {
+    const doc = new jsPDF({ orientation: "landscape" });
+
+    const tableColumn = [
+      "Sr No", "Invoice No", "Invoice Date", "Customer", "HSN", "Qty", "Unit", "Price",
+      "Final Total", "GST", "CGST", "SGST", "IGST", "Sales Amount"
+    ];
+
+    const tableRows = [];
+
+    const filteredOrders = orders.filter(order => {
+      const matchesCompany = selectedCompany === "" || order.company_name === selectedCompany;
+      const matchesStatus = selectedPaymentStatus === "" || order.paymentStatus === selectedPaymentStatus;
+      const isNotCancelled = !order.cancelled;
+      return matchesCompany && matchesStatus && isNotCancelled;
+    });
+
+    filteredOrders.forEach((order, index) => {
+      const hsnList = order.products.map(p => p.hsnNo || "-").join("\n\n");
+      const productDetailsList = order.products.map(p => p.productDetails || "-").join("\n\n");
+      const quantityList = order.products.map(p => p.quantity || "-").join("\n\n");
+      const unitList = order.products.map(p => p.unit || "-").join("\n\n");
+      const priceList = order.products.map(p => p.price || "-").join("\n\n");
+
+      tableRows.push([
+        index + 1,
+        order.invoiceNo,
+        order.invoiceDate,
+        order.companyName,
+        hsnList,
+        productDetailsList,
+        quantityList,
+        unitList,
+        priceList,
+        order.finalTotal,
+        order.gst,
+        order.cgst,
+        order.sgst,
+        order.igst,
+        order.salesAmount,
+      ]);
+    });
+
+
+    doc.text("Invoice Report", 14, 15);
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [52, 73, 94] }
+    });
+
+    doc.save("Invoice.pdf");
   };
 
   return (
@@ -436,7 +511,7 @@ const Orders = () => {
                       {order.paymentStatus === "Partial" ? (
                         <span className="text-warning fw-bold">₹{order.amountPaid}</span>
                       ) : order.paymentStatus === "Paid" ? (
-                        <span className="fw-bold" style={{ color: "lightgreen" }}>₹{order.salesAmount}</span>
+                        <span className="fw-bold" style={{ color: "lightgreen" }}>{order.salesAmount}</span>
                       ) : (
                         "-"
                       )}
@@ -446,7 +521,7 @@ const Orders = () => {
                       {order.paymentStatus === "Partial" ? (
                         <span className="text-danger fw-bold">₹{order.salesAmount - order.amountPaid}</span>
                       ) : order.paymentStatus === "Pending" ? (
-                        <span className="text-danger fw-bold">₹{order.salesAmount}</span>
+                        <span className="text-danger fw-bold">{order.salesAmount}</span>
                       ) : (
                         "-"
                       )}
@@ -521,6 +596,8 @@ const Orders = () => {
 
       {/* TESTING */}
       <div className="text-center mt-4 mb-4">
+        
+        {/* Save to xlsx */}
         <button
           className="btn btn-primary glow-button glow-table"
           onClick={handleExportToExcel}
@@ -534,8 +611,25 @@ const Orders = () => {
             cursor: "pointer"
           }}
         >
-          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+          Save to Excel <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
 
+        </button>
+
+        {/* Save to PDF */}
+        <button
+          className="btn btn-danger glow-button glow-table ms-3"
+          onClick={handleExportToPDF}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save to PDF <FontAwesomeIcon icon={faSave} style={{ color: "#FF6B6B", marginLeft: "10px", fontSize: "18px" }} />
         </button>
       </div>
       

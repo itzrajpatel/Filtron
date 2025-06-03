@@ -6,10 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const PurchasePayment = () => {
   const [purchases, setPurchases] = useState([]);
 
+  // Save to "Excel"
   const handleExportToExcel = () => {
     const exportData = [];
 
@@ -61,6 +64,58 @@ const PurchasePayment = () => {
 
     saveAs(blob, "PurchasePayments.xlsx");
   };
+
+  // Save to "PDF"
+  const handleExportToPDF = () => {
+  const doc = new jsPDF();
+  const tableColumn = [
+    "Sr No.",
+    "Company Name",
+    "Invoice No",
+    "Sales Amount",
+    "Status",
+    "Amount Paid",
+    "Pending",
+    "Payment Type",
+    "Bank",
+    "Payment Date"
+  ];
+
+  const tableRows = [];
+
+  filteredPurchases.forEach((purchase, index) => {
+    const row = [
+      index + 1,
+      purchase.company_name,
+      purchase.invoice_no,
+      purchase.sales_amount,
+      purchase.payment_status,
+      purchase.amount_paid || "-",
+      purchase.payment_status === "Partial"
+        ? (purchase.sales_amount - purchase.amount_paid).toFixed(2)
+        : purchase.payment_status === "Pending"
+        ? purchase.sales_amount
+        : 0,
+      purchase.payment_type || "-",
+      purchase.bank_name || "-",
+      purchase.date_of_payment
+        ? format(new Date(purchase.date_of_payment), "dd-MM-yyyy")
+        : "-"
+    ];
+    tableRows.push(row);
+  });
+
+  doc.text("Purchase Payments Report", 14, 10);
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 20,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  doc.save("PurchasePayments.pdf");
+};
 
   // TESTING
   const [selectedPurchase, setSelectedPurchase] = useState(null);
@@ -431,8 +486,24 @@ const PurchasePayment = () => {
             cursor: "pointer"
           }}
         >
-          Save File <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
-      
+          Save to Excel <FontAwesomeIcon icon={faSave} style={{ color: "#74C0FC", marginLeft: "10px", fontSize: "18px" }} />
+        </button>
+
+        {/* Save to PDF */}
+        <button
+          className="btn btn-danger glow-button glow-table ms-3"
+          onClick={handleExportToPDF}
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Save to PDF <FontAwesomeIcon icon={faSave} style={{ color: "#FF6B6B", marginLeft: "10px", fontSize: "18px" }} />
         </button>
       </div>
 
