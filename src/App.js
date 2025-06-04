@@ -21,8 +21,6 @@ import AddPurchase from "./components/AddPurchase";
 import Growth from "./components/Growth";
 import PurchasePayment from "./components/PurchasePayment";
 import Login from "./components/Login";
-
-//TESTING
 import PrivateRoute from "./components/PrivateRoute";
 
 // This is a new component where we can safely use useLocation
