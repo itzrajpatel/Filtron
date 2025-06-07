@@ -5,9 +5,12 @@ import "../styles/Chalan.css";
 const Chalan = () => {
     const location = useLocation();
     const orderId = location.state?.orderId;
-
     const [order, setOrder] = useState(null);
     const [company, setCompany] = useState(null);
+
+    // TESTING
+    const [isEditingAddress, setIsEditingAddress] = useState(false);
+    const [shippingAddress, setShippingAddress] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,6 +27,9 @@ const Chalan = () => {
                 );
 
                 setCompany(matchedCompany || null);
+
+                // TESTING
+                setShippingAddress((matchedCompany?.address || "").trim());
 
             } catch (error) {
                 console.error("Failed to fetch data:", error);
@@ -43,7 +49,38 @@ const Chalan = () => {
 
   return (
     <div className="mt-5 mb-5 bg-light chalan-container" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
-      <h3 style={{ textAlign: "center", margin: "20px 0", textDecoration: "underline" }}>BUYER DETAILS:</h3>
+        <div style={{ padding: "10px 0", borderBottom: "2px solid black" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {/* Logo */}
+                <div style={{ flex: "0 0 100px", textAlign: "center" }}>
+                    <img 
+                        src="/logo.png" 
+                        alt="Filtron Logo" 
+                        style={{ width: "140px", height: "140px", borderRadius: "50%", objectFit: "contain" }} 
+                    />
+                </div>
+
+                {/* Center - Company Name and Slogan */}
+                <div style={{ flex: 1, textAlign: "center", fontFamily: "Baskervville SC, serif" }}>
+                    <div style={{ fontSize: "50px", fontWeight: "bold", letterSpacing: "2px", textDecoration: "underline" }}>
+                        FILTRON TECHNIQUES
+                    </div>
+                    <div style={{ fontWeight: "600", marginTop: "-10px", textAlign: "end", marginRight: "170px" }}>Do Filtration More Technically</div>
+                </div>
+            </div>
+
+            {/* Bottom - Description */}
+            <div style={{ textAlign: "center", marginTop: "5px", fontSize: "13px" }}>
+                Filter fabrics, Filter Press cloths, Centrifuge Bags, Dust collector bags, Cages for Bag house, Belt for belt press
+            </div>
+
+            {/* Tagline row */}
+            <div style={{ textAlign: "center", marginTop: "5px", fontSize: "14px", fontStyle: "italic", fontWeight: "bold", borderTop: "2px solid black" }}>
+                ………PERFORMANCE……….<span style={{ margin: "0 10px" }}>PERFECTION</span>……….<span style={{ margin: "0 10px" }}>QUALITY</span>……….<span style={{ margin: "0 10px" }}>SERVICE</span>………
+            </div>
+        </div>
+
+      <h3 style={{ textAlign: "center", margin: "20px 0", fontWeight: "bold" }}>DELIVERY CHALAN</h3>
       <div style={{ display: "flex", justifyContent: "space-around", borderTop: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>
         <div>
         <strong>CHALAN NO:</strong> {order.invoice_no?.slice(-3)}
@@ -68,8 +105,8 @@ const Chalan = () => {
                         <strong style={{ textDecoration: "underline" }}>BILING ADDRESS</strong>
                     </div>
                 </div>
-                <strong style={{ paddingLeft: "5px" }}>{company.company_name}</strong>
-                <p className="mt-3" style={{ paddingLeft: "5px" }}>
+                <strong style={{ paddingLeft: "5px", marginTop: "10px", display: "block" }}>{company.company_name}</strong>
+                <p className="mt-2" style={{ paddingLeft: "5px" }}>
                     {company.address.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
                         {line}
@@ -86,15 +123,58 @@ const Chalan = () => {
                         <strong style={{ textDecoration: "underline" }}>SHIPING ADDRESS</strong>
                     </div>
                 </div>
-                <strong style={{ paddingLeft: "5px" }}>{company.company_name}</strong>
-                <p className="mt-3" style={{ paddingLeft: "5px" }}>
+                <strong style={{ paddingLeft: "5px", marginTop: "10px", display: "block" }}>{company.company_name}</strong>
+                {/* <p className="mt-3" style={{ paddingLeft: "5px" }}>
                     {company.address.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
                         {line}
                         <br />
                         </React.Fragment>
                     ))}
-                </p>
+                </p> */}
+                {isEditingAddress ? (
+                    // <textarea
+                    //     className="mt-3"
+                    //     style={{ paddingLeft: "5px", width: "95%", fontSize: "14px", border: "1px solid black" }}
+                    //     value={shippingAddress}
+                    //     onChange={(e) => setShippingAddress(e.target.value)}
+                    //     onBlur={() => setIsEditingAddress(false)}
+                    //     autoFocus
+                    //     rows={4}
+                    // />
+                    <textarea
+                    className="mt-3"
+                    style={{ paddingLeft: "5px", width: "95%", fontSize: "14px", border: "1px solid black" }}
+                    value={shippingAddress}
+                    onChange={(e) => {
+                        const limitedLines = e.target.value.split('\n').slice(0, 4);
+                        setShippingAddress(limitedLines.join('\n'));
+                    }}
+                    onKeyDown={(e) => {
+                        const lineCount = shippingAddress.split('\n').length;
+                        if (e.key === 'Enter' && lineCount >= 4) {
+                        e.preventDefault();
+                        }
+                    }}
+                    onBlur={() => setIsEditingAddress(false)}
+                    autoFocus
+                    rows={4}
+                    />
+                    ) : (
+                    <p
+                        className="mt-2"
+                        style={{ paddingLeft: "5px", cursor: "pointer" }}
+                        onClick={() => setIsEditingAddress(true)}
+                        title="Click to edit"
+                    >
+                        {shippingAddress.split("\n").map((line, index) => (
+                        <React.Fragment key={index}>
+                            {line}
+                            <br />
+                        </React.Fragment>
+                        ))}
+                    </p>
+                )}
             </div>
         </div>
 
@@ -117,22 +197,30 @@ const Chalan = () => {
                 </tr>
             </thead>
             <tbody>
-                {order.products && order.products.length > 0 ? (
-                    order.products.map((product, index) => (
-                    <tr key={index}>
-                        <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>{index + 1}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.productDetails || "-"}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.quantity || 0}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>{product.unit || "-"}</td>
-                        <td className="text-center" style={{ border: "1px solid black", padding: "8px" }}>₹{product.price || 0}</td>
-                        <td className="text-center" style={{ borderBottom: "1px solid black", padding: "8px" }}>₹{(product.quantity * product.price).toFixed(2) || 0}</td>
+                {[...order.products, ...Array(4 - order.products.length).fill({})]
+                    .slice(0, 4)
+                    .map((product, index) => (
+                    <tr key={index} style={{ height: "50px" }}>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>
+                        {product.productDetails ? index + 1 : ""}
+                        </td>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>
+                        {product.productDetails || ""}
+                        </td>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>
+                        {product.quantity || ""}
+                        </td>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>
+                        {product.unit || ""}
+                        </td>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px" }}>
+                        {product.price ? `₹${product.price}` : ""}
+                        </td>
+                        <td className="text-center" style={{ borderLeft: "1px solid black", padding: "8px", fontWeight: "bold" }}>
+                        {product.quantity && product.price ? `₹${(product.quantity * product.price).toFixed(2)}` : ""}
+                        </td>
                     </tr>
-                    ))
-                ) : (
-                    <tr>
-                    <td colSpan="6" className="text-center">No Products Available</td>
-                    </tr>
-                )}
+                ))}
             </tbody>
         </table>
 
