@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import OrdersTable from "../components/OrdersTable";
+import Ledger from "../components/Ledger";
 import { Modal } from 'react-bootstrap';
 import {
   BarChart,
@@ -28,6 +29,7 @@ const Growth = () => {
   const [profitPercent, setProfitPercent] = useState(0);
   const [profitData, setProfitData] = useState([]);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [showLedgerModal, setShowLedgerModal] = useState(false);
 
   // Handle screen resizing
   useEffect(() => {
@@ -141,6 +143,44 @@ const Growth = () => {
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "#1c1c1c" }}>
           <OrdersTable />
+        </Modal.Body>
+      </Modal>
+
+      {/* <Ledger Table /> */}
+
+      <div className="text-center mb-5">
+        <button
+          className="btn btn-primary glow-button glow-table"
+          style={{
+            animation: "fadeSlideUp 1.5s ease-out",
+            background: "transparent",
+            color: "#fff",
+            padding: "12px 24px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+          onClick={() => setShowLedgerModal(true)}
+        >
+          Ledger
+        </button>
+      </div>
+
+      <Modal
+        show={showLedgerModal}
+        onHide={() => setShowLedgerModal(false)}
+        size="xl"
+        centered
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton style={{ backgroundColor: "#1c1c1c", color: "#fff" }}>
+          <div className="w-100 text-center">
+            <Modal.Title>Ledger</Modal.Title>
+          </div>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: "#1c1c1c" }}>
+          <Ledger />
         </Modal.Body>
       </Modal>
 
