@@ -126,7 +126,8 @@ const Orders = () => {
           cgst: selectedOrder.cgst,
           sgst: selectedOrder.sgst,
           igst: selectedOrder.igst,
-          products: selectedOrder.products
+          products: selectedOrder.products,
+          payment_date: selectedOrder.paymentDate,
         })
       });
   
@@ -548,7 +549,7 @@ const Orders = () => {
                     </td>
 
                     <td className="table-dark text-center">
-                      {order.paymentDate ? new Date(order.paymentDate).toLocaleDateString() : "-"}
+                      {order.paymentDate ? new Date(order.paymentDate).toISOString().split("T")[0] : "-"}
                     </td>
                     <td className="table-dark text-center">
                       <button className="btn btn-info" onClick={() => handleEditClick(order)} disabled={order.cancelled}>
@@ -803,6 +804,17 @@ const Orders = () => {
                       value={selectedOrder.transactionId || ""}
                       onChange={(e) => handleChange(e, null, "transactionId")}
                       placeholder="Enter Transaction ID"
+                    />
+                  </Form.Group>
+                )}
+
+                {["Paid", "Partial"].includes(selectedOrder.paymentStatus) && (
+                  <Form.Group className="mt-3">
+                    <Form.Label>Payment Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={selectedOrder.paymentDate || ""}
+                      onChange={(e) => handleChange(e, null, "paymentDate")}
                     />
                   </Form.Group>
                 )}

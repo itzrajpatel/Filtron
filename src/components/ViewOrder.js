@@ -45,6 +45,15 @@ useEffect(() => {
     return <h2 className="text-center mt-5">No Order Data Found</h2>;
   }
 
+  const formatDate = (isoDate) => {
+  if (!isoDate) return "-";
+  const date = new Date(isoDate);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${year}/${month}/${day}`;
+};
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center" style={{ color: "white", fontFamily: "Tinos, serif", animation: "fadeSlideUp 1.5s ease-out" }}>Invoice Details</h2>
@@ -107,6 +116,7 @@ useEffect(() => {
                 <th className="text-center">Pending Amount</th>
                 <th className="text-center">Payment Type</th>
                 <th className="text-center">Payment Details</th>
+                <th className="text-center">Payment Date</th>
               </tr>
             </thead>
             <tbody>
@@ -238,6 +248,8 @@ useEffect(() => {
             "-"
           )}
         </td>
+
+        <td className="table-dark text-center">{formatDate(orderItem.payment_date) || "-"}</td>
       </tr>
     ))
   ) : (

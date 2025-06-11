@@ -34,6 +34,15 @@ if (!companyName) {
   );
 }
 
+const formatDate = (isoDate) => {
+  if (!isoDate) return "-";
+  const date = new Date(isoDate);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${year}/${month}/${day}`;
+};
+
   return (
     <div className="container mt-5">
       <h3 style={{ color: "white", fontFamily: "Tinos, serif" }}>Invoice History for:- <span style={{ color: "gold", fontFamily: "Audiowide, sans-serif" }}>{companyName}</span> </h3>
@@ -73,6 +82,7 @@ if (!companyName) {
                 <th className="text-center">Pending Amount</th>
                 <th className="text-center">Payment Type</th>
                 <th className="text-center">Payment Details</th>
+                <th className="text-center">Payment Date</th>
               </tr>
             </thead>
             <tbody>
@@ -183,6 +193,7 @@ if (!companyName) {
                         "-"
                       )}
                     </td>
+                    <td className="table-dark text-center">{formatDate(orderItem.payment_date) || "-"}</td>
                   </tr>
                 ))
               ) : (

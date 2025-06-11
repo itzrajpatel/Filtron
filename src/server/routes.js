@@ -252,7 +252,7 @@ router.put("/orders/:id", async (req, res) => {
       invoice_date, payment_status, amount_paid,
       payment_type, bank_name, check_no, transaction_id,
       transport, transport_price, final_total, grand_total,
-      sales_amount, gst, cgst, sgst, igst, products, invoice_month
+      sales_amount, gst, cgst, sgst, igst, products, invoice_month, payment_date
     } = req.body;
 
     await client.query("BEGIN");
@@ -276,8 +276,9 @@ router.put("/orders/:id", async (req, res) => {
         cgst = $14,
         sgst = $15,
         igst = $16,
-        invoice_month = $17
-      WHERE id = $18`,
+        payment_date = $17,
+        invoice_month = $18
+      WHERE id = $19`,
       [
         invoice_date,
         payment_status,
@@ -295,6 +296,7 @@ router.put("/orders/:id", async (req, res) => {
         safeNum(cgst),
         safeNum(sgst),
         safeNum(igst),
+        payment_date,
         invoice_month,
         orderId
       ]
