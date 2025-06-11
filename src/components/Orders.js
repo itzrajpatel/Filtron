@@ -50,6 +50,7 @@ const Orders = () => {
           finalTotal: order.final_total,
           grandTotal: order.grand_total,
           salesAmount: order.sales_amount,
+          paymentDate: order.payment_date,
         }));
   
         setOrders(formatted);
@@ -258,6 +259,7 @@ const Orders = () => {
         BankName: order.bankName,
         CheckNo: order.checkNo,
         TransactionId: order.transactionId,
+        PaymentDate: order.paymentDate || "-",
         Cancelled: order.cancelled ? "Yes" : "No"
       });
     });
@@ -276,7 +278,7 @@ const Orders = () => {
     const doc = new jsPDF({ orientation: "landscape" });
 
     const tableColumn = [
-      "Sr No", "Invoice No", "Invoice Date", "Customer", "HSN", "Qty", "Unit", "Price",
+      "Sr No", "Invoice No", "Invoice Date", "Customer", "HSN", "Description", "Qty", "Unit", "Price",
       "Final Total", "GST", "CGST", "SGST", "IGST", "Sales Amount"
     ];
 
@@ -394,6 +396,7 @@ const Orders = () => {
               <th className="text-center" style={{ paddingBottom: "20px" }}>Amount Pending</th>
               <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Type</th>
               <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Details</th>
+              <th className="text-center" style={{ paddingBottom: "20px" }}>Payment Date</th>
               <th className="text-center" style={{ paddingBottom: "20px" }}>Edit Invoice</th>
               <th className="text-center" style={{ paddingBottom: "20px" }}>Cancel Invoice</th>
               <th className="text-center" style={{ paddingBottom: "20px" }}>Create Invoice</th>
@@ -542,6 +545,10 @@ const Orders = () => {
                       ) : (
                         "-"
                       )}
+                    </td>
+
+                    <td className="table-dark text-center">
+                      {order.paymentDate ? new Date(order.paymentDate).toLocaleDateString() : "-"}
                     </td>
                     <td className="table-dark text-center">
                       <button className="btn btn-info" onClick={() => handleEditClick(order)} disabled={order.cancelled}>

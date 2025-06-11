@@ -96,10 +96,12 @@ const Purchase = () => {
     "Invoice Date",
     "Item Name",
     "HSN No.",
+    "Description",
+    "Unit",
     "Quantity",
     "Price",
-    "Total",
-    "Grand Total"
+    "Grand Total",
+    "Final Total",
   ];
 
   const tableRows = [];
@@ -108,9 +110,9 @@ const Purchase = () => {
     const totals = calculateTotals(purchase);
     const hsnList = purchase.products.map(p => p.hsnNo || "-").join("\n\n");
     const descriptionList = purchase.products.map(p => p.productDescription || "-").join("\n\n");
+    const unitList = purchase.products.map(p => p.unit || "-").join("\n\n");
     const quantityList = purchase.products.map(p => p.quantity || "-").join("\n\n");
-    const priceList = purchase.products.map(p => p.price || "-").join("\n\n");
-    const totalList = purchase.products.map(p => (p.quantity * p.price).toFixed(2)).join("\n\n");
+    const priceList = purchase.products.map(p => (p.price) || "-").join("\n\n");
 
     const row = [
         index + 1,
@@ -120,10 +122,11 @@ const Purchase = () => {
         purchase.product_name,
         hsnList,
         descriptionList,
+        unitList,
         quantityList,
         priceList,
-        totalList,
         totals.grand_total,
+        purchase.sales_amount,
       ];
       tableRows.push(row);
     });

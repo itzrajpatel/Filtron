@@ -116,7 +116,7 @@ router.get("/companies", async (req, res) => {
         salesAmount, gst, cgst, sgst, igst,
         paymentStatus, amountPaid,
         paymentType, bankName, checkNo, transactionId,
-        products
+        products, paymentDate
       } = req.body;
   
       await client.query("BEGIN");
@@ -129,9 +129,9 @@ router.get("/companies", async (req, res) => {
           transport, transport_price, final_total, grand_total,
           sales_amount, gst, cgst, sgst, igst,
           payment_status, amount_paid,
-          payment_type, bank_name, check_no, transaction_id
+          payment_type, bank_name, check_no, transaction_id, payment_date
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
-                  $12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+                  $12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
         RETURNING id`,
         [
           invoiceNo, invoiceDate, invoiceMonth,
@@ -139,7 +139,7 @@ router.get("/companies", async (req, res) => {
           transport, safeNum(transportPrice), safeNum(finalTotal), safeNum(grandTotal),
           safeNum(salesAmount), gst, safeNum(cgst), safeNum(sgst), safeNum(igst),
           paymentStatus, safeNum(amountPaid),
-          paymentType, bankName, checkNo, transactionId
+          paymentType, bankName, checkNo, transactionId, paymentDate ? new Date(paymentDate) : null
         ]
       );
   

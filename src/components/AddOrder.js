@@ -23,7 +23,8 @@ const AddOrder = () => {
     paymentType: "",
     bankName: "",
     checkNo: "",
-    transactionId: ""
+    transactionId: "",
+    paymentDate: "",
   });
 
   const [products, setProducts] = useState([
@@ -199,7 +200,7 @@ useEffect(() => {
       return;
     }
 
-    const orderDate = formData.date || new Date().toISOString().split("T")[0];
+    // const orderDate = formData.date || new Date().toISOString().split("T")[0];
   
     const currentYear = new Date().getFullYear();
     const nextYear = currentYear + 1;
@@ -220,6 +221,9 @@ useEffect(() => {
       date: formData.date || today.toISOString().split("T")[0]
     };
   
+    const todayDate = new Date().toISOString().split("T")[0];
+    const paymentDate =["Paid", "Partial"].includes(formData.paymentStatus) ? (formData.paymentDate || todayDate) : null;
+
     const orderPayload = {
       invoiceNo: newInvoiceNo,
       invoiceDate,
@@ -230,7 +234,8 @@ useEffect(() => {
       paymentType: formData.paymentType,
       bankName: formData.bankName,
       checkNo: formData.checkNo,
-      transactionId: formData.transactionId
+      transactionId: formData.transactionId,
+      paymentDate,
     };
   
     try {
@@ -439,6 +444,19 @@ useEffect(() => {
               </div>
             )}
           </>
+        )}
+
+        {["Paid", "Partial"].includes(formData.paymentStatus) && (
+          <div className="mb-3">
+            <label className="form-label">Payment Date</label>
+            <input
+              type="date"
+              name="paymentDate"
+              className="form-control"
+              value={formData.paymentDate}
+              onChange={handleChange}
+            />
+          </div>
         )}
 
         <button type="submit" className="btn text-white bg-dark w-100 glow-table glow-button">Submit Order</button>

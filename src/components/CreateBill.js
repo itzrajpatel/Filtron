@@ -87,6 +87,7 @@ const CreateBill = () => {
         return word + " Only";
     };
 
+    // Sending Email
     const handleEmailInvoice = async () => {
         if (!company?.email) {
             alert("No email found for the company.");
