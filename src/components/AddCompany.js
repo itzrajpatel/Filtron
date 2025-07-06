@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AddCompany.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddCompany = () => {
   const [companyData, setCompanyData] = useState({
@@ -32,19 +34,20 @@ const AddCompany = () => {
       });
   
       if (response.ok) {
-        alert("Company Added Successfully!");
-        navigate("/company");
+        toast.success("Company Added Successfully!");
+        setTimeout(() => navigate("/company"), 2000); // small delay before redirect
       } else {
-        alert("Error adding company.");
+        toast.error("Error adding company.");
       }
     } catch (err) {
       console.error(err);
-      alert("Server error.");
+      toast.error("Server error");
     }
   };
 
   return (
     <div className="container mt-5">
+      <ToastContainer />
       <h2 className="text-center mb-4 text-light" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>Add New Company</h2>
 
       <form onSubmit={handleSubmit} className="p-4 rounded text-light glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AddOrder.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddOrder = () => {
   const [formData, setFormData] = useState({
@@ -196,7 +198,7 @@ useEffect(() => {
     e.preventDefault();
   
     if (!formData.companyName || !products.length) {
-      alert("Please enter a company name and at least one product.");
+      toast.error("Please enter a company name and at least one product.");
       return;
     }
 
@@ -246,14 +248,14 @@ useEffect(() => {
       });
   
       if (response.ok) {
-        alert("Invoice Added Successfully!");
-        navigate("/invoice");
+        toast.success("Company Added Successfully!");
+        setTimeout(() => navigate("/invoice"), 2000);
       } else {
-        alert("Failed to add invoice.");
+        toast.error("Failed to add invoice");
       }
     } catch (err) {
       console.error("Error saving Invoice:", err);
-      alert("Server error occurred.");
+      toast.error("Server error occurred.");
     }
   };  
 
@@ -263,6 +265,7 @@ useEffect(() => {
 
   return (
     <div className="container mt-4">
+      <ToastContainer />
       <h2 className="text-center mb-4" style={{ fontFamily: "Tinos, serif", color: "white", animation: "fadeSlideUp 1.5s ease-out" }}>Add Invoice</h2>
 
       <form onSubmit={handleSubmit} className="p-4 rounded text-light glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
 import { Modal } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 //TESTING
 import { useEffect } from "react";
@@ -49,11 +51,11 @@ const Login = () => {
             navigate("/home");
           }, 1000);
         } else {
-          alert("Login failed to update status in database.");
+          toast.error("Login failed to update status in database.");
         }
       } catch (err) {
         console.error("Login error:", err);
-        alert("Server error occurred.");
+        toast.error("Server error occurred.");
       }
     } else {
       setShowInvalidModal(true);
@@ -63,6 +65,7 @@ const Login = () => {
 
   return (
     <div className="container mt-5">
+      <ToastContainer />
       <Link className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center" to="/"
         style={{
           animation: "fadeSlideUp 1.5s ease-out",

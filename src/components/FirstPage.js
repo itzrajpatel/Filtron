@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/FirstPage.css";
 import { Modal, Button } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import TypewriterText from "./TypewriterText";
 
 const FirstPage = () => {
@@ -63,16 +65,17 @@ const FirstPage = () => {
           navigate("/");
         }, 1000);
       } else {
-        alert("Logout failed");
+        toast.error("Logout failed");
       }
     } catch (err) {
       console.error("Logout error:", err);
-      alert("Server error during logout");
+      toast.error("Server error during logout");
     }
   };  
 
   return (
     <div className="container mt-3">
+      <ToastContainer />
         <h1 className="navbar-brand d-flex justify-content-center align-items-center text-light mb-5 flex-wrap text-center"
           style={{
             animation: "fadeSlideUp 1.5s ease-out",

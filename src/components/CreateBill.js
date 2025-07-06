@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/Bill.css"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateBill = () => {
     const location = useLocation();
@@ -90,7 +92,7 @@ const CreateBill = () => {
     // Sending Email
     const handleEmailInvoice = async () => {
         if (!company?.email) {
-            alert("No email found for the company.");
+            toast.error("No email found for the company.");
             return;
         }
 
@@ -109,18 +111,19 @@ const CreateBill = () => {
 
             const result = await res.json();
             if (res.ok) {
-            alert("Invoice emailed successfully!");
+            toast.success("Invoice emailed successfully!");
             } else {
-            alert(`Failed to send email: ${result.message || "Unknown error"}`);
+            toast.error(`Failed to send email: ${result.message || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error sending email:", error);
-            alert("An error occurred while sending the invoice.");
+            toast.error("An error occurred while sending the invoice.");
         }
     };
 
   return (
     <div className="invoice-container">
+        <ToastContainer />
         <h3 className="text-center text-light invoice-title" style={{ margin: "0 0", marginLeft: "300px" }}> TAX INVOICE <span style={{ fontSize: "15px", marginLeft: "120px" }}> ORIGINAL FOR RECIPIENT </span></h3>
         <div className="bg-light" style={{ fontFamily: "Arial, sans-serif", border: "2px solid black", width: "800px", margin: "auto" }}>
         <div style={{ backgroundColor: "#e5e7e9", display: "flex", justifyContent: "space-around", borderBottom: "2px solid black", paddingBottom: "5px", paddingTop: "5px" }}>

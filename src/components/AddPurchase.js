@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AddOrder.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddPurchase = () => {
   const navigate = useNavigate();
@@ -168,19 +170,20 @@ const AddPurchase = () => {
       });
   
       if (response.ok) {
-        alert("Purchase saved successfully!");
-        navigate("/purchase");
+        toast.success("Purchase saved successfully!");
+        setTimeout(() => navigate("/purchase"), 2000);
       } else {
-        alert("Failed to save purchase");
+        toast.error("Failed to save purchase");
       }
     } catch (error) {
       console.error("Submit error:", error);
-      alert("Server error occurred");
+      toast.error("Server error occurred");
     }
   };    
 
   return (
     <div className="container mt-4">
+      <ToastContainer />
       <h2 className="text-center mb-4 text-white" style={{ fontFamily: "Tinos, serif", animation: "fadeSlideUp 1.5s ease-out" }}>Add Purchase Details</h2>
       <form onSubmit={handleSubmit} className="p-4 rounded text-light glow-table" style={{ animation: "fadeSlideUp 1.5s ease-out" }}>
         <div className="row mb-3">

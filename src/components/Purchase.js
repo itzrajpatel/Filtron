@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
@@ -264,7 +266,7 @@ const Purchase = () => {
   
     const hasChanged = JSON.stringify(original) !== JSON.stringify(selectedPurchase);
     if (!hasChanged) {
-      alert("No changes made.");
+      toast.error("No changes made.");
       setShowModal(false);
       return;
     }
@@ -319,13 +321,13 @@ const Purchase = () => {
         const updatedData = await updated.json();
         setPurchases(updatedData);
         setShowModal(false);
-        alert("Purchase updated successfully.");
+        toast.success("Purchase updated successfully.");
       } else {
-        alert("Failed to update purchase.");
+        toast.error("Failed to update purchase.");
       }
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Error updating purchase.");
+      toast.error("Error updating purchase.");
     }
   };  
 
@@ -346,6 +348,7 @@ const Purchase = () => {
 
   return (
     <div className="container mt-4">
+      <ToastContainer />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mt-3" style={{ color: "white", fontFamily: "DM Serif Text, serif", animation: "fadeSlideUp 1.5s ease-out" }}>Purchase Details</h2>
         <button

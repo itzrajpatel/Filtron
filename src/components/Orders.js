@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -132,7 +134,7 @@ const Orders = () => {
       });
   
       if (response.ok) {
-        alert("Invoice updated successfully!");
+        toast.success("Invoice updated successfully!");
   
         const updatedOrders = orders.map(order =>
           order.id === selectedOrder.id ? selectedOrder : order
@@ -140,11 +142,11 @@ const Orders = () => {
         setOrders(updatedOrders);
         setShowModal(false);
       } else {
-        alert("Failed to update Invoice.");
+        toast.error("Failed to update Invoice.");
       }
     } catch (err) {
       console.error("Error updating Invoice:", err);
-      alert("Server error occurred.");
+      toast.error("Server error occurred.");
     }
   };  
 
@@ -197,13 +199,13 @@ const Orders = () => {
           order.id === orderToCancel.id ? { ...order, cancelled: true } : order
         );
         setOrders(updatedOrders);
-        alert("Invoice cancelled successfully.");
+        toast.success("Invoice cancelled successfully.");
       } else {
-        alert("Failed to cancel invoice.");
+        toast.error("Failed to cancel invoice.");
       }
     } catch (err) {
       console.error("Error cancelling Invoice:", err);
-      alert("Server error occurred.");
+      toast.error("Server error occurred.");
     }
     setShowCancelModal(false);
   };
@@ -333,6 +335,7 @@ const Orders = () => {
 
   return (
     <div className="container mt-4">
+      <ToastContainer />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mt-3" style={{ color: "white", fontFamily: "DM Serif Text, serif", animation: "fadeSlideUp 1.5s ease-out" }}>Invoice Details</h2>
         <button className="btn btn-primary glow-button glow-table" onClick={() => navigate("/invoice/add-invoice")} style={{ animation: "fadeSlideUp 1.5s ease-out", background: "transparent", color: "#fff", padding: "12px 24px", fontWeight: "600", fontSize: "16px", cursor: "pointer" }}>
