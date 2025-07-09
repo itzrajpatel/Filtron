@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
-import { Modal } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -11,8 +10,6 @@ import { useEffect } from "react";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showInvalidModal, setShowInvalidModal] = useState(false);
   const navigate = useNavigate();
 
   //TESTING
@@ -45,11 +42,8 @@ const Login = () => {
         // }
         if (response.ok) {
           localStorage.setItem("loginStatus", "true"); // Add this line
-          setShowSuccessModal(true);
-          setTimeout(() => {
-            setShowSuccessModal(false);
-            navigate("/home");
-          }, 1000);
+          toast.success("Logged in Successfully");
+          setTimeout(() => navigate("/home"), 1000);
         } else {
           toast.error("Login failed to update status in database.");
         }
@@ -58,8 +52,7 @@ const Login = () => {
         toast.error("Server error occurred.");
       }
     } else {
-      setShowInvalidModal(true);
-      setTimeout(() => setShowInvalidModal(false), 1000);
+      toast.error("Invalid Credentials")
     }
   };
 
@@ -144,22 +137,6 @@ const Login = () => {
           </form>
         </div>
       </div>
-
-      {/* Login Successful Modal */}
-      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered style={{ borderRadius: "12px" }}>
-        <Modal.Body className="bg-success text-white">
-          <Modal.Title style={{ width: "100%", textAlign: "center" }}>Login Successful!!!</Modal.Title>
-        </Modal.Body>
-      </Modal>
-
-      {/* Login Invalid Modal */}
-      <Modal show={showInvalidModal} onHide={() => setShowInvalidModal(false)} centered style={{ borderRadius: "12px" }}>
-        <Modal.Body className="bg-danger text-white">
-          <Modal.Title style={{ width: "100%", textAlign: "center" }}>
-            Invalid username or password!!!
-          </Modal.Title>
-        </Modal.Body>
-      </Modal>
     </div>
   );
 };

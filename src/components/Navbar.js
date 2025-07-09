@@ -53,6 +53,9 @@ const Navbar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/purchase-payment" onClick={closeNavbar}>Purchase Payment</Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/payment" onClick={closeNavbar}>Payment</Link>
+            </li>
           </ul>
         </div>
       </div>

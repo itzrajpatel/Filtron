@@ -22,6 +22,7 @@ import Growth from "./components/Growth";
 import PurchasePayment from "./components/PurchasePayment";
 import Login from "./components/Login";
 import PrivateRoute from "./components/PrivateRoute";
+import Payment from "./components/Payment";
 
 // This is a new component where we can safely use useLocation
 const AppRoutes = () => {
@@ -46,6 +47,7 @@ const AppRoutes = () => {
         <Route path="/create-chalan" element={<PrivateRoute> <Chalan /> </PrivateRoute>} />
         <Route path="/growth" element={<PrivateRoute> <Growth /> </PrivateRoute>} />
         <Route path="/purchase-payment" element={<PrivateRoute> <PurchasePayment /> </PrivateRoute>} />
+        <Route path="/payment" element={<PrivateRoute> <Payment /> </PrivateRoute>} />
       </Routes>
     </>
   );
