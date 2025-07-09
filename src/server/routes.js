@@ -213,7 +213,7 @@ router.get("/orders/company/:companyName", async (req, res) => {
     const result = await pool.query(
       `
       SELECT 
-        o.*, 
+        o.*,
         c.state_code,
         json_agg(
           json_build_object(
@@ -618,7 +618,7 @@ router.post("/send-invoice-email", async (req, res) => {
       from: `"Filtron Techniques" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      text: "Please find attached the invoice PDF.",
+      text: "Please find the attached invoice PDF.",
       attachments: [
         {
           filename: `${subject.replace(/\s+/g, "_")}.pdf`,
@@ -642,14 +642,15 @@ router.post("/payments", async (req, res) => {
     bankName,
     checkNo,
     transactionId,
+    paymentDate,
   } = req.body;
 
   try {
     await pool.query(
       `INSERT INTO payment_entries (
-        company_name, payment_type, amount_paid, bank_name, check_no, transaction_id
-      ) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [companyName, paymentType, amountPaid, bankName, checkNo, transactionId]
+        company_name, payment_type, amount_paid, bank_name, check_no, transaction_id, payment_date
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [companyName, paymentType, amountPaid, bankName, checkNo, transactionId, paymentDate]
     );
     res.status(200).json({ message: "Payment recorded successfully" });
   } catch (err) {

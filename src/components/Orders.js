@@ -552,7 +552,7 @@ const Orders = () => {
                     </td>
 
                     <td className="table-dark text-center">
-                      {order.paymentDate ? new Date(order.paymentDate).toISOString().split("T")[0] : "-"}
+                      {order.paymentDate ? new Date(order.paymentDate).toLocaleDateString("en-CA").split("T")[0] : "-"}
                     </td>
                     <td className="table-dark text-center">
                       <button className="btn btn-info" onClick={() => handleEditClick(order)} disabled={order.cancelled}>

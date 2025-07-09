@@ -301,6 +301,7 @@ const Payment = () => {
     checkNo: "",
     transactionId: "",
     amountPaid: "",
+    paymentDate: "",
   });
 
   useEffect(() => {
@@ -331,6 +332,7 @@ const Payment = () => {
       checkNo: "",
       transactionId: "",
       amountPaid: "",
+      paymentDate: "",
     });
   };
 
@@ -428,7 +430,7 @@ const Payment = () => {
                     </td>
                     <td className="table-dark text-center">
                       {order.payment_date
-                        ? new Date(order.payment_date).toISOString().split("T")[0]
+                        ? new Date(order.payment_date).toLocaleDateString("en-CA").split("T")[0]
                         : "-"}
                     </td>
                   </tr>
@@ -542,6 +544,17 @@ const Payment = () => {
                 />
               </Form.Group>
             )}
+
+            <Form.Group className="mt-3">
+              <Form.Label>Payment Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={paymentDetail.paymentDate}
+                onChange={(e) =>
+                  setPaymentDetail({ ...paymentDetail, paymentDate: e.target.value })
+                }
+              />
+            </Form.Group>
           </Form>
         </Modal.Body>
 
@@ -607,7 +620,7 @@ const Payment = () => {
                       igst: updated.igst,
                       invoice_month: updated.invoice_month,
                       products: updated.products || [],
-                      payment_date: new Date().toISOString().split("T")[0],
+                      payment_date: paymentDetail.paymentDate || new Date().toISOString().split("T")[0],
                     }),
                   });
                 } catch (err) {
@@ -626,6 +639,7 @@ const Payment = () => {
                   bankName: paymentDetail.bankName || null,
                   checkNo: paymentDetail.checkNo || null,
                   transactionId: paymentDetail.transactionId || null,
+                  paymentDate: paymentDetail.paymentDate || new Date().toISOString().split("T")[0],
                 }),
               });
 
