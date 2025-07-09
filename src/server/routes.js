@@ -634,4 +634,28 @@ router.post("/send-invoice-email", async (req, res) => {
   }
 });
 
+router.post("/payments", async (req, res) => {
+  const {
+    companyName,
+    paymentType,
+    amountPaid,
+    bankName,
+    checkNo,
+    transactionId,
+  } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO payment_entries (
+        company_name, payment_type, amount_paid, bank_name, check_no, transaction_id
+      ) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [companyName, paymentType, amountPaid, bankName, checkNo, transactionId]
+    );
+    res.status(200).json({ message: "Payment recorded successfully" });
+  } catch (err) {
+    console.error("Failed to insert payment:", err);
+    res.status(500).json({ message: "Failed to insert payment entry" });
+  }
+});
+
 module.exports = router;

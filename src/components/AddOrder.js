@@ -248,8 +248,8 @@ useEffect(() => {
       });
   
       if (response.ok) {
-        toast.success("Company Added Successfully!");
-        setTimeout(() => navigate("/invoice"), 2000);
+        toast.success("Invoice Added Successfully");
+        setTimeout(() => navigate("/invoice"), 1000);
       } else {
         toast.error("Failed to add invoice");
       }
@@ -342,7 +342,7 @@ useEffect(() => {
         {formData.transport === "Yes" && (
           <div className="mb-3">
             <label className="form-label">Transport Price</label>
-            <input type="number" name="transportPrice" className="form-control" value={formData.transportPrice} onChange={handleChange} onWheel={(e) => e.target.blur()} />
+            <input type="number" name="transportPrice" placeholder="Enter Transport Price" className="form-control" value={formData.transportPrice} onChange={handleChange} onWheel={(e) => e.target.blur()} />
           </div>
         )}
 
@@ -462,7 +462,7 @@ useEffect(() => {
           </div>
         )}
 
-        <button type="submit" className="btn text-white bg-dark w-100 glow-table glow-button">Submit Order</button>
+        <button type="submit" className="btn text-white bg-dark w-100 glow-table glow-button">Submit Invoice</button>
       </form>
 
       {/* Back Button */}

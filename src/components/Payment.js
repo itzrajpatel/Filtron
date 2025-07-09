@@ -346,7 +346,7 @@ const Payment = () => {
       <ToastContainer />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mt-3 text-white">Payment Details</h2>
-        <Button className="btn btn-success" onClick={() => setShowModal(true)}>
+        <Button className="btn btn-success me-2 glow-button glow-table" onClick={() => setShowModal(true)} style={{ animation: "fadeSlideUp 1.5s ease-out", backgroundColor: "transparent", color: "#fff", padding: "12px 24px", fontWeight: "600", fontSize: "16px", cursor: "pointer" }}>
           + Add Payment
         </Button>
       </div>
@@ -614,6 +614,20 @@ const Payment = () => {
                   console.error("Update failed:", err);
                 }
               }
+
+              // Save payment in payment_entries table
+              await fetch("http://localhost:5000/api/payments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  companyName: selectedAddCompany,
+                  paymentType: paymentDetail.paymentType,
+                  amountPaid: Number(paymentDetail.amountPaid),
+                  bankName: paymentDetail.bankName || null,
+                  checkNo: paymentDetail.checkNo || null,
+                  transactionId: paymentDetail.transactionId || null,
+                }),
+              });
 
               toast.success("Payment saved successfully!");
 
